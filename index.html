@@ -1,28 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Open DUPR - An unofficial, open-source web client for DUPR (Dynamic Universal Pickleball Rating)">
     <title>Open DUPR</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div id="app">
-        <div id="login-view">
-            <h1>Open DUPR</h1>
-            <form id="login-form">
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
+    <div id="app" class="app loading">
+        <!-- Global Loading Indicator -->
+        <div class="global-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading Open DUPR...</p>
         </div>
-        <div id="profile-view" class="hidden">
-            <button id="logout-button">Logout</button>
-            <div id="profile-info"></div>
-            <h2>Match History</h2>
-            <div id="match-history"></div>
+
+        <!-- Global Messages -->
+        <div id="errorMessage" class="message error" style="display: none;"></div>
+        <div id="successMessage" class="message success" style="display: none;"></div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen" style="display: none;">
+            <div class="login-container">
+                <div class="login-header">
+                    <h1 class="logo">
+                        <span class="logo-text">Open DUPR</span>
+                        <span class="logo-subtitle">Unofficial DUPR Client</span>
+                    </h1>
+                    <p class="login-description">
+                        Access your DUPR profile and match history with a clean, ad-free interface.
+                    </p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                            placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                            placeholder="Your DUPR password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Sign In</span>
+                        <div class="btn-loading">
+                            <div class="loading-spinner small"></div>
+                        </div>
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    <p class="disclaimer">
+                        This is an unofficial client. Your credentials are sent directly to DUPR's servers.
+                    </p>
+                </div>
+            </div>
         </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="dashboard" style="display: none;">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1 class="header-logo">Open DUPR</h1>
+                        <div class="user-info">
+                            <img id="profileImage" class="profile-image" alt="Profile" style="display: none;">
+                            <span id="userName" class="user-name">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <button id="logoutBtn" class="btn btn-ghost">
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="nav">
+                <div class="nav-content">
+                    <button id="profileTab" class="nav-tab active">
+                        <span>Profile</span>
+                    </button>
+                    <button id="historyTab" class="nav-tab">
+                        <span>Match History</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="main">
+                <!-- Profile Section -->
+                <section id="profileSection" class="section active">
+                    <div class="section-header">
+                        <h2>Your DUPR Profile</h2>
+                    </div>
+
+                    <div class="ratings-grid">
+                        <!-- Singles Rating Card -->
+                        <div id="singlesRating" class="rating-card">
+                            <div class="rating-header">
+                                <h3>Singles</h3>
+                                <span class="rating-status">Rated</span>
+                            </div>
+                            <div class="rating-value">NR</div>
+                            <div class="rating-details">
+                                <div class="rating-verified"></div>
+                                <div class="rating-reliability"></div>
+                            </div>
+                        </div>
+
+                        <!-- Doubles Rating Card -->
+                        <div id="doublesRating" class="rating-card">
+                            <div class="rating-header">
+                                <h3>Doubles</h3>
+                                <span class="rating-status">Rated</span>
+                            </div>
+                            <div class="rating-value">NR</div>
+                            <div class="rating-details">
+                                <div class="rating-verified"></div>
+                                <div class="rating-reliability"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Details -->
+                    <div class="profile-card">
+                        <h3>Profile Details</h3>
+                        <div id="profileDetails" class="profile-details">
+                            <div class="detail-loading">Loading profile details...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Match History Section -->
+                <section id="historySection" class="section">
+                    <div class="section-header">
+                        <h2>Match History</h2>
+                    </div>
+
+                    <div class="match-history">
+                        <div id="matchHistoryList" class="match-list">
+                            <div class="loading-matches">Loading matches...</div>
+                        </div>
+
+                        <button id="loadMoreMatches" class="btn btn-secondary" style="display: none;">
+                            Load More Matches
+                        </button>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>
+                    <strong>Open DUPR</strong> is an unofficial, open-source client.
+                    Not affiliated with DUPR Inc.
+                </p>
+                <p>
+                    <a href="https://github.com/your-repo/open-dupr" target="_blank" rel="noopener">
+                        View on GitHub
+                    </a>
+                </p>
+            </div>
+        </footer>
     </div>
-    <script src="js/main.js" type="module"></script>
+
+    <!-- JavaScript -->
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
 </body>
+
 </html>
