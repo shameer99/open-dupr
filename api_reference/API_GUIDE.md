@@ -320,6 +320,150 @@ Content-Type: application/json
 }
 ```
 
+## Match History for Other Players
+
+### Get Player Match History
+
+**Endpoint:** `GET /player/{version}/{id}/history?offset={offset}&limit={limit}`
+
+**Purpose:** Retrieve match history for any specific player (not just authenticated user)
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Query Parameters:**
+
+- `offset` (required): Starting position for pagination (integer, format: int32)
+- `limit` (required): Number of matches to return (integer, format: int32)
+
+**Response:**
+
+Returns `SingleWrapperPageMatchResponse` format:
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Show this message to user.",
+  "result": {
+    "offset": 0,
+    "limit": 10,
+    "total": 100,
+    "empty": false,
+    "hasMore": true,
+    "hasPrevious": false,
+    "totalValueRelation": "EQUAL_TO",
+    "hits": [
+      {
+        "id": 7737603024,
+        "matchId": 7737603024,
+        "userId": 231312312312,
+        "displayIdentity": "IS20MDL2",
+        "venue": "Dreamland Pickleball",
+        "location": "Newport Beach, CA",
+        "matchScoreAdded": true,
+        "tournament": "Newport Beach Doubles Shootout",
+        "league": "Example League",
+        "eventDate": "2024-01-15",
+        "eventFormat": "DOUBLES",
+        "confirmed": true,
+        "teams": [
+          {
+            "id": 1,
+            "serial": 1,
+            "player1": {
+              "id": 45785789,
+              "fullName": "John Doe",
+              "imageUrl": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile.jpg",
+              "rating": "4.125"
+            },
+            "player2": {
+              "id": 87654321,
+              "fullName": "Jane Smith",
+              "imageUrl": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile2.jpg",
+              "rating": "3.950"
+            },
+            "game1": 11,
+            "game2": 9,
+            "game3": 11,
+            "game4": -1,
+            "game5": -1,
+            "winner": true,
+            "delta": "+0.025",
+            "teamRating": "4.038"
+          },
+          {
+            "id": 2,
+            "serial": 2,
+            "player1": {
+              "id": 12345678,
+              "fullName": "Bob Johnson",
+              "imageUrl": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile3.jpg",
+              "rating": "4.200"
+            },
+            "player2": {
+              "id": 98765432,
+              "fullName": "Alice Brown",
+              "imageUrl": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile4.jpg",
+              "rating": "3.875"
+            },
+            "game1": 9,
+            "game2": 11,
+            "game3": 9,
+            "game4": -1,
+            "game5": -1,
+            "winner": false,
+            "delta": "-0.025",
+            "teamRating": "4.038"
+          }
+        ],
+        "created": "2020-03-04T17:21:16.000Z",
+        "matchSource": "CLUB",
+        "noOfGames": 3,
+        "status": "COMPLETE",
+        "matchType": "RALLY",
+        "eloCalculated": true
+      }
+    ]
+  }
+}
+```
+
+### Get Filtered Player Match History
+
+**Endpoint:** `POST /player/{version}/{id}/history`
+
+**Purpose:** Search match history for a specific player with filters
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "offset": 0,
+  "limit": 10,
+  "filters": {
+    "eventFormat": ["DOUBLES", "SINGLES"],
+    "dateRange": {
+      "startDate": "2024-01-01",
+      "endDate": "2024-01-31"
+    },
+    "venue": "Dreamland Pickleball"
+  }
+}
+```
+
+**Response:** Same `SingleWrapperPageMatchResponse` format as GET version above.
+
 ## Rating History
 
 ### Get Player Rating History
@@ -462,5 +606,261 @@ Paginated responses include:
 1. **Player Search** - `/player/v1/search`
 2. **Rating History** - `/player/v1/{id}/rating-history`
 3. **Filtered Match History** - `/match/v1/history` (POST)
+
+## Social Features (Follow/Followers)
+
+### Follow a User
+
+**Endpoint:** `POST /activity/{version}/user/{feedId}/follow`
+
+**Purpose:** Follow another user
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Follow successful"
+}
+```
+
+### Unfollow a User
+
+**Endpoint:** `DELETE /activity/{version}/user/{feedId}/follow`
+
+**Purpose:** Unfollow a user
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Unfollow successful"
+}
+```
+
+### Get User's Followers
+
+**Endpoint:** `GET /activity/{version}/user/{feedId}/followers?offset={offset}&limit={limit}`
+
+**Purpose:** Get list of users who follow the specified user
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "results": [
+    {
+      "id": 45785789,
+      "name": "John Doe",
+      "profileImage": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile.jpg",
+      "isFollow": true
+    }
+  ]
+}
+```
+
+### Get User's Following List
+
+**Endpoint:** `GET /activity/{version}/user/{feedId}/followings?offset={offset}&limit={limit}`
+
+**Purpose:** Get list of users that the specified user follows
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "results": [
+    {
+      "id": 87654321,
+      "name": "Jane Smith",
+      "profileImage": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile2.jpg",
+      "isFollow": true
+    }
+  ]
+}
+```
+
+### Get Following Info
+
+**Endpoint:** `GET /activity/{version}/user/{feedId}/followingInfo`
+
+**Purpose:** Get follow counts and follow status for a user
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "isFollowed": true,
+    "followers": 25,
+    "followings": 18
+  }
+}
+```
+
+## Updated Player Search
+
+### Search Players (Corrected Format)
+
+**Endpoint:** `POST /player/{version}/search`
+
+**Purpose:** Search for other players by name or criteria
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "offset": 0,
+  "limit": 10,
+  "query": "John",
+  "filter": {
+    "gender": "MALE",
+    "lat": 30.2672,
+    "lng": -97.7431,
+    "radiusInMeters": 50000,
+    "rating": {
+      "min": 3.0,
+      "max": 5.0
+    }
+  },
+  "includeUnclaimedPlayers": false
+}
+```
+
+**Note:** `filter` (not `filters`), `lat`/`lng`/`radiusInMeters` are required in filter, and `includeUnclaimedPlayers` is required.
+
+## Player Profile Data
+
+### Get Player Statistics
+
+**Endpoint:** `GET /user/calculated/{version}/stats/{id}`
+
+**Purpose:** Get calculated statistics for a specific player
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "singles": {
+      "averagePartnerDupr": 6.391,
+      "averageOpponentDupr": 3.254,
+      "averagePointsWonPercent": 0.67,
+      "halfLife": 3.0
+    },
+    "doubles": {
+      "averagePartnerDupr": 5.921,
+      "averageOpponentDupr": 4.124,
+      "averagePointsWonPercent": 0.64,
+      "halfLife": 2.8
+    },
+    "resulOverview": {
+      "totalMatches": 45,
+      "wins": 32,
+      "losses": 13
+    }
+  }
+}
+```
+
+### Get Player Rating History (Advanced)
+
+**Endpoint:** `POST /player/{version}/{id}/rating-history`
+
+**Purpose:** Get detailed rating history for a specific player
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "type": "DOUBLES",
+  "startDate": "2024-01-01",
+  "endDate": "2024-12-31",
+  "limit": 50,
+  "offset": 0,
+  "sortBy": "desc"
+}
+```
+
+**Note:** Only `type` is required. This endpoint uses POST method and requires a request body.
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "ratingHistory": [
+      {
+        "date": "2024-01-15",
+        "rating": 4.125,
+        "verified": true,
+        "provisional": false
+      }
+    ]
+  }
+}
+```
 
 This API guide provides all the information needed to implement the core functionality of Open DUPR as outlined in your implementation plan.

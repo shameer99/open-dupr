@@ -601,6 +601,46 @@ body {
   color: var(--color-gray-600);
 }
 
+/* ===== Profile Social Stats ===== */
+.profile-social-stats {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.social-stat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.social-stat-btn:hover {
+  background: var(--color-gray-50);
+}
+
+.stat-number {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-top: var(--space-1);
+}
+
+.player-follow-stats {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
 /* ===== Profile Card ===== */
 .profile-card {
   background: var(--color-white);
@@ -647,6 +687,51 @@ body {
 .detail-loading {
   text-align: center;
   color: var(--color-gray-500);
+  padding: var(--space-4);
+}
+
+/* ===== Profile Match History ===== */
+.profile-card .match-history {
+  margin-top: var(--space-4);
+}
+
+.profile-card .match-list {
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+}
+
+.profile-card .match-item {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.profile-card .match-item:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.profile-card .match-item:last-child {
+  border-bottom: none;
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* ===== Player Match History ===== */
+.player-match-history {
+  margin-top: var(--space-6);
+}
+
+.player-match-history .match-list {
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+.player-match-history .match-item {
   padding: var(--space-4);
 }
 
@@ -846,7 +931,7 @@ body {
     font-size: var(--font-size-lg);
   }
 
-  .user-name {
+  .header .user-name {
     display: none;
   }
 
@@ -915,6 +1000,251 @@ body {
   }
 }
 
+/* ===== Player Profile Styles ===== */
+.player-profile-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.player-profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.player-info h3 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.player-location {
+  color: var(--color-gray-600);
+  margin-bottom: var(--space-2);
+}
+
+.player-follow-stats {
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+}
+
+.section-header-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.section-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ===== User Lists (Followers/Following) ===== */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.user-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-100);
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Monogram Styles ===== */
+.monogram {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Monogram for profile image (header) */
+.profile-monogram {
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-sm);
+  border: 2px solid var(--color-gray-200);
+}
+
+/* Monogram for player profile */
+.player-profile-monogram {
+  width: 80px;
+  height: 80px;
+  font-size: var(--font-size-xl);
+}
+
+/* Monogram for user avatars in lists */
+.user-avatar .monogram {
+  width: 48px;
+  height: 48px;
+  font-size: var(--font-size-base);
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.user-action {
+  margin-left: auto;
+}
+
+.no-users {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: var(--space-8);
+  font-style: italic;
+}
+
+/* ===== Rating History ===== */
+.rating-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.rating-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--color-gray-50);
+  border-radius: var(--border-radius-md);
+}
+
+.history-date {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.history-ratings {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.history-singles,
+.history-doubles {
+  color: var(--color-gray-600);
+}
+
+.no-history {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: var(--space-6);
+  font-style: italic;
+}
+
+/* ===== Clickable Player Links ===== */
+.player-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.player-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.player-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* ===== Responsive Design for New Features ===== */
+@media (max-width: 768px) {
+  .player-header {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-3);
+  }
+
+  .section-header-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .section-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-item {
+    padding: var(--space-3);
+  }
+
+  .history-ratings {
+    flex-direction: column;
+    gap: var(--space-1);
+    text-align: right;
+  }
+}
+
 /* ===== Accessibility ===== */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -943,4 +1273,118 @@ input:focus-visible {
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3);
   }
+}
+
+/* ===== Modal Styles ===== */
+.modal-section {
+  display: none;
+}
+
+.modal-section.active {
+  display: block;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.modal-body {
+  padding: var(--space-6);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* ===== Modal User List ===== */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.user-item:hover {
+  background: var(--color-gray-50);
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-900);
+  font-size: var(--font-size-base);
+}
+
+.user-action {
+  flex-shrink: 0;
+}
+
+.no-users {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: var(--space-8);
+  font-style: italic;
+}
+
+.loading-users {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: var(--space-8);
 }

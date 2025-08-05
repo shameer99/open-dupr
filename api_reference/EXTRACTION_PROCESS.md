@@ -209,6 +209,6 @@ grep -E "pattern1|pattern2"
 3. **Focus on MVP**: Don't get overwhelmed by all available endpoints
 4. **Validate Assumptions**: Test key endpoints to confirm behavior
 5. **Document Everything**: Keep track of your analysis process
-6. **Prioritize Pragmatically**: Some endpoints may not be necessary for MVP
+6. **Prioritize Pragmatically**: Many endpoints are not be necessary for the scope of this project
 
 This methodology can be applied to analyze any OpenAPI/Swagger specification efficiently.

@@ -87,17 +87,7 @@
                 </div>
             </header>
 
-            <!-- Navigation -->
-            <nav class="nav">
-                <div class="nav-content">
-                    <button id="profileTab" class="nav-tab active">
-                        <span>Profile</span>
-                    </button>
-                    <button id="historyTab" class="nav-tab">
-                        <span>Match History</span>
-                    </button>
-                </div>
-            </nav>
+
 
             <!-- Main Content -->
             <main class="main">
@@ -105,6 +95,16 @@
                 <section id="profileSection" class="section active">
                     <div class="section-header">
                         <h2>Your DUPR Profile</h2>
+                        <div class="profile-social-stats">
+                            <button id="userFollowersCount" class="social-stat-btn">
+                                <span class="stat-number" id="userFollowersNumber">0</span>
+                                <span class="stat-label">Followers</span>
+                            </button>
+                            <button id="userFollowingCount" class="social-stat-btn">
+                                <span class="stat-number" id="userFollowingNumber">0</span>
+                                <span class="stat-label">Following</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="ratings-grid">
@@ -142,22 +142,129 @@
                             <div class="detail-loading">Loading profile details...</div>
                         </div>
                     </div>
+
+                    <!-- Match History -->
+                    <div class="profile-card">
+                        <h3>Match History</h3>
+                        <div class="match-history">
+                            <div id="profileMatchHistoryList" class="match-list">
+                                <div class="loading-matches">Loading matches...</div>
+                            </div>
+
+                            <button id="profileLoadMoreMatches" class="btn btn-secondary" style="display: none;">
+                                Load More Matches
+                            </button>
+                        </div>
+                    </div>
                 </section>
 
-                <!-- Match History Section -->
-                <section id="historySection" class="section">
+
+
+                <!-- Followers Modal/Section -->
+                <section id="followersSection" class="section modal-section">
+                    <div class="modal-overlay" id="followersModalOverlay">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 id="followersModalTitle">Followers</h2>
+                                <button id="closeFollowersModal" class="btn btn-ghost">✕</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="followersList" class="user-list">
+                                    <div class="loading-users">Loading followers...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Following Modal/Section -->
+                <section id="followingSection" class="section modal-section">
+                    <div class="modal-overlay" id="followingModalOverlay">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 id="followingModalTitle">Following</h2>
+                                <button id="closeFollowingModal" class="btn btn-ghost">✕</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="followingList" class="user-list">
+                                    <div class="loading-users">Loading following...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Player Profile Section -->
+                <section id="playerProfileSection" class="section">
                     <div class="section-header">
-                        <h2>Match History</h2>
+                        <div class="section-header-main">
+                            <button id="backFromPlayerProfile" class="btn btn-ghost">
+                                ← Back
+                            </button>
+                            <h2 id="playerProfileName">Player Profile</h2>
+                        </div>
+                        <div class="section-actions">
+                            <button id="followPlayerBtn" class="btn btn-primary" style="display: none;">
+                                Follow
+                            </button>
+                            <button id="unfollowPlayerBtn" class="btn btn-secondary" style="display: none;">
+                                Unfollow
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="match-history">
-                        <div id="matchHistoryList" class="match-list">
-                            <div class="loading-matches">Loading matches...</div>
+                    <div class="player-profile-content">
+                        <div class="player-header">
+                            <img id="playerProfileImage" class="player-profile-image" alt="Player"
+                                style="display: none;">
+                            <div class="player-info">
+                                <h3 id="playerFullName">Loading...</h3>
+                                <div id="playerLocation" class="player-location"></div>
+                                <div class="player-follow-stats">
+                                    <button id="playerFollowersCount" class="social-stat-btn">
+                                        <span class="stat-number" id="playerFollowersNumber">0</span>
+                                        <span class="stat-label">Followers</span>
+                                    </button>
+                                    <button id="playerFollowingCount" class="social-stat-btn">
+                                        <span class="stat-number" id="playerFollowingNumber">0</span>
+                                        <span class="stat-label">Following</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <button id="loadMoreMatches" class="btn btn-secondary" style="display: none;">
-                            Load More Matches
-                        </button>
+                        <div class="player-ratings">
+                            <div class="ratings-grid">
+                                <div id="playerSinglesRating" class="rating-card">
+                                    <div class="rating-header">
+                                        <h3>Singles</h3>
+                                        <span class="rating-status">Rated</span>
+                                    </div>
+                                    <div class="rating-value">NR</div>
+                                </div>
+
+                                <div id="playerDoublesRating" class="rating-card">
+                                    <div class="rating-header">
+                                        <h3>Doubles</h3>
+                                        <span class="rating-status">Rated</span>
+                                    </div>
+                                    <div class="rating-value">NR</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="player-match-history">
+                            <h3>Match History</h3>
+                            <div class="match-history">
+                                <div id="playerMatchHistoryList" class="match-list">
+                                    <div class="loading-matches">Loading matches...</div>
+                                </div>
+
+                                <button id="playerLoadMoreMatches" class="btn btn-secondary" style="display: none;">
+                                    Load More Matches
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </main>

@@ -187,11 +187,29 @@ class DUPRApi {
     }
 
     try {
+      // Format request according to API spec
+      const requestBody = {
+        offset: searchParams.offset || 0,
+        limit: searchParams.limit || 10,
+        query: searchParams.query || "",
+        filter: {
+          // Default location (will be overridden if provided)
+          lat: 0,
+          lng: 0,
+          radiusInMeters: 100000, // 100km default radius
+          ...searchParams.filter,
+        },
+        includeUnclaimedPlayers:
+          searchParams.includeUnclaimedPlayers !== undefined
+            ? searchParams.includeUnclaimedPlayers
+            : false,
+      };
+
       const response = await this.makeRequest(
         `/player/${this.version}/search`,
         {
           method: "POST",
-          body: JSON.stringify(searchParams),
+          body: JSON.stringify(requestBody),
         }
       );
       return response.result;
@@ -220,6 +238,211 @@ class DUPRApi {
       return response.result;
     } catch (error) {
       console.error("Failed to get player rating history:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get player match history (for any player)
+   * @param {number} playerId - Player ID
+   * @param {number} offset - Starting position for pagination
+   * @param {number} limit - Number of matches to return
+   * @returns {Promise<Object>} Player match history data
+   */
+  async getPlayerMatchHistory(playerId, offset = 0, limit = 10) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.makeRequest(
+        `/player/${this.version}/${playerId}/history?offset=${offset}&limit=${limit}`
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Failed to get player match history:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get player profile information using proper endpoints
+   * @param {number} playerId - Player ID
+   * @param {string} playerName - Player name (from followers/following data)
+   * @param {string} playerImage - Player image URL (from followers/following data)
+   * @returns {Promise<Object>} Player profile data
+   */
+  async getPlayerProfile(playerId, playerName, playerImage = null) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      // Get player statistics using the correct endpoint
+      const statsResponse = await this.makeRequest(
+        `/user/calculated/${this.version}/stats/${playerId}`
+      );
+
+      // Get rating history using the corrected endpoint (POST with body)
+      const ratingHistoryResponse = await this.makeRequest(
+        `/player/${this.version}/${playerId}/rating-history`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            type: "DOUBLES", // Default to doubles
+            limit: 10,
+          }),
+        }
+      );
+
+      return {
+        id: playerId,
+        fullName: playerName,
+        name: playerName,
+        imageUrl: playerImage,
+        profileImage: playerImage,
+        stats: statsResponse.result,
+        ratingHistory: ratingHistoryResponse.result?.ratingHistory || [],
+      };
+    } catch (error) {
+      console.error("Failed to get player profile:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Follow a user
+   * @param {number} feedId - User feed ID to follow
+   * @returns {Promise<Object>} Follow response
+   */
+  async followUser(feedId) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.makeRequest(
+        `/activity/${this.version}/user/${feedId}/follow`,
+        {
+          method: "POST",
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to follow user:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Unfollow a user
+   * @param {number} feedId - User feed ID to unfollow
+   * @returns {Promise<Object>} Unfollow response
+   */
+  async unfollowUser(feedId) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.makeRequest(
+        `/activity/${this.version}/user/${feedId}/follow`,
+        {
+          method: "DELETE",
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Failed to unfollow user:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's followers
+   * @param {number} feedId - User feed ID (optional, defaults to current user)
+   * @param {number} offset - Starting position for pagination
+   * @param {number} limit - Number of followers to return
+   * @returns {Promise<Object>} Followers list
+   */
+  async getFollowers(feedId = null, offset = 0, limit = 10) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      // If no feedId provided, use current user's profile endpoint to get their ID
+      const targetFeedId = feedId || (await this.getUserProfile()).id;
+
+      const response = await this.makeRequest(
+        `/activity/${this.version}/user/${targetFeedId}/followers?offset=${offset}&limit=${limit}`
+      );
+
+      // Activity endpoints return 'results' array, not 'result.hits'
+      const formattedResponse = {
+        hits: response.results || [],
+        hasMore: false, // Activity endpoints don't provide pagination info
+        total: response.results?.length || 0,
+      };
+
+      return formattedResponse;
+    } catch (error) {
+      console.error("Failed to get followers:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's following list
+   * @param {number} feedId - User feed ID (optional, defaults to current user)
+   * @param {number} offset - Starting position for pagination
+   * @param {number} limit - Number of following to return
+   * @returns {Promise<Object>} Following list
+   */
+  async getFollowing(feedId = null, offset = 0, limit = 10) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      // If no feedId provided, use current user's profile endpoint to get their ID
+      const targetFeedId = feedId || (await this.getUserProfile()).id;
+
+      const response = await this.makeRequest(
+        `/activity/${this.version}/user/${targetFeedId}/followings?offset=${offset}&limit=${limit}`
+      );
+
+      // Activity endpoints return 'results' array, not 'result.hits'
+      const formattedResponse = {
+        hits: response.results || [],
+        hasMore: false, // Activity endpoints don't provide pagination info
+        total: response.results?.length || 0,
+      };
+
+      return formattedResponse;
+    } catch (error) {
+      console.error("Failed to get following list:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get following info (counts and follow status)
+   * @param {number} feedId - User feed ID
+   * @returns {Promise<Object>} Following info
+   */
+  async getFollowingInfo(feedId) {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.makeRequest(
+        `/activity/${this.version}/user/${feedId}/followingInfo`
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Failed to get following info:", error);
       throw error;
     }
   }

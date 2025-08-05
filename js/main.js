@@ -72,16 +72,12 @@ class OpenDUPRApp {
    * Handle user logout
    */
   logout() {
-    console.log("🚪 Logging out...");
-
     this.api.logout();
     this.currentUser = null;
     this.matchHistory = { data: [], hasMore: false, offset: 0 };
 
     this.ui.showLoginScreen();
     this.ui.showSuccess("Logged out successfully");
-
-    console.log("✅ Logout complete");
   }
 
   /**
@@ -89,17 +85,22 @@ class OpenDUPRApp {
    */
   async loadUserData() {
     try {
-      console.log("📊 Loading user data...");
-
       // Load user profile
       const profileData = await this.api.getUserProfile();
       this.currentUser = profileData;
       this.ui.displayUserProfile(profileData);
 
-      // Load initial match history
-      await this.loadMatchHistory();
+      // Load user's follower/following counts
+      try {
+        const followingInfo = await this.api.getFollowingInfo(profileData.id);
+        this.ui.updateUserFollowerCounts(followingInfo);
+      } catch (error) {
+        console.warn("Failed to load follower counts:", error);
+        // Don't fail the whole operation if follower counts fail
+      }
 
-      console.log("✅ User data loaded");
+      // Load initial match history for profile view
+      await this.loadProfileMatchHistory();
     } catch (error) {
       console.error("❌ Failed to load user data:", error);
       throw error;
@@ -107,15 +108,11 @@ class OpenDUPRApp {
   }
 
   /**
-   * Load match history with pagination
+   * Load match history for profile view
    */
-  async loadMatchHistory(offset = 0, limit = 10, append = false) {
+  async loadProfileMatchHistory(offset = 0, limit = 10, append = false) {
     try {
-      console.log(
-        `📋 Loading match history (offset: ${offset}, limit: ${limit})...`
-      );
-
-      this.ui.showLoadingState("matchHistoryList", true);
+      this.ui.showLoadingState("profileMatchHistoryList", true);
 
       const historyData = await this.api.getMatchHistory(offset, limit);
 
@@ -131,7 +128,7 @@ class OpenDUPRApp {
 
       this.matchHistory.hasMore = historyData.hasMore;
 
-      this.ui.displayMatchHistory(
+      this.ui.displayProfileMatchHistory(
         {
           hits: append ? historyData.hits : this.matchHistory.data,
           hasMore: this.matchHistory.hasMore,
@@ -139,16 +136,70 @@ class OpenDUPRApp {
         },
         append
       );
-
-      console.log(
-        `✅ Match history loaded (${historyData.hits.length} matches)`
-      );
     } catch (error) {
-      console.error("❌ Failed to load match history:", error);
+      console.error("❌ Failed to load profile match history:", error);
       this.ui.showError("Failed to load match history");
     } finally {
-      this.ui.showLoadingState("matchHistoryList", false);
+      this.ui.showLoadingState("profileMatchHistoryList", false);
     }
+  }
+
+  /**
+   * Load match history for a specific player
+   */
+  async loadPlayerMatchHistory(
+    playerId,
+    offset = 0,
+    limit = 10,
+    append = false
+  ) {
+    try {
+      this.ui.showLoadingState("playerMatchHistoryList", true);
+
+      const historyData = await this.api.getPlayerMatchHistory(
+        playerId,
+        offset,
+        limit
+      );
+
+      if (!this.playerMatchHistory) {
+        this.playerMatchHistory = { data: [], offset: 0, hasMore: false };
+      }
+
+      if (append) {
+        // Append to existing data
+        this.playerMatchHistory.data.push(...historyData.hits);
+        this.playerMatchHistory.offset = offset + limit;
+      } else {
+        // Replace existing data
+        this.playerMatchHistory.data = historyData.hits;
+        this.playerMatchHistory.offset = limit;
+      }
+
+      this.playerMatchHistory.hasMore = historyData.hasMore;
+
+      this.ui.displayPlayerMatchHistory(
+        {
+          hits: append ? historyData.hits : this.playerMatchHistory.data,
+          hasMore: this.playerMatchHistory.hasMore,
+          total: historyData.total,
+        },
+        append
+      );
+    } catch (error) {
+      console.error("❌ Failed to load player match history:", error);
+      this.ui.showError("Failed to load player match history");
+    } finally {
+      this.ui.showLoadingState("playerMatchHistoryList", false);
+    }
+  }
+
+  /**
+   * Legacy load match history method (kept for compatibility)
+   */
+  async loadMatchHistory(offset = 0, limit = 10, append = false) {
+    // Redirect to profile match history for now
+    await this.loadProfileMatchHistory(offset, limit, append);
   }
 
   /**
@@ -156,8 +207,6 @@ class OpenDUPRApp {
    */
   async searchPlayers(query, filters = {}) {
     try {
-      console.log(`🔍 Searching players: ${query}`);
-
       const searchParams = {
         offset: 0,
         limit: 10,
@@ -166,8 +215,6 @@ class OpenDUPRApp {
       };
 
       const results = await this.api.searchPlayers(searchParams);
-      console.log(`✅ Player search complete (${results.hits.length} results)`);
-
       return results;
     } catch (error) {
       console.error("❌ Player search failed:", error);
@@ -181,18 +228,118 @@ class OpenDUPRApp {
    */
   async getPlayerRatingHistory(playerId) {
     try {
-      console.log(`📈 Loading rating history for player ${playerId}`);
-
       const historyData = await this.api.getPlayerRatingHistory(playerId);
-      console.log(
-        `✅ Rating history loaded (${historyData.hits.length} entries)`
-      );
-
       return historyData;
     } catch (error) {
       console.error("❌ Failed to load rating history:", error);
       this.ui.showError("Failed to load rating history");
       throw error;
+    }
+  }
+
+  /**
+   * View a specific player's profile
+   */
+  async viewPlayerProfile(playerId, playerName, playerImage = null) {
+    try {
+      this.ui.showLoadingState("playerProfile", true);
+
+      const playerData = await this.api.getPlayerProfile(
+        playerId,
+        playerName,
+        playerImage
+      );
+      const followingInfo = await this.api.getFollowingInfo(playerId);
+
+      this.ui.showPlayerProfile({
+        ...playerData,
+        followingInfo,
+      });
+
+      // Load match history for this player
+      await this.loadPlayerMatchHistory(playerId);
+    } catch (error) {
+      console.error("❌ Failed to load player profile:", error);
+      this.ui.showError("Failed to load player profile");
+      throw error;
+    } finally {
+      this.ui.showLoadingState("playerProfile", false);
+    }
+  }
+
+  /**
+   * Follow a player
+   */
+  async followPlayer(playerId, playerName) {
+    try {
+      await this.api.followUser(playerId);
+      this.ui.showSuccess(`Now following ${playerName}`);
+
+      // Refresh the current player profile if viewing it
+      if (this.ui.currentPage === "playerProfile") {
+        await this.viewPlayerProfile(playerId, playerName);
+      }
+    } catch (error) {
+      console.error("❌ Failed to follow player:", error);
+      this.ui.showError("Failed to follow player");
+      throw error;
+    }
+  }
+
+  /**
+   * Unfollow a player
+   */
+  async unfollowPlayer(playerId, playerName) {
+    try {
+      await this.api.unfollowUser(playerId);
+      this.ui.showSuccess(`Unfollowed ${playerName}`);
+
+      // Refresh the current player profile if viewing it
+      if (this.ui.currentPage === "playerProfile") {
+        await this.viewPlayerProfile(playerId, playerName);
+      }
+    } catch (error) {
+      console.error("❌ Failed to unfollow player:", error);
+      this.ui.showError("Failed to unfollow player");
+      throw error;
+    }
+  }
+
+  /**
+   * Load followers list
+   */
+  async loadFollowers(userId = null, offset = 0, limit = 20) {
+    try {
+      this.ui.showLoadingState("followersList", true);
+
+      const followersData = await this.api.getFollowers(userId, offset, limit);
+
+      this.ui.showFollowersList(followersData, userId);
+    } catch (error) {
+      console.error("❌ Failed to load followers:", error);
+      this.ui.showError("Failed to load followers");
+      throw error;
+    } finally {
+      this.ui.showLoadingState("followersList", false);
+    }
+  }
+
+  /**
+   * Load following list
+   */
+  async loadFollowing(userId = null, offset = 0, limit = 20) {
+    try {
+      this.ui.showLoadingState("followingList", true);
+
+      const followingData = await this.api.getFollowing(userId, offset, limit);
+
+      this.ui.showFollowingList(followingData, userId);
+    } catch (error) {
+      console.error("❌ Failed to load following:", error);
+      this.ui.showError("Failed to load following");
+      throw error;
+    } finally {
+      this.ui.showLoadingState("followingList", false);
     }
   }
 
