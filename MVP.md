@@ -4,6 +4,7 @@ Features for MVP:
   - Create account just links to official DUPR website
 - Logout
 - View profile (self or other users)
+  - Defer to official site for editing own profile for now.
   - Name
   - Profile picture
     - Fallback to monogram if no picture

@@ -2,18 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
+import { useAuth } from "@/lib/useAuth";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export function Login() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       const data = await apiFetch("/auth/v1/login", {
@@ -22,10 +25,10 @@ export function Login() {
       });
 
       console.log("Login successful:", data);
-      // Store the access token in localStorage
-      localStorage.setItem("accessToken", data.result.accessToken);
-    } catch (error) {
-      setError("An error occurred.");
+      setToken(data.result.accessToken);
+      navigate("/profile");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     }
 
     setLoading(false);
