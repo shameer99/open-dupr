@@ -446,6 +446,78 @@ class DUPRApi {
       throw error;
     }
   }
+
+  /**
+   * Get location autocomplete suggestions
+   * @param {string} query - Search query
+   * @param {string} sessionToken - Session token for the request
+   * @returns {Promise<Object>} Autocomplete results
+   */
+  async getLocationAutocomplete(query, sessionToken = null) {
+    try {
+      // Generate a simple session token if none provided
+      const st =
+        sessionToken ||
+        "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+
+      const response = await this.makeRequest(
+        `/address/v1.0/autocomplete?q=${encodeURIComponent(query)}&st=${st}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Failed to get location autocomplete:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user profile information
+   * @returns {Promise<Object>} User profile data
+   */
+  async getUserProfile() {
+    try {
+      const response = await this.makeRequest("/user/v1.0/profile", {
+        method: "GET",
+      });
+
+      return response.result;
+    } catch (error) {
+      console.error("Failed to get user profile:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Resend email verification
+   * @param {string} email - The email address to send verification to
+   * @returns {Promise<Object>} Response from verification initiate
+   */
+  async resendEmailVerification(email) {
+    try {
+      const response = await this.makeRequest(
+        "/user/email/verify/v1.1/initiate",
+        {
+          method: "POST",
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      return response;
+    } catch (error) {
+      console.error("Failed to resend email verification:", error);
+      throw error;
+    }
+  }
 }
 
 // Export for use in other modules

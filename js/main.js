@@ -27,12 +27,15 @@ class OpenDUPRApp {
 
     // Check if user is already authenticated
     if (this.api.isAuthenticated()) {
+      console.log("🔐 User is authenticated, loading data...");
       try {
-        await this.loadUserData();
-        this.ui.showDashboard();
+        const isVerified = await this.loadUserData();
+        if (isVerified) {
+          this.ui.showDashboard();
+        }
       } catch (error) {
-        console.error("Failed to load user data:", error);
-        this.api.logout();
+        // If loading data fails (e.g., token expired), show login screen
+        this.logout();
         this.ui.showLoginScreen();
       }
     } else {
@@ -41,6 +44,13 @@ class OpenDUPRApp {
 
     this.ui.showLoadingState("app", false);
     console.log("✅ Open DUPR initialized");
+  }
+
+  /**
+   * Show a specific section of the dashboard
+   */
+  showSection(sectionName) {
+    this.ui.showSection(sectionName);
   }
 
   /**
@@ -56,14 +66,29 @@ class OpenDUPRApp {
       console.log("✅ Login successful");
       this.ui.showSuccess("Login successful!");
 
-      // Load user data and show dashboard
-      await this.loadUserData();
-      this.ui.showDashboard();
+      // Load user data and show dashboard (or verification screen)
+      const isVerified = await this.loadUserData();
+      if (isVerified) {
+        this.ui.showDashboard();
+      }
     } catch (error) {
       console.error("❌ Login failed:", error);
       this.ui.showError(
         error.message || "Login failed. Please check your credentials."
       );
+      throw error;
+    }
+  }
+
+  /**
+   * Resend email verification (method for UI to call)
+   */
+  async resendEmailVerification(email) {
+    try {
+      await this.api.resendEmailVerification(email);
+      return true;
+    } catch (error) {
+      console.error("❌ Failed to resend verification email:", error);
       throw error;
     }
   }
@@ -88,6 +113,14 @@ class OpenDUPRApp {
       // Load user profile
       const profileData = await this.api.getUserProfile();
       this.currentUser = profileData;
+
+      // Check if email verification is required
+      if (profileData.isValidEmail === false) {
+        console.log("📧 Email verification required");
+        this.ui.showEmailVerification(profileData.email);
+        return false; // <-- Return false if user is not verified
+      }
+
       this.ui.displayUserProfile(profileData);
 
       // Load user's follower/following counts
@@ -101,9 +134,39 @@ class OpenDUPRApp {
 
       // Load initial match history for profile view
       await this.loadProfileMatchHistory();
+
+      return true; // <-- Return true if user is verified and data is loaded
     } catch (error) {
       console.error("❌ Failed to load user data:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Check email verification status and redirect accordingly
+   */
+  async checkEmailVerificationStatus() {
+    try {
+      console.log("🔍 Checking email verification status...");
+
+      // Get fresh user profile
+      const profile = await this.api.getUserProfile();
+      this.currentUser = profile;
+
+      if (profile.isValidEmail) {
+        console.log("✅ Email verified, showing dashboard");
+        await this.loadUserData();
+        this.ui.showDashboard();
+      } else {
+        console.log("📧 Email not verified, showing verification screen");
+        this.ui.showEmailVerification(profile.email);
+      }
+    } catch (error) {
+      console.error("❌ Failed to check email verification status:", error);
+      this.ui.showError(
+        "Failed to check verification status. Please try logging in again."
+      );
+      this.logout();
     }
   }
 
@@ -203,22 +266,30 @@ class OpenDUPRApp {
   }
 
   /**
-   * Search for players (future enhancement)
+   * Search for players
    */
-  async searchPlayers(query, filters = {}) {
+  async searchPlayers(query) {
     try {
       const searchParams = {
         offset: 0,
-        limit: 10,
+        limit: 50, // Fetch more results for a better search experience
         query,
-        filters,
+        // Using a default location as per API requirements.
+        // A future enhancement could use browser location.
+        filter: {
+          lat: 30.2672,
+          lng: -97.7431,
+          radiusInMeters: 20000000, // Wide radius for global search
+        },
+        includeUnclaimedPlayers: false,
       };
 
       const results = await this.api.searchPlayers(searchParams);
-      return results;
+      this.ui.displaySearchResults(results);
     } catch (error) {
       console.error("❌ Player search failed:", error);
-      this.ui.showError("Failed to search players");
+      this.ui.showError("Failed to search for players. Please try again.");
+      // Re-throw to be caught by the UI handler if needed
       throw error;
     }
   }

@@ -38,6 +38,12 @@
                     </p>
                 </div>
 
+                <!-- Form Toggle -->
+                <div class="form-toggle">
+                    <button id="toggleToLogin" class="toggle-btn active">Sign In</button>
+                </div>
+
+                <!-- Login Form -->
                 <form id="loginForm" class="login-form">
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -59,10 +65,66 @@
                     </button>
                 </form>
 
+                <!-- Signup Redirect -->
+                <div class="signup-redirect">
+                    <p>
+                        New to DUPR? <a href="https://dashboard.dupr.com/signup" target="_blank" rel="noopener">Create
+                            an
+                            account on
+                            the official DUPR website</a>, then return here to sign in.
+                    </p>
+                </div>
+
                 <div class="login-footer">
                     <p class="disclaimer">
                         This is an unofficial client. Your credentials are sent directly to DUPR's servers.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Verification Section -->
+        <div id="emailVerification" class="content-section" style="display: none;">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Verify Your Email</h2>
+                    <p class="subtitle">You must verify your email to access the site.</p>
+                </div>
+
+                <div class="email-verification-content">
+                    <div class="verification-icon">
+                        📧
+                    </div>
+
+                    <div class="verification-message">
+                        <h3>Check your email</h3>
+                        <p>We've sent a verification link to <strong id="verificationEmail"></strong></p>
+                        <p>Click the link in the email to verify your account.</p>
+
+                        <div class="verification-notice">
+                            <p><strong>Important:</strong> The verification link will take you to the official DUPR
+                                website. After verifying your email, please return to Open DUPR manually for the best
+                                experience.</p>
+                        </div>
+                    </div>
+
+                    <div class="verification-actions">
+                        <button id="resendVerificationBtn" class="btn btn-primary">
+                            <span class="btn-text">Resend Verification Link</span>
+                            <div class="btn-loading">
+                                <div class="loading-spinner small"></div>
+                            </div>
+                        </button>
+
+                        <button id="checkVerificationBtn" class="btn btn-outline">
+                            Check Verification Status
+                        </button>
+                    </div>
+
+                    <div class="verification-footer">
+                        <p>Already verified? <a href="#" id="goToDashboardLink">Continue to Dashboard</a></p>
+                        <p><a href="#" id="logoutFromVerificationLink">Log out</a></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,6 +141,10 @@
                             <span id="userName" class="user-name">Loading...</span>
                         </div>
                     </div>
+                    <nav class="header-nav">
+                        <button id="navProfile" class="nav-btn active">Profile</button>
+                        <button id="navSearch" class="nav-btn">Search</button>
+                    </nav>
                     <div class="header-right">
                         <button id="logoutBtn" class="btn btn-ghost">
                             Sign Out
@@ -155,6 +221,22 @@
                                 Load More Matches
                             </button>
                         </div>
+                    </div>
+                </section>
+
+                <!-- Player Search Section -->
+                <section id="searchSection" class="section">
+                    <div class="section-header">
+                        <h2>Player Search</h2>
+                    </div>
+                    <div class="search-container">
+                        <form id="playerSearchForm" class="search-form">
+                            <input type="text" id="playerSearchInput" placeholder="Search by name..." required>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                    </div>
+                    <div id="searchResults" class="search-results">
+                        <div class="placeholder">Search for players to see results.</div>
                     </div>
                 </section>
 

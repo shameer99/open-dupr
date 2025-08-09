@@ -79,11 +79,21 @@ class DUPRUIManager {
    * Setup all event listeners
    */
   setupEventListeners() {
+    // Form toggle buttons
+    const toggleToLogin = document.getElementById("toggleToLogin");
+
+    if (toggleToLogin) {
+      toggleToLogin.addEventListener("click", this.showLoginForm.bind(this));
+    }
+
     // Login form
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
       loginForm.addEventListener("submit", this.handleLogin.bind(this));
     }
+
+    // Email verification
+    this.setupEmailVerification();
 
     // Logout button
     const logoutBtn = document.getElementById("logoutBtn");
@@ -230,6 +240,180 @@ class DUPRUIManager {
         this.handleUnfollowPlayer.bind(this)
       );
     }
+
+    // Nav buttons
+    const navProfile = document.getElementById("navProfile");
+    if (navProfile) {
+      navProfile.addEventListener("click", () => this.showSection("profile"));
+    }
+
+    const navSearch = document.getElementById("navSearch");
+    if (navSearch) {
+      navSearch.addEventListener("click", () => this.showSection("search"));
+    }
+
+    // Player search form
+    const playerSearchForm = document.getElementById("playerSearchForm");
+    if (playerSearchForm) {
+      playerSearchForm.addEventListener("submit", this.handlePlayerSearch.bind(this));
+    }
+  }
+
+  /**
+   * Handle player search form submission
+   */
+  async handlePlayerSearch(event) {
+    event.preventDefault();
+    const input = document.getElementById("playerSearchInput");
+    const query = input.value.trim();
+
+    if (query.length < 2) {
+      this.showError("Please enter at least 2 characters to search.");
+      return;
+    }
+
+    this.showLoadingState("searchResults", true);
+    this.clearError();
+
+    try {
+      await window.app.searchPlayers(query);
+    } catch (error) {
+      // Error is already handled in the app class
+    } finally {
+      this.showLoadingState("searchResults", false);
+    }
+  }
+
+  /**
+   * Show login form and hide signup form
+   */
+  showLoginForm() {
+    const loginForm = document.getElementById("loginForm");
+    const toggleToLogin = document.getElementById("toggleToLogin");
+
+    if (loginForm) loginForm.style.display = "block";
+
+    if (toggleToLogin) {
+      toggleToLogin.classList.add("active");
+    }
+  }
+
+  /**
+   * Setup email verification functionality
+   */
+  setupEmailVerification() {
+    const resendBtn = document.getElementById("resendVerificationBtn");
+    const checkBtn = document.getElementById("checkVerificationBtn");
+    const goToDashboardLink = document.getElementById("goToDashboardLink");
+    const logoutLink = document.getElementById("logoutFromVerificationLink");
+
+    if (resendBtn) {
+      resendBtn.addEventListener(
+        "click",
+        this.handleResendVerification.bind(this)
+      );
+    }
+
+    if (checkBtn) {
+      checkBtn.addEventListener(
+        "click",
+        this.handleCheckVerification.bind(this)
+      );
+    }
+
+    if (goToDashboardLink) {
+      goToDashboardLink.addEventListener(
+        "click",
+        this.handleCheckVerification.bind(this)
+      );
+    }
+
+    if (logoutLink) {
+      logoutLink.addEventListener("click", this.handleLogout.bind(this));
+    }
+  }
+
+  /**
+   * Show email verification screen
+   * @param {string} email - User's email address
+   */
+  showEmailVerification(email) {
+    this.currentPage = "emailVerification";
+    this.updateVisibility();
+
+    // Set the email in the verification message
+    const emailSpan = document.getElementById("verificationEmail");
+    if (emailSpan && email) {
+      emailSpan.textContent = email;
+    }
+  }
+
+  /**
+   * Handle resend verification email
+   */
+  async handleResendVerification(event) {
+    event.preventDefault();
+
+    const btn = event.target.closest("button");
+    const emailSpan = document.getElementById("verificationEmail");
+    const email = emailSpan?.textContent || window.app?.currentUser?.email;
+
+    if (!email) {
+      this.showError(
+        "Unable to resend verification email. Please try logging in again."
+      );
+      return;
+    }
+
+    this.showLoadingState("resendVerificationBtn", true);
+    this.clearError();
+
+    try {
+      await window.app?.api?.resendEmailVerification(email);
+      this.showSuccess("Verification email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Failed to resend verification email:", error);
+      this.showError("Failed to send verification email. Please try again.");
+    } finally {
+      this.showLoadingState("resendVerificationBtn", false);
+    }
+  }
+
+  /**
+   * Handle check verification status
+   */
+  async handleCheckVerification(event) {
+    event.preventDefault();
+
+    try {
+      console.log("🔍 Checking email verification status...");
+
+      // Get fresh user profile to check verification status
+      const profile = await window.app?.api?.getUserProfile();
+
+      if (profile?.isValidEmail) {
+        console.log("✅ Email verified! Redirecting to dashboard...");
+        this.showSuccess("Email verified successfully!");
+
+        // Update current user data
+        if (window.app) {
+          window.app.currentUser = profile;
+        }
+
+        // Show dashboard
+        setTimeout(() => {
+          this.showDashboard();
+        }, 1000);
+      } else {
+        console.log("❌ Email not yet verified");
+        this.showError(
+          "Email not yet verified. Please check your email and click the verification link."
+        );
+      }
+    } catch (error) {
+      console.error("Failed to check verification status:", error);
+      this.showError("Failed to check verification status. Please try again.");
+    }
   }
 
   /**
@@ -291,14 +475,21 @@ class DUPRUIManager {
    */
   updateVisibility() {
     const loginScreen = document.getElementById("loginScreen");
+    const emailVerification = document.getElementById("emailVerification");
     const dashboard = document.getElementById("dashboard");
 
+    // Hide all sections first
+    if (loginScreen) loginScreen.style.display = "none";
+    if (emailVerification) emailVerification.style.display = "none";
+    if (dashboard) dashboard.style.display = "none";
+
+    // Show the appropriate section
     if (this.currentPage === "login") {
-      loginScreen.style.display = "flex";
-      dashboard.style.display = "none";
-    } else {
-      loginScreen.style.display = "none";
-      dashboard.style.display = "block";
+      if (loginScreen) loginScreen.style.display = "flex";
+    } else if (this.currentPage === "emailVerification") {
+      if (emailVerification) emailVerification.style.display = "block";
+    } else if (this.currentPage === "dashboard") {
+      if (dashboard) dashboard.style.display = "block";
     }
   }
 
@@ -311,8 +502,20 @@ class DUPRUIManager {
       sec.classList.remove("active");
     });
 
+    // Update nav buttons
+    document.querySelectorAll(".nav-btn").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+
+    const activeBtn = document.getElementById(`nav${section.charAt(0).toUpperCase() + section.slice(1)}`);
+    if (activeBtn) {
+      activeBtn.classList.add("active");
+    }
+
     if (section === "playerProfile") {
       document.getElementById("playerProfileSection").classList.add("active");
+    } else if (section === "search") {
+      document.getElementById("searchSection").classList.add("active");
     } else {
       // Default to profile section
       document.getElementById("profileSection").classList.add("active");
@@ -560,7 +763,7 @@ class DUPRUIManager {
         <div class="match-meta">
           <span class="match-format">${match.eventFormat}</span>
           <span class="match-source">${match.matchSource}</span>
-          ${
+          ${ 
             userTeam?.delta
               ? `<span class="rating-change">${userTeam.delta}</span>`
               : ""
@@ -978,11 +1181,9 @@ class DUPRUIManager {
       <div class="user-info">
         <div class="user-name">${userName}</div>
       </div>
-      <button class="btn btn-ghost user-action" onclick="window.app.viewPlayerProfile(${
+      <button class="btn btn-ghost user-action" onclick="window.app.viewPlayerProfile(${ 
         user.id
-      }, '${userName.replace(/'/g, "\\'").replace(/"/g, "&quot;")}', '${
-      userImage || ""
-    }')">
+      }, '${userName.replace(/'/g, "\'" ).replace(/"/g, "&quot;")}', '${userImage || ""}')">
         View Profile
       </button>
     `;
@@ -1112,6 +1313,66 @@ class DUPRUIManager {
     if (followingElement && followingInfo) {
       followingElement.textContent = followingInfo.followings || 0;
     }
+  }
+
+  /**
+   * Display player search results
+   */
+  displaySearchResults(results) {
+    const container = document.getElementById("searchResults");
+    if (!container) return;
+
+    container.innerHTML = ""; // Clear previous results
+
+    if (!results || results.hits.length === 0) {
+      container.innerHTML = '<div class="placeholder">No players found.</div>';
+      return;
+    }
+
+    results.hits.forEach((player) => {
+      const playerCard = this.createPlayerCard(player);
+      container.appendChild(playerCard);
+    });
+  }
+
+  /**
+   * Create a player card element for search results
+   */
+  createPlayerCard(player) {
+    const card = document.createElement("div");
+    card.className = "player-card";
+    card.addEventListener("click", () =>
+      window.app.viewPlayerProfile(player.id, player.fullName, player.imageUrl)
+    );
+
+    let avatarContent;
+    if (player.imageUrl) {
+      avatarContent = `<img src="${player.imageUrl}" alt="${player.fullName}" class="player-card-image">`;
+    } else {
+      const monogram = this.createMonogram(player.fullName, player.id, 'player-card-monogram');
+      avatarContent = monogram.outerHTML;
+    }
+
+    const singlesRating = player.stats?.singles ? parseFloat(player.stats.singles).toFixed(3) : "NR";
+    const doublesRating = player.stats?.doubles ? parseFloat(player.stats.doubles).toFixed(3) : "NR";
+
+    card.innerHTML = `
+      ${avatarContent}
+      <div class="player-card-name">${player.fullName}</div>
+      <div class="player-card-location">${player.location || ""}</div>
+      <div class="player-card-ratings">
+        <div class="player-card-rating">
+          <div class="label">Singles</div>
+          <div class="value">${singlesRating}</div>
+        </div>
+        <div class="player-card-rating">
+          <div class="label">Doubles</div>
+          <div class="value">${doublesRating}</div>
+        </div>
+      </div>
+    `;
+
+    return card;
   }
 }
 
