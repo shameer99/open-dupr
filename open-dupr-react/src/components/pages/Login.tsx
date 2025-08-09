@@ -1,17 +1,10 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 
-export function LoginForm() {
+export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,23 +16,14 @@ export function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/v1/login", {
+      const data = await apiFetch("/auth/v1/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("Login successful:", data);
-        // Store the access token in localStorage
-        localStorage.setItem("accessToken", data.result.accessToken);
-      } else {
-        setError(data.message || "An error occurred.");
-      }
+      console.log("Login successful:", data);
+      // Store the access token in localStorage
+      localStorage.setItem("accessToken", data.result.accessToken);
     } catch (error) {
       setError("An error occurred.");
     }
