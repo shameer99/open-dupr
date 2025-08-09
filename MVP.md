@@ -1,0 +1,21 @@
+Features for MVP:
+
+- Login
+  - Create account just links to official DUPR website
+- Logout
+- View profile (self or other users)
+  - Name
+  - Profile picture
+    - Fallback to monogram if no picture
+  - Location
+  - Gender
+  - Age
+  - Ratings
+    - Singles and Doubles
+    - With confidence percentage
+  - Match history
+  - Followers and following
+    - Link to other users' profiles
+- Search for players
+- Record a match
+- Verify matches
