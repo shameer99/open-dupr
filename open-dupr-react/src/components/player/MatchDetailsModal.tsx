@@ -222,11 +222,6 @@ function TeamBlock({
               <span className="truncate group-hover:underline">
                 {getDisplayName(p.fullName)}
               </span>
-              {p.validatedMatch === false && (
-                <span className="text-xs text-muted-foreground ml-1">
-                  (awaiting validation)
-                </span>
-              )}
             </span>
             <span className="text-sm font-mono whitespace-nowrap">
               {pre !== null && post !== null ? (
@@ -394,6 +389,35 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
               eventFormat={match.eventFormat}
             />
           </div>
+
+          {!match.confirmed && (
+            <div className="mt-4 pt-4 border-t">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Awaiting Validation From
+              </h3>
+              <div className="mt-2 space-y-2">
+                {match.teams.map((team) =>
+                  [team.player1, team.player2]
+                    .filter((p) => p && p.validatedMatch === false)
+                    .map((p) => (
+                      <div
+                        key={p!.id}
+                        className="flex items-center gap-2 p-2 rounded-md border"
+                      >
+                        <Avatar
+                          name={p!.fullName}
+                          src={p!.imageUrl}
+                          size="sm"
+                        />
+                        <span className="text-sm font-medium">
+                          {p!.fullName}
+                        </span>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Modal>
