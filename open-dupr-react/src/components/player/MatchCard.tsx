@@ -157,33 +157,62 @@ function TeamStack({ team }: { team: MatchTeam }) {
   );
 }
 
-function ScoreChips({ a, b }: { a: MatchTeam; b: MatchTeam }) {
-  const gamesLeft = [a.game1, a.game2, a.game3, a.game4, a.game5].filter(
-    (g) => typeof g === "number" && g >= 0
-  ) as number[];
-  const gamesRight = [b.game1, b.game2, b.game3, b.game4, b.game5].filter(
-    (g) => typeof g === "number" && g >= 0
-  ) as number[];
-  const len = Math.min(gamesLeft.length, gamesRight.length);
+function TeamScoreChips({
+  team,
+  opponent,
+  maxGames,
+}: {
+  team: MatchTeam;
+  opponent: MatchTeam;
+  maxGames: number;
+}) {
+  const teamGames = [
+    team.game1,
+    team.game2,
+    team.game3,
+    team.game4,
+    team.game5,
+  ].filter((g) => typeof g === "number" && g >= 0) as number[];
+  const opponentGames = [
+    opponent.game1,
+    opponent.game2,
+    opponent.game3,
+    opponent.game4,
+    opponent.game5,
+  ].filter((g) => typeof g === "number" && g >= 0) as number[];
 
-  if (len === 0) return null;
+  const len = Math.min(teamGames.length, opponentGames.length);
+  const effective = Math.max(maxGames, len);
+  if (effective === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      {Array.from({ length: len }).map((_, i) => {
-        const left = gamesLeft[i]!;
-        const right = gamesRight[i]!;
-        const leftWin = left > right;
+    <div
+      className="grid justify-end gap-1.5 md:gap-2"
+      style={{ gridTemplateColumns: `repeat(${effective}, 2rem)` }}
+    >
+      {Array.from({ length: effective }).map((_, i) => {
+        const mine = teamGames[i] as number | undefined;
+        const theirs = opponentGames[i] as number | undefined;
+        if (mine === undefined || theirs === undefined) {
+          return (
+            <span
+              key={i}
+              className="w-8 h-6 md:h-7 rounded-full border bg-muted/40"
+            />
+          );
+        }
+        const won = mine > theirs;
         return (
           <span
             key={i}
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold border ${
-              leftWin
+            className={`w-8 h-6 md:h-7 inline-flex items-center justify-center rounded-full text-[10px] md:text-xs font-semibold border ${
+              won
                 ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                 : "bg-rose-50 text-rose-700 border-rose-200"
             }`}
+            title={`Game ${i + 1}: ${mine}-${theirs}`}
           >
-            {left}-{right}
+            {mine}
           </span>
         );
       })}
@@ -213,6 +242,25 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
   const userDelta = computeUserDeltaForTeam(teamA, currentUserId);
+  const gamesA = [
+    teamA?.game1,
+    teamA?.game2,
+    teamA?.game3,
+    teamA?.game4,
+    teamA?.game5,
+  ].filter((g) => typeof g === "number" && (g as number) >= 0) as number[];
+  const gamesB = [
+    teamB?.game1,
+    teamB?.game2,
+    teamB?.game3,
+    teamB?.game4,
+    teamB?.game5,
+  ].filter((g) => typeof g === "number" && (g as number) >= 0) as number[];
+  const declaredNoOfGames =
+    typeof match.noOfGames === "number" && match.noOfGames > 0
+      ? match.noOfGames
+      : 0;
+  const maxGames = Math.max(declaredNoOfGames, gamesA.length, gamesB.length);
 
   const [open, setOpen] = useState(false);
 
@@ -232,10 +280,6 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
       <CardContent className="p-0">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="text-sm text-muted-foreground min-w-0 truncate">
-              {match.venue}
-              {match.eventDate ? ` • ${match.eventDate}` : ""}
-            </div>
             <div className="shrink-0">
               <div
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold border ${
@@ -260,27 +304,30 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
                 )}
               </div>
             </div>
+            <div className="text-sm text-muted-foreground min-w-0 truncate text-right">
+              {match.venue}
+              {match.eventDate ? ` • ${match.eventDate}` : ""}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
-            <div className={`${teamAWon ? "opacity-100" : "opacity-70"}`}>
+          <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2">
+            <div
+              className={`${
+                teamAWon ? "opacity-100" : "opacity-70"
+              } flex items-center gap-3`}
+            >
               <TeamStack team={teamA} />
             </div>
-
-            <div className="flex flex-col items-center justify-center gap-2 px-1">
-              <ScoreChips a={teamA} b={teamB} />
-              <div className="text-xs font-medium text-muted-foreground">
-                vs
-              </div>
-            </div>
+            <TeamScoreChips team={teamA} opponent={teamB} maxGames={maxGames} />
 
             <div
               className={`${
                 teamBWon ? "opacity-100" : "opacity-70"
-              } md:justify-self-end`}
+              } flex items-center gap-3`}
             >
               <TeamStack team={teamB} />
             </div>
+            <TeamScoreChips team={teamB} opponent={teamA} maxGames={maxGames} />
           </div>
         </div>
       </CardContent>
