@@ -98,6 +98,9 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
           "Unknown location"
         }
         playerId={player.id}
+        birthdate={player.birthdate}
+        gender={player.gender}
+        age={player.age}
         followInfo={followInfo}
         action={actionNode}
       />

@@ -8,6 +8,9 @@ interface PlayerHeaderProps {
   imageUrl: string;
   location: string;
   playerId: number;
+  birthdate?: string;
+  gender?: string;
+  age?: number;
   followInfo?: FollowInfo | null;
   action?: React.ReactNode;
 }
@@ -17,6 +20,9 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   imageUrl,
   location,
   playerId,
+  birthdate,
+  gender,
+  age: providedAge,
   followInfo,
   action,
 }) => {
@@ -30,6 +36,33 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
     navigate(`/user/${playerId}/following`);
   };
 
+  const calculateAge = (dateString?: string): number | null => {
+    if (!dateString) return null;
+    const birth = new Date(dateString);
+    if (Number.isNaN(birth.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age -= 1;
+    }
+    return age >= 0 && age < 130 ? age : null;
+  };
+
+  const formatGender = (value?: string): string | null => {
+    if (!value) return null;
+    const normalized = value.toUpperCase();
+    if (normalized === "MALE") return "Male";
+    if (normalized === "FEMALE") return "Female";
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  };
+
+  const age = providedAge ?? calculateAge(birthdate ?? undefined);
+  const genderLabel = formatGender(gender ?? undefined);
+  const metaParts = [location, age ? `${age}` : null, genderLabel].filter(
+    Boolean
+  ) as string[];
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-start space-x-4">
@@ -38,7 +71,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
           <h1 className="text-2xl font-bold mb-1">
             {name?.trim().replace(/\s+/g, " ")}
           </h1>
-          <p className="text-muted-foreground mb-3">{location}</p>
+          <p className="text-muted-foreground mb-3">{metaParts.join(" · ")}</p>
 
           {followInfo && (
             <div className="flex space-x-6 text-sm">

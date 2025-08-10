@@ -107,18 +107,24 @@ const OtherUserPage: React.FC = () => {
           };
         }
 
-        // Override ratings from player detail endpoint
+        // Override details from player detail endpoint
         const ratings = playerDetail?.result?.ratings;
-        if (ratings) {
+        if (playerDetail?.result) {
           userProfile = {
             ...userProfile,
             fullName: playerDetail?.result?.fullName ?? userProfile.fullName,
             imageUrl: playerDetail?.result?.imageUrl ?? userProfile.imageUrl,
             location:
               playerDetail?.result?.shortAddress ?? userProfile.location,
+            birthdate: playerDetail?.result?.birthdate ?? userProfile.birthdate,
+            gender: playerDetail?.result?.gender ?? userProfile.gender,
+            age:
+              typeof playerDetail?.result?.age === "number"
+                ? playerDetail?.result?.age
+                : userProfile.age,
             stats: {
-              singles: ratings.singles ?? userProfile.stats.singles,
-              doubles: ratings.doubles ?? userProfile.stats.doubles,
+              singles: ratings?.singles ?? userProfile.stats.singles,
+              doubles: ratings?.doubles ?? userProfile.stats.doubles,
             },
           };
           console.log("[OtherUserPage] ratings from player detail", ratings);

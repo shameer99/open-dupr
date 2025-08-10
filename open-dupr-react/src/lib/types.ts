@@ -3,6 +3,9 @@ export interface Player {
   fullName: string;
   imageUrl: string;
   location: string;
+  birthdate?: string;
+  gender?: string;
+  age?: number;
   stats: {
     singles: string;
     doubles: string;
@@ -47,6 +50,9 @@ export interface OtherUserProfile {
   fullName: string;
   imageUrl: string;
   location?: string;
+  birthdate?: string;
+  gender?: string;
+  age?: number;
   stats?: {
     singles: string;
     doubles: string;
