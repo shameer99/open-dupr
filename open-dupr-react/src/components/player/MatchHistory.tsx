@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getOtherUserMatchHistory } from "@/lib/api";
+import MatchCard from "@/components/player/MatchCard";
 
 interface MatchHistoryProps {
   playerId?: number;
@@ -65,30 +66,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
       {!loading && !error && matches.length > 0 && (
         <div className="mt-4 space-y-3">
           {matches.slice(0, 5).map((match) => (
-            <div key={match.id} className="border rounded-lg p-3">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium">{match.venue}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {match.eventDate} • {match.eventFormat}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-1">
-                {match.teams.map((team, idx) => (
-                  <div
-                    key={idx}
-                    className={`text-sm ${
-                      team.winner ? "text-green-600" : "text-gray-600"
-                    }`}
-                  >
-                    {team.player1.fullName}{" "}
-                    {team.player2 ? `& ${team.player2.fullName}` : ""}
-                    <span className="ml-2 font-mono">{team.delta}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <MatchCard
+              key={match.id}
+              match={match as any}
+              currentUserId={playerId}
+            />
           ))}
         </div>
       )}
