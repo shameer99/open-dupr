@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 interface PlayerRatingsProps {
   singles?: string | number | null;
