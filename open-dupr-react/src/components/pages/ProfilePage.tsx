@@ -35,7 +35,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {profile && <PlayerProfile player={profile} />}
+      {profile && <PlayerProfile player={profile} isSelf />}
     </div>
   );
 };

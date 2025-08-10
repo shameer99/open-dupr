@@ -152,7 +152,7 @@ const OtherUserPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <PlayerProfile player={player} />
+      <PlayerProfile player={player} isSelf={false} />
     </div>
   );
 };
