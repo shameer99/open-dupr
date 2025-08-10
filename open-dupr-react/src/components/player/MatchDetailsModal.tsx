@@ -43,9 +43,12 @@ type Match = {
 };
 
 function getDisplayName(fullName: string) {
-  const parts = fullName.split(" ");
+  const cleaned = fullName.trim().replace(/\s+/g, " ");
+  const parts = cleaned.split(" ");
   if (parts.length === 1) return parts[0];
-  return `${parts[0]} ${parts[1]?.charAt(0) ?? ""}.`;
+  const first = parts[0];
+  const lastInitial = parts[parts.length - 1]?.charAt(0) ?? "";
+  return `${first} ${lastInitial}.`;
 }
 
 function toNumber(val?: string | number | null): number | null {

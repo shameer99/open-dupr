@@ -160,7 +160,9 @@ const FollowingPage: React.FC = () => {
             >
               <Avatar src={user.profileImage} name={user.name} size="md" />
               <div className="flex-1">
-                <p className="font-medium">{user.name}</p>
+                <p className="font-medium">
+                  {user.name?.trim().replace(/\s+/g, " ")}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Click to view profile
                 </p>

@@ -1,9 +1,16 @@
+export const normalizeName = (name: string): string => {
+  if (!name) return "";
+  return name.trim().replace(/\s+/g, " ");
+};
+
 export const getInitials = (name: string): string => {
-  return name
-    .split(" ")
-    .map((part) => part.charAt(0).toUpperCase())
-    .slice(0, 2)
-    .join("");
+  const cleaned = normalizeName(name);
+  if (!cleaned) return "";
+  const parts = cleaned.split(" ");
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  const first = parts[0]?.charAt(0) ?? "";
+  const last = parts[parts.length - 1]?.charAt(0) ?? "";
+  return `${first}${last}`.toUpperCase();
 };
 
 export const getAvatarColor = (name: string): string => {
@@ -18,7 +25,8 @@ export const getAvatarColor = (name: string): string => {
     "bg-teal-500",
   ];
 
-  const hash = name.split("").reduce((acc, char) => {
+  const basis = normalizeName(name).toLowerCase();
+  const hash = basis.split("").reduce((acc, char) => {
     return char.charCodeAt(0) + ((acc << 5) - acc);
   }, 0);
 

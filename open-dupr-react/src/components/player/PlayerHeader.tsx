@@ -32,7 +32,9 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
     <div className="flex items-start space-x-4">
       <Avatar src={imageUrl} name={name} size="xl" />
       <div className="flex-1">
-        <h1 className="text-2xl font-bold mb-1">{name}</h1>
+        <h1 className="text-2xl font-bold mb-1">
+          {name?.trim().replace(/\s+/g, " ")}
+        </h1>
         <p className="text-muted-foreground mb-3">{location}</p>
 
         {followInfo && (
