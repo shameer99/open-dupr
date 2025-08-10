@@ -12,6 +12,8 @@ import FollowingPage from "./components/pages/FollowingPage.tsx";
 import OtherUserPage from "./components/pages/OtherUserPage.tsx";
 import NotFoundPage from "./components/pages/NotFoundPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import AppShell from "./components/AppShell.tsx";
+import SearchPage from "./components/pages/SearchPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -24,7 +26,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             path="/profile"
             element={
               <ProtectedRoute>
-                <ProfilePage />
+                <AppShell>
+                  <ProfilePage />
+                </AppShell>
               </ProtectedRoute>
             }
           />
@@ -33,7 +37,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             path="/user/:id/followers"
             element={
               <ProtectedRoute>
-                <FollowersPage />
+                <AppShell>
+                  <FollowersPage />
+                </AppShell>
               </ProtectedRoute>
             }
           />
@@ -41,7 +47,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             path="/user/:id/following"
             element={
               <ProtectedRoute>
-                <FollowingPage />
+                <AppShell>
+                  <FollowingPage />
+                </AppShell>
               </ProtectedRoute>
             }
           />
@@ -49,7 +57,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             path="/player/:id"
             element={
               <ProtectedRoute>
-                <OtherUserPage />
+                <AppShell>
+                  <OtherUserPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <SearchPage />
+                </AppShell>
               </ProtectedRoute>
             }
           />
