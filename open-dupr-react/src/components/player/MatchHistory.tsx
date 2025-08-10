@@ -28,7 +28,7 @@ type MatchTeam = {
   game3?: number;
   game4?: number;
   game5?: number;
-  preMatchRatingAndImpact?: Record<string, unknown>;
+  preMatchRatingAndImpact?: Record<string, string | number | null | undefined>;
 };
 
 type MatchData = {
