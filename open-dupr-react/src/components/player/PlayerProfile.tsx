@@ -28,10 +28,6 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({ player }) => {
 
   return (
     <div>
-      {(() => {
-        console.log("[PlayerProfile] player", player);
-        return null;
-      })()}
       <PlayerHeader
         name={player.fullName}
         imageUrl={player.imageUrl}

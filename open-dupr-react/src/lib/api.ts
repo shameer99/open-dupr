@@ -17,9 +17,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   });
 
   if (response.status === 401) {
-    // Token is invalid or expired, log the user out
     localStorage.removeItem("accessToken");
-    // Redirect to login page
     window.location.href = "/login";
     throw new Error("Unauthorized");
   }
