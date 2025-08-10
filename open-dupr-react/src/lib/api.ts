@@ -32,5 +32,46 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 }
 
 export const getMyProfile = () => apiFetch("/user/v1/profile");
-export const getPlayerProfile = (id: string) =>
-  apiFetch(`/player/search/byDuprId?duprId=${id}`);
+
+// Social/Follow API functions
+export const getFollowInfo = (feedId: number) =>
+  apiFetch(`/activity/v1/user/${feedId}/followingInfo`);
+
+export const getFollowers = (feedId: number, offset = 0, limit = 20) =>
+  apiFetch(
+    `/activity/v1/user/${feedId}/followers?offset=${offset}&limit=${limit}`
+  );
+
+export const getFollowing = (feedId: number, offset = 0, limit = 20) =>
+  apiFetch(
+    `/activity/v1/user/${feedId}/followings?offset=${offset}&limit=${limit}`
+  );
+
+export const followUser = (feedId: number) =>
+  apiFetch(`/activity/v1/user/${feedId}/follow`, { method: "POST" });
+
+export const unfollowUser = (feedId: number) =>
+  apiFetch(`/activity/v1/user/${feedId}/follow`, { method: "DELETE" });
+
+// Other User Profile API functions
+export const getOtherUserStats = (userId: number) =>
+  apiFetch(`/user/calculated/v1.0/stats/${userId}`);
+
+export const getOtherUserMatchHistory = (
+  userId: number,
+  offset = 0,
+  limit = 25
+) => apiFetch(`/player/v1.0/${userId}/history?offset=${offset}&limit=${limit}`);
+
+export const getOtherUserRatingHistory = (userId: number, type = "DOUBLES") =>
+  apiFetch(`/player/v1.0/${userId}/rating-history`, {
+    method: "POST",
+    body: JSON.stringify({ type }),
+  });
+
+export const getOtherUserFollowInfo = (userId: number) =>
+  apiFetch(`/activity/v1.1/user/${userId}/followingInfo`);
+
+// Player profile by ID (includes ratings.singles/doubles)
+export const getPlayerById = (userId: number) =>
+  apiFetch(`/player/v1.0/${userId}`);

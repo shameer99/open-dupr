@@ -15,7 +15,7 @@
 - After making code changes, verify them by running the project's linting and type-checking commands
 - Find these commands in package.json or other configuration files
 - Do NOT run the full development server
-- Examples: `bun run lint`, `bun run type-check`, `bun run build`
+- Examples: `bun run lint`, `bun run build`
 
 ## User Verification
 
@@ -35,3 +35,7 @@
 - Ensure code is clean, readable, and follows TypeScript/React best practices
 - Focus on type safety and proper error handling
 - Write maintainable and scalable code
+
+## API
+
+Check api_reference/API_GUIDE.md for the API reference. Use api_reference/EXTRACTION_PROCESS.md to update this guide for APIs not yet documented.

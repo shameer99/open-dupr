@@ -12,6 +12,8 @@ const ProfilePage: React.FC = () => {
     const fetchProfile = async () => {
       try {
         const data = await getMyProfile();
+
+        console.log("[ProfilePage] getMyProfile result", data);
         setProfile(data.result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -31,7 +33,11 @@ const ProfilePage: React.FC = () => {
     return <div>{error}</div>;
   }
 
-  return <div>{profile && <PlayerProfile player={profile} />}</div>;
+  return (
+    <div className="container mx-auto p-4">
+      {profile && <PlayerProfile player={profile} />}
+    </div>
+  );
 };
 
 export default ProfilePage;

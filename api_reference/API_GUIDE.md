@@ -863,4 +863,95 @@ Content-Type: application/json
 }
 ```
 
+## Other User Profile Data
+
+### Get User Calculated Statistics
+
+**Endpoint:** `GET /user/calculated/{version}/stats/{id}`
+
+**Purpose:** Get calculated statistics for any specific user (not just authenticated user)
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "singles": {
+      "averagePartnerDupr": 6.391,
+      "averageOpponentDupr": 3.254,
+      "averagePointsWonPercent": 0.67,
+      "halfLife": 3.0
+    },
+    "doubles": {
+      "averagePartnerDupr": 5.921,
+      "averageOpponentDupr": 4.124,
+      "averagePointsWonPercent": 0.64,
+      "halfLife": 2.8
+    },
+    "resulOverview": {
+      "wins": 32,
+      "losses": 13,
+      "pending": 0
+    }
+  }
+}
+```
+
+### Get Other User's Following Info
+
+**Endpoint:** `GET /activity/{version}/user/{feedId}/followingInfo`
+
+**Purpose:** Get follow counts and follow status for any user
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "isFollowed": true,
+    "followers": 25,
+    "followings": 18
+  }
+}
+```
+
+### Get Other User's Match History
+
+**Endpoint:** `GET /player/{version}/{id}/history?offset={offset}&limit={limit}`
+
+**Purpose:** Retrieve match history for any specific user (already documented above)
+
+### Get Other User's Rating History
+
+**Endpoint:** `POST /player/{version}/{id}/rating-history`
+
+**Purpose:** Get detailed rating history for any specific user (already documented above)
+
+## Navigation Between User Profiles
+
+When implementing other user profiles, you'll need these four endpoints:
+
+1. **Match History**: `/player/v1.0/{id}/history` - User's matches
+2. **Statistics**: `/user/calculated/v1.0/stats/{id}` - Advanced stats
+3. **Rating History**: `/player/v1.0/{id}/rating-history` - Rating progression
+4. **Follow Info**: `/activity/v1.1/user/{id}/followingInfo` - Social stats
+
+These endpoints allow full profile viewing for any user in the system, enabling navigation from followers/following lists to complete user profiles.
+
 This API guide provides all the information needed to implement the core functionality of Open DUPR as outlined in your implementation plan.

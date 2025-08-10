@@ -1,16 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import App from './App.tsx';
-import './index.css';
-import { AuthProvider } from './lib/AuthProvider.tsx';
-import LoginPage from './components/pages/Login.tsx';
-import ProfilePage from './components/pages/ProfilePage.tsx';
-import PlayerPage from './components/pages/PlayerPage.tsx';
-import NotFoundPage from './components/pages/NotFoundPage.tsx';
-import ProtectedRoute from './components/ProtectedRoute.tsx';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import App from "./App.tsx";
+import "./index.css";
+import { AuthProvider } from "./lib/AuthProvider.tsx";
+import LoginPage from "./components/pages/Login.tsx";
+import ProfilePage from "./components/pages/ProfilePage.tsx";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import FollowersPage from "./components/pages/FollowersPage.tsx";
+import FollowingPage from "./components/pages/FollowingPage.tsx";
+import OtherUserPage from "./components/pages/OtherUserPage.tsx";
+import NotFoundPage from "./components/pages/NotFoundPage.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
       <Router>
@@ -25,11 +28,28 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/user/:id/followers"
+            element={
+              <ProtectedRoute>
+                <FollowersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/:id/following"
+            element={
+              <ProtectedRoute>
+                <FollowingPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/player/:id"
             element={
               <ProtectedRoute>
-                <PlayerPage />
+                <OtherUserPage />
               </ProtectedRoute>
             }
           />
