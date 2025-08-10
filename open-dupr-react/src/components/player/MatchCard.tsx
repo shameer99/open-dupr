@@ -4,16 +4,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import MatchDetailsModal from "@/components/player/MatchDetailsModal";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-type PlayerRef = {
+export type PlayerRef = {
   id?: number;
   fullName: string;
   imageUrl?: string;
   rating?: string;
-  preRating?: string;
-  postRating?: string;
+  preRating?: string | number;
+  postRating?: string | number;
+  previousRating?: string | number;
+  oldRating?: string | number;
+  newRating?: string | number;
+  afterRating?: string | number;
+  delta?: string | number;
+  ratingDelta?: string | number;
+  postMatchRating?: {
+    doubles?: string | number;
+    singles?: string | number;
+  };
 };
 
-type MatchTeam = {
+export type MatchTeam = {
   id?: number;
   serial?: number;
   player1: PlayerRef;
@@ -26,10 +36,10 @@ type MatchTeam = {
   game3?: number;
   game4?: number;
   game5?: number;
-  preMatchRatingAndImpact?: Record<string, unknown>;
+  preMatchRatingAndImpact?: Record<string, string | number>;
 };
 
-type Match = {
+export type Match = {
   id: number;
   venue?: string;
   location?: string;
@@ -76,33 +86,35 @@ function computeUserDeltaForTeam(
   if (!userId) return null;
   const player = [team.player1, team.player2].find(
     (p) => p && p.id === userId
-  ) as PlayerRef | undefined;
+  );
   if (!player) return null;
+
   // Try direct player pre/post fields
   const preFromField = toNumber(
-    (player as any).preRating ??
-      (player as any).previousRating ??
-      (player as any).oldRating
+    player.preRating ?? player.previousRating ?? player.oldRating
   );
-  const postMatch = (player as any).postMatchRating;
-  const postFromField = postMatch
-    ? toNumber(postMatch?.doubles ?? postMatch?.singles)
+  const postFromField = player.postMatchRating
+    ? toNumber(
+        player.postMatchRating?.doubles ?? player.postMatchRating?.singles
+      )
     : toNumber(
-        (player as any).postRating ??
-          (player as any).newRating ??
-          (player as any).afterRating ??
+        player.postRating ??
+          player.newRating ??
+          player.afterRating ??
           player.rating
       );
-  if (preFromField !== null && postFromField !== null)
+
+  if (preFromField !== null && postFromField !== null) {
     return postFromField - preFromField;
+  }
+
   // Try explicit delta fields on player
-  const playerDelta = parseDelta(
-    (player as any).delta ?? (player as any).ratingDelta
-  );
+  const playerDelta = parseDelta(player.delta ?? player.ratingDelta);
   if (playerDelta !== null) return playerDelta;
+
   // Try team preMatchRatingAndImpact
   const idx = team.player1?.id === userId ? 1 : 2;
-  const impact = (team as any).preMatchRatingAndImpact || {};
+  const impact = team.preMatchRatingAndImpact || {};
   const doublesKey =
     idx === 1
       ? "matchDoubleRatingImpactPlayer1"
@@ -111,16 +123,17 @@ function computeUserDeltaForTeam(
     idx === 1
       ? "matchSingleRatingImpactPlayer1"
       : "matchSingleRatingImpactPlayer2";
-  const impactVal =
-    toNumber((impact as any)[doublesKey]) ??
-    toNumber((impact as any)[singlesKey]);
+  const impactVal = toNumber(impact[doublesKey]) ?? toNumber(impact[singlesKey]);
   if (impactVal !== null) return impactVal;
+
   // Fallback to team delta if available
   const teamDelta = parseDelta(team.delta);
   if (teamDelta !== null) return teamDelta;
+
   // Fallback to derive from rating + team delta if rating present
   const ratingNow = toNumber(player.rating);
   if (ratingNow !== null && teamDelta !== null) return teamDelta;
+
   return null;
 }
 

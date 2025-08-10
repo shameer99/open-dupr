@@ -4,43 +4,7 @@ import Avatar from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
-
-type PlayerRef = {
-  id?: number;
-  fullName: string;
-  imageUrl?: string;
-  rating?: string;
-  preRating?: string;
-  postRating?: string;
-};
-
-type MatchTeam = {
-  id?: number;
-  serial?: number;
-  player1: PlayerRef;
-  player2?: PlayerRef | null;
-  winner?: boolean;
-  delta?: string;
-  teamRating?: string;
-  game1?: number;
-  game2?: number;
-  game3?: number;
-  game4?: number;
-  game5?: number;
-};
-
-type Match = {
-  id: number;
-  venue?: string;
-  location?: string;
-  tournament?: string;
-  eventDate?: string;
-  eventFormat?: string;
-  teams: MatchTeam[];
-  noOfGames?: number;
-  confirmed?: boolean;
-  status?: string;
-};
+import { Match, MatchTeam, PlayerRef } from "./MatchCard";
 
 function getDisplayName(fullName: string) {
   const cleaned = fullName.trim().replace(/\s+/g, " ");
@@ -62,7 +26,7 @@ function extractImpactDelta(
   playerIndex: 1 | 2,
   eventFormat?: string
 ): number | null {
-  const impact = (team as any).preMatchRatingAndImpact || {};
+  const impact = team.preMatchRatingAndImpact || {};
   const keysToTry: string[] = [];
   if (eventFormat === "DOUBLES") {
     keysToTry.push(
@@ -90,7 +54,7 @@ function extractImpactDelta(
   );
 
   for (const key of keysToTry) {
-    const val = toNumber(impact?.[key] as any);
+    const val = toNumber(impact?.[key]);
     if (val !== null) return val;
   }
   return null;
@@ -100,7 +64,7 @@ function getPostMatchRating(
   player: PlayerRef,
   eventFormat?: string
 ): number | null {
-  const pmr: any = (player as any).postMatchRating;
+  const pmr = player.postMatchRating;
   if (pmr && typeof pmr === "object") {
     if (eventFormat === "DOUBLES" && pmr.doubles != null)
       return toNumber(pmr.doubles);
@@ -110,7 +74,7 @@ function getPostMatchRating(
     if (pmr.doubles != null) return toNumber(pmr.doubles);
     if (pmr.singles != null) return toNumber(pmr.singles);
   }
-  return toNumber((player as any).postRating ?? player.rating);
+  return toNumber(player.postRating ?? player.rating);
 }
 
 function getPreMatchRating(
@@ -119,7 +83,7 @@ function getPreMatchRating(
   eventFormat?: string,
   player?: PlayerRef
 ): number | null {
-  const pri: any = (team as any).preMatchRatingAndImpact;
+  const pri = team.preMatchRatingAndImpact;
   if (pri && typeof pri === "object") {
     const preKey =
       eventFormat === "DOUBLES"
@@ -144,9 +108,7 @@ function getPreMatchRating(
     }
   }
   if (player) {
-    const pre = toNumber(
-      (player as any).preMatchRating ?? (player as any).preRating
-    );
+    const pre = toNumber(player.preRating);
     if (pre !== null) return pre;
   }
   return null;
@@ -304,8 +266,8 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
   // Build game chips prominently
   const games = [1, 2, 3, 4, 5]
     .map((i) => {
-      const l = (teamA as any)[`game${i}`] as number | undefined;
-      const r = (teamB as any)[`game${i}`] as number | undefined;
+      const l = teamA[`game${i}` as keyof MatchTeam] as number | undefined;
+      const r = teamB[`game${i}` as keyof MatchTeam] as number | undefined;
       if (typeof l === "number" && l >= 0 && typeof r === "number" && r >= 0) {
         return { l, r };
       }

@@ -1,26 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getOtherUserMatchHistory } from "@/lib/api";
-import MatchCard from "@/components/player/MatchCard";
+import MatchCard, { Match } from "@/components/player/MatchCard";
 
 interface MatchHistoryProps {
   playerId?: number;
 }
 
-interface MatchData {
-  id: number;
-  venue: string;
-  eventDate: string;
-  eventFormat: string;
-  teams: Array<{
-    player1: { fullName: string; rating: string };
-    player2?: { fullName: string; rating: string };
-    winner: boolean;
-    delta: string;
-  }>;
-}
-
 const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
-  const [matches, setMatches] = useState<MatchData[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +55,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
           {matches.slice(0, 5).map((match) => (
             <MatchCard
               key={match.id}
-              match={match as any}
+              match={match}
               currentUserId={playerId}
             />
           ))}
