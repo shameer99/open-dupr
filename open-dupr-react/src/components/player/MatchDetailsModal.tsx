@@ -57,6 +57,8 @@ function toNumber(val?: string | number | null): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
+//
+
 function extractImpactDelta(
   team: MatchTeam,
   playerIndex: 1 | 2,
@@ -268,6 +270,8 @@ function TeamHeader({ team }: { team: MatchTeam }) {
     </div>
   );
 }
+
+// removed compact list; using prominent chips rendering below
 
 interface MatchDetailsModalProps {
   open: boolean;
