@@ -29,7 +29,6 @@ const PlayerRatings: React.FC<PlayerRatingsProps> = ({ singles, doubles }) => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold">Ratings</h2>
       <div className="grid grid-cols-2 gap-4 mt-2">
         <div>
           <p className="text-lg font-semibold">{formatRating(singles)}</p>

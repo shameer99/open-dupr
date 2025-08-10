@@ -10,9 +10,9 @@ interface AvatarProps {
 
 const sizeClasses = {
   sm: "w-8 h-8 text-xs",
-  md: "w-12 h-12 text-sm",
+  md: "w-12 h-12 text-base",
   lg: "w-16 h-16 text-base",
-  xl: "w-24 h-24 text-xl",
+  xl: "w-24 h-24 text-4xl",
 };
 
 const Avatar: React.FC<AvatarProps> = ({
