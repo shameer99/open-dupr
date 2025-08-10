@@ -1,0 +1,273 @@
+/* Login Container - Full viewport with perfect centering */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
+}
+
+/* Login Card - Modern card design */
+.login-card {
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 900px;
+  transition: transform 0.2s ease;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.login-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Header Section */
+.login-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.login-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+}
+
+.login-subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Form Styles */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.form-input {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Login Button */
+.login-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+.login-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Footer */
+.login-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.login-footer p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.signup-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.signup-link:hover {
+  color: #5a67d8;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+
+/* Large Desktop - Two column layout */
+@media (min-width: 1024px) {
+  .login-card {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 4rem 3rem;
+    max-width: 1000px;
+  }
+
+  .login-header {
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .login-title {
+    font-size: 3rem;
+    line-height: 1.1;
+  }
+
+  .login-subtitle {
+    font-size: 1.125rem;
+    margin-top: 1rem;
+  }
+
+  .login-form {
+    gap: 2rem;
+  }
+
+  .form-input {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+
+  .login-button {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .login-footer {
+    grid-column: 1 / -1;
+    margin-top: 2rem;
+  }
+}
+
+/* Medium Desktop */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .login-card {
+    max-width: 600px;
+    padding: 3.5rem 3rem;
+  }
+
+  .login-title {
+    font-size: 2.5rem;
+  }
+
+  .form-input {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .login-button {
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+  }
+}
+
+/* Tablet */
+@media (max-width: 767px) {
+  .login-card {
+    max-width: 500px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0.5rem;
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .login-title {
+    font-size: 1.875rem;
+  }
+
+  .form-input {
+    padding: 0.75rem;
+  }
+
+  .login-button {
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 320px) {
+  .login-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .login-title {
+    font-size: 1.625rem;
+  }
+}

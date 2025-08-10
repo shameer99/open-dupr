@@ -1,0 +1,41 @@
+# Cursor Rules for Open DUPR Project
+
+## Package Manager
+
+- Always use `bun` as the package manager instead of npm or yarn
+- Use bun commands for installing dependencies, running scripts, etc.
+
+## Git Operations
+
+- Do not perform any git operations (add, commit, push, pull, etc.)
+- Avoid git-related commands and let the user handle version control
+
+## Code Verification
+
+- After making code changes, verify them by running the project's linting and type-checking commands
+- Find these commands in package.json or other configuration files
+- Do NOT run the full development server
+- Examples: `bun run lint`, `bun run build`
+
+## User Verification
+
+- The user is running the server and will verify functionality after each prompt completes
+- Defer to the user for final verification of features and functionality
+- Focus on code correctness rather than runtime testing
+
+## Comments Policy
+
+- Use comments very rarely and sparingly
+- Never comment out code - delete unused code instead
+- Only add comments to explain the 'why' behind code when it's not obvious for a good reason
+- Prefer self-documenting code over comments
+
+## Code Quality
+
+- Ensure code is clean, readable, and follows TypeScript/React best practices
+- Focus on type safety and proper error handling
+- Write maintainable and scalable code
+
+## API
+
+Check api_reference/API_GUIDE.md for the API reference. Use api_reference/EXTRACTION_PROCESS.md to update this guide for APIs not yet documented.
