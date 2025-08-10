@@ -5,6 +5,7 @@ Features for MVP:
 - Logout
 - View profile (self or other users)
   - Defer to official site for editing own profile for now.
+  - Follow/unfollow other users
   - Name
   - Profile picture
     - Fallback to monogram if no picture
@@ -15,7 +16,7 @@ Features for MVP:
     - Singles and Doubles
     - With confidence percentage
   - Match history
-  - Followers and following
+  - Followers and following counts/lists
     - Link to other users' profiles
 - Search for players
 - Record a match
