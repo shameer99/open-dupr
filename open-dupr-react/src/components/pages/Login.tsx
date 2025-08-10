@@ -24,6 +24,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log("Login successful:", data);
       setToken(data.result.accessToken);
       navigate("/profile");
     } catch (err) {

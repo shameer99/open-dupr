@@ -16,6 +16,17 @@ const formatRating = (value: unknown): string => {
 };
 
 const PlayerRatings: React.FC<PlayerRatingsProps> = ({ singles, doubles }) => {
+  useEffect(() => {
+    // Quick debug for Safari vs Chrome behavior
+
+    console.log("[PlayerRatings] props", {
+      singles,
+      doubles,
+      typeofSingles: typeof singles,
+      typeofDoubles: typeof doubles,
+    });
+  }, [singles, doubles]);
+
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 mt-2">

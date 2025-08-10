@@ -29,6 +29,30 @@ const OtherUserPage: React.FC = () => {
           getPlayerById(parseInt(id)).catch(() => null),
         ]);
 
+        console.log("[OtherUserPage] matchHistoryData", matchHistoryData);
+        try {
+          const firstHit = matchHistoryData?.result?.hits?.[0];
+          console.log("[OtherUserPage] firstHit", firstHit);
+          console.log(
+            "[OtherUserPage] firstHit.teams",
+            firstHit?.teams,
+            Array.isArray(firstHit?.teams) ? firstHit.teams.length : null
+          );
+          const sampleTeam = firstHit?.teams?.[0];
+          if (sampleTeam) {
+            console.log(
+              "[OtherUserPage] sampleTeam.player1",
+              sampleTeam.player1
+            );
+            console.log(
+              "[OtherUserPage] sampleTeam.player2",
+              sampleTeam.player2
+            );
+          }
+        } catch (e) {
+          console.log("[OtherUserPage] debug dump error", e);
+        }
+
         // Extract user profile information from match history if available
         // (since match history contains player info)
         let userProfile: Player | null = null;
@@ -97,8 +121,10 @@ const OtherUserPage: React.FC = () => {
               doubles: ratings.doubles ?? userProfile.stats.doubles,
             },
           };
+          console.log("[OtherUserPage] ratings from player detail", ratings);
         }
 
+        console.log("[OtherUserPage] resolved userProfile", userProfile);
         setPlayer(userProfile);
       } catch (err) {
         setError(
