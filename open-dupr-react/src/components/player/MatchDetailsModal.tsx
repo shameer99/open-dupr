@@ -12,13 +12,14 @@ type PostMatchRating = {
 
 type PlayerRef = {
   id?: number;
-  fullName: string;
+  fullName:string;
   imageUrl?: string;
   rating?: string;
   preRating?: string;
   preMatchRating?: string | number | null;
   postRating?: string;
   postMatchRating?: PostMatchRating | null;
+  validatedMatch?: boolean;
 };
 
 type MatchTeam = {
@@ -221,6 +222,11 @@ function TeamBlock({
               <span className="truncate group-hover:underline">
                 {getDisplayName(p.fullName)}
               </span>
+              {p.validatedMatch === false && (
+                <span className="text-xs text-muted-foreground ml-1">
+                  (awaiting validation)
+                </span>
+              )}
             </span>
             <span className="text-sm font-mono whitespace-nowrap">
               {pre !== null && post !== null ? (
