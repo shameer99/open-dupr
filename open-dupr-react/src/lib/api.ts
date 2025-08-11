@@ -63,12 +63,6 @@ export const getOtherUserMatchHistory = (
   limit = 25
 ) => apiFetch(`/player/v1.0/${userId}/history?offset=${offset}&limit=${limit}`);
 
-export const getOtherUserRatingHistory = (userId: number, type = "DOUBLES") =>
-  apiFetch(`/player/v1.0/${userId}/rating-history`, {
-    method: "POST",
-    body: JSON.stringify({ type }),
-  });
-
 export const getOtherUserFollowInfo = (userId: number) =>
   apiFetch(`/activity/v1.1/user/${userId}/followingInfo`);
 
