@@ -139,3 +139,28 @@ export const searchPlayers = (searchRequest: PlayerSearchRequest) =>
     method: "POST",
     body: JSON.stringify(searchRequest),
   });
+
+// Match validation
+export const confirmMatch = (matchId: number) =>
+  apiFetch("/match/v1.0/confirm", {
+    method: "POST",
+    body: JSON.stringify({ matchId }),
+  });
+
+export const rejectMatch = (matchId: number) =>
+  apiFetch(`/match/v1.0/delete/${matchId}`, {
+    method: "DELETE",
+  });
+
+// Current user match history (for self)
+export const getMyMatchHistory = (offset = 0, limit = 25) =>
+  apiFetch(`/match/v1.0/history?offset=${offset}&limit=${limit}`);
+
+// Helper function to get pending matches for validation
+export const getPendingMatches = async () => {
+  // Get the current user's match history to check for pending validation
+  // Use maximum allowed limit of 25 for this endpoint
+  const data = await getMyMatchHistory(0, 25);
+  const matches = data?.result?.hits || [];
+  return matches.filter((match: { confirmed?: boolean }) => !match.confirmed);
+};

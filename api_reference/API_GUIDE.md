@@ -1010,4 +1010,61 @@ When implementing other user profiles, you'll need these four endpoints:
 
 These endpoints allow full profile viewing for any user in the system, enabling navigation from followers/following lists to complete user profiles.
 
+## Match Validation
+
+### Confirm Match
+
+**Endpoint:** `POST /match/v1.0/confirm`
+
+**Purpose:** Confirm/validate a match result
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "matchId": 5942049729
+}
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Match confirmed successfully"
+}
+```
+
+### Reject Match
+
+**Endpoint:** `DELETE /match/v1.0/delete/{matchId}`
+
+**Purpose:** Reject/delete a match result
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+```
+
+**Path Parameters:**
+
+- `matchId` (number): The ID of the match to reject
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Match deleted successfully"
+}
+```
+
 This API guide provides all the information needed to implement the core functionality of Open DUPR as outlined in your implementation plan.

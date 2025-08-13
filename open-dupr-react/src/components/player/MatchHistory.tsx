@@ -162,7 +162,17 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       {!error && matches.length > 0 && (
         <div className="mt-4 space-y-3">
           {matches.map((match) => (
-            <MatchCard key={match.id} match={match} currentUserId={playerId} />
+            <MatchCard
+              key={match.id}
+              match={match}
+              currentUserId={playerId}
+              onMatchUpdate={() => {
+                // Reload matches when a match is updated
+                if (playerId) {
+                  loadPage(playerId, 0);
+                }
+              }}
+            />
           ))}
           <div ref={loaderRef} />
           {isLoadingMore && (

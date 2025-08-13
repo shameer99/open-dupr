@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import Avatar from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import MatchDetailsModal from "@/components/player/MatchDetailsModal";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle, XCircle } from "lucide-react";
+import { confirmMatch, rejectMatch } from "@/lib/api";
 
 type PostMatchRating = {
   singles?: number | string | null;
@@ -57,6 +59,7 @@ type Match = {
 interface MatchCardProps {
   match: Match;
   currentUserId?: number;
+  onMatchUpdate?: () => void;
 }
 
 function getDisplayName(fullName: string) {
@@ -226,7 +229,11 @@ function TeamScoreChips({
   );
 }
 
-const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
+const MatchCard: React.FC<MatchCardProps> = ({
+  match,
+  currentUserId,
+  onMatchUpdate,
+}) => {
   const originalA = match.teams[0];
   const originalB = match.teams[1];
   let teamA = originalA;
@@ -269,6 +276,50 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
   const maxGames = Math.max(declaredNoOfGames, gamesA.length, gamesB.length);
 
   const [open, setOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Check if current user needs to validate this match
+  const needsValidation =
+    currentUserId &&
+    !match.confirmed &&
+    match.teams.some((team) =>
+      [team.player1, team.player2].some(
+        (player) =>
+          player &&
+          player.id === currentUserId &&
+          player.validatedMatch === false
+      )
+    );
+
+  const handleConfirm = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUserId || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await confirmMatch(match.id);
+      onMatchUpdate?.();
+    } catch (err) {
+      console.error("Failed to confirm match:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleReject = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentUserId || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await rejectMatch(match.id);
+      onMatchUpdate?.();
+    } catch (err) {
+      console.error("Failed to reject match:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <Card
@@ -342,6 +393,31 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
             </div>
             <TeamScoreChips team={teamB} opponent={teamA} maxGames={maxGames} />
           </div>
+
+          {needsValidation && (
+            <div className="flex gap-2 mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleConfirm}
+                disabled={isProcessing}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {isProcessing ? "Validating..." : "Validate"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={handleReject}
+                disabled={isProcessing}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                {isProcessing ? "Rejecting..." : "Reject"}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
       <MatchDetailsModal
@@ -349,6 +425,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
         onOpenChange={setOpen}
         match={match}
         currentUserId={currentUserId}
+        onMatchUpdate={onMatchUpdate}
       />
     </Card>
   );

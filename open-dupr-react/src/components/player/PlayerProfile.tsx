@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PlayerHeader from "./PlayerHeader";
 import PlayerRatings from "./PlayerRatings";
 import MatchHistory from "./MatchHistory";
 import PlayerStats from "./PlayerStats";
-import { followUser, getFollowInfo, unfollowUser } from "@/lib/api";
+import {
+  followUser,
+  getFollowInfo,
+  unfollowUser,
+  getPendingMatches,
+} from "@/lib/api";
 import type { Player, FollowInfo } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
+import { AlertTriangle } from "lucide-react";
 
 interface PlayerProfileProps {
   player: Player;
@@ -17,9 +24,11 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   player,
   isSelf = false,
 }) => {
+  const navigate = useNavigate();
   const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
   const [showEditInfo, setShowEditInfo] = useState(false);
+  const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchFollowInfo = async () => {
@@ -33,6 +42,46 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
 
     fetchFollowInfo();
   }, [player.id]);
+
+  useEffect(() => {
+    const fetchPendingMatches = async () => {
+      if (!isSelf) return;
+
+      try {
+        const pendingMatches = await getPendingMatches();
+
+        // Count matches where the current user needs to validate (same logic as MatchCard)
+        const userPendingCount = pendingMatches.filter(
+          (match: {
+            confirmed?: boolean;
+            teams: {
+              player1?: { id?: number; validatedMatch?: boolean };
+              player2?: { id?: number; validatedMatch?: boolean };
+            }[];
+          }) => {
+            // Must be unconfirmed
+            if (match.confirmed) return false;
+
+            // Check if current user needs to validate this match
+            return match.teams.some((team) =>
+              [team.player1, team.player2].some(
+                (teamPlayer) =>
+                  teamPlayer &&
+                  teamPlayer.id === player.id &&
+                  teamPlayer.validatedMatch === false
+              )
+            );
+          }
+        ).length;
+
+        setPendingMatchesCount(userPendingCount);
+      } catch (err) {
+        console.warn("Failed to load pending matches:", err);
+      }
+    };
+
+    fetchPendingMatches();
+  }, [player.id, isSelf]);
 
   const actionNode = (
     <div className="flex items-stretch gap-2 w-full sm:w-auto">
@@ -89,6 +138,36 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         console.log("[PlayerProfile] player", player);
         return null;
       })()}
+
+      {isSelf && pendingMatchesCount > 0 && (
+        <div
+          className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"
+          onClick={() => navigate("/validation-queue")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              navigate("/validation-queue");
+            }
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-800">
+                {pendingMatchesCount}{" "}
+                {pendingMatchesCount === 1 ? "match" : "matches"} pending
+                validation
+              </p>
+              <p className="text-xs text-yellow-600">
+                Click to review and validate your matches
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <PlayerHeader
         name={player.fullName}
         imageUrl={player.imageUrl}
