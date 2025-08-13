@@ -258,12 +258,11 @@ const FollowersFollowingPage: React.FC = () => {
       <div className="flex items-center mb-6">
         <div className="flex items-center gap-3 flex-1">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={handleBackClick}
-            className="p-2 hover:bg-gray-100"
             aria-label="Go back"
           >
-            ←
+            ← Back
           </Button>
           <Avatar src={targetImage} name={targetName} size="md" />
           <div className="flex flex-col">
