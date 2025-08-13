@@ -269,25 +269,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
     >
       <CardContent className="p-0">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="truncate">
-              {match.venue}
-              {match.eventDate ? ` • ${match.eventDate}` : ""}
-            </span>
-            {!match.confirmed && (
-              <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
-                Pending
-              </span>
-            )}
-          </div>
-
           <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
             <div
               className={`${
-                teamAWon
-                  ? "opacity-100 text-emerald-700"
-                  : "opacity-80 text-muted-foreground"
-              } min-w-0`}
+                teamAWon ? "text-emerald-700" : "text-rose-700"
+              } min-w-0 md:justify-self-start`}
             >
               <TeamStack team={teamA} />
             </div>
@@ -351,19 +337,22 @@ const MatchCard: React.FC<MatchCardProps> = ({
             </div>
             <div
               className={`${
-                teamBWon
-                  ? "opacity-100 text-emerald-700"
-                  : "opacity-80 text-muted-foreground"
-              } min-w-0 md:justify-self-end`}
+                teamBWon ? "text-emerald-700" : "text-rose-700"
+              } min-w-0 self-end md:justify-self-end`}
             >
               <TeamStack team={teamB} />
             </div>
           </div>
 
           <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <span className="truncate">
+            <span className="flex items-center gap-2 truncate">
               {match.venue}
               {match.eventDate ? ` • ${match.eventDate}` : ""}
+              {!match.confirmed && (
+                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
+                  Pending
+                </span>
+              )}
             </span>
             {userDelta !== null && (
               <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
