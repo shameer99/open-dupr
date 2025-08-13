@@ -75,3 +75,67 @@ export const getOtherUserFollowInfo = (userId: number) =>
 // Player profile by ID (includes ratings.singles/doubles)
 export const getPlayerById = (userId: number) =>
   apiFetch(`/player/v1.0/${userId}`);
+
+// Matches API
+export interface SaveMatchTeam {
+  player1: number;
+  player2?: number | "";
+  game1: number;
+  game2?: number;
+  game3?: number;
+  game4?: number;
+  game5?: number;
+  winner: boolean;
+}
+
+export interface SaveMatchRequestBody {
+  event?: string;
+  eventDate: string; // yyyy-MM-dd
+  location?: string;
+  matchType: "SIDE_ONLY" | "RALLY";
+  format: "SINGLES" | "DOUBLES";
+  team1: SaveMatchTeam;
+  team2: SaveMatchTeam;
+  notify: boolean;
+  scores: { first: number; second: number }[];
+  clubId?: number;
+  league?: string;
+  tournament?: string;
+  scoreFormatId?: number;
+}
+
+export const saveMatch = (body: SaveMatchRequestBody) =>
+  apiFetch(`/match/v1.0/save`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+
+// Player search
+export interface PlayerSearchFilter {
+  lat: number;
+  lng: number;
+  radiusInMeters: number;
+  rating: { min: number; max: number };
+}
+
+export interface PlayerSearchRequest {
+  offset: number;
+  limit: number;
+  query: string;
+  filter: PlayerSearchFilter;
+  includeUnclaimedPlayers: boolean;
+}
+
+export interface PlayerSearchHit {
+  id: number;
+  fullName: string;
+  imageUrl?: string;
+  location?: string;
+  stats?: { singles?: string; doubles?: string };
+}
+
+export const searchPlayers = (searchRequest: PlayerSearchRequest) =>
+  apiFetch("/player/v1.0/search", {
+    method: "POST",
+    body: JSON.stringify(searchRequest),
+  });
