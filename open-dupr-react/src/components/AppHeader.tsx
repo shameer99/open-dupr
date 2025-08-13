@@ -6,7 +6,7 @@ import { Menu } from "lucide-react";
 
 const AppHeader: React.FC = () => {
   const navigate = useNavigate();
-  const { setToken } = useAuth();
+  const { logout: authLogout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,7 +36,7 @@ const AppHeader: React.FC = () => {
 
   const logout = () => {
     setOpen(false);
-    setToken(null);
+    authLogout();
     navigate("/login");
   };
 

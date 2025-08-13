@@ -63,5 +63,8 @@ export interface OtherUserProfile {
 
 export interface AuthContextType {
   token: string | null;
+  refreshToken: string | null;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
+  logout: () => void;
 }

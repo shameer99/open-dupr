@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setToken } = useAuth();
+  const { setToken, setRefreshToken } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,6 +26,7 @@ export default function LoginPage() {
 
       console.log("Login successful:", data);
       setToken(data.result.accessToken);
+      setRefreshToken(data.result.refreshToken);
       navigate("/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

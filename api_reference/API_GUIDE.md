@@ -61,11 +61,38 @@ Content-Type: application/json
 }
 ```
 
+### Refresh Access Token
+
+**Endpoint:** `GET /auth/{version}/refresh`
+
+**Purpose:** Obtain new access and refresh tokens using a valid refresh token
+
+**Headers:**
+
+```
+Content-Type: application/json
+x-refresh-token: {refreshToken}
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Token refreshed successfully",
+  "result": "eyJhbGciOiJSUzUxMiJ9..."
+}
+```
+
+**Note:** The refresh endpoint returns only a new access token as a string in the `result` field. The refresh token remains the same and should be reused for subsequent refresh operations.
+
 ### Token Management
 
 - Store `accessToken` in localStorage for authenticated requests
-- Use `refreshToken` to obtain new access tokens when needed
+- Store `refreshToken` in localStorage for token refresh operations
 - Include access token in Authorization header: `Bearer {accessToken}`
+- Automatically refresh tokens when receiving 401 responses
+- Both tokens are updated together during refresh operations
 
 ## User Profile
 
