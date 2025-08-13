@@ -10,21 +10,18 @@ import {
   rejectMatch,
   getMyProfile,
 } from "@/lib/api";
+import { MatchScoreDisplay, TeamHeader } from "../player/shared/MatchDisplay";
 import {
   getDisplayName,
   toNumber,
   getGamePairs,
-  MatchScoreDisplay,
-  TeamHeader,
   arrangeTeamsForUser,
-} from "../player/shared/MatchDisplay";
+  type Match,
+  type MatchTeam,
+  type PlayerRef,
+} from "../player/shared/match-utils";
 import { MatchDetailsSkeleton } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
-import type {
-  Match,
-  MatchTeam,
-  PlayerRef,
-} from "../player/shared/MatchDisplay";
 
 function extractImpactDelta(
   team: MatchTeam,

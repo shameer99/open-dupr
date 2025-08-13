@@ -5,14 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { confirmMatch, rejectMatch } from "@/lib/api";
+import { MatchScoreDisplay } from "./shared/MatchDisplay";
 import {
   getDisplayName,
   getGamePairs,
-  MatchScoreDisplay,
   computeUserDeltaForTeam,
   arrangeTeamsForUser,
-} from "./shared/MatchDisplay";
-import type { Match, MatchTeam } from "./shared/MatchDisplay";
+  type Match,
+  type MatchTeam,
+} from "./shared/match-utils";
 
 interface MatchCardProps {
   match: Match;
