@@ -23,6 +23,7 @@ type PlayerRef = {
   postMatchRating?: PostMatchRating | null;
   delta?: string | number | null;
   ratingDelta?: string | number | null;
+  validatedMatch?: boolean;
 };
 
 type MatchTeam = {
@@ -309,9 +310,16 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, currentUserId }) => {
                 )}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground min-w-0 truncate text-right">
-              {match.venue}
-              {match.eventDate ? ` • ${match.eventDate}` : ""}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0 truncate text-right">
+              {!match.confirmed && (
+                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 text-xs font-medium">
+                  Pending Validation
+                </span>
+              )}
+              <span className="truncate">
+                {match.venue}
+                {match.eventDate ? ` • ${match.eventDate}` : ""}
+              </span>
             </div>
           </div>
 

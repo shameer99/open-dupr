@@ -16,6 +16,7 @@ type PlayerRef = {
   rating?: string;
   preRating?: string;
   postRating?: string;
+  validatedMatch?: boolean;
 };
 
 type MatchTeam = {

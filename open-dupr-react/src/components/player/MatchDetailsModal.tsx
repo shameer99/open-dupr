@@ -12,13 +12,14 @@ type PostMatchRating = {
 
 type PlayerRef = {
   id?: number;
-  fullName: string;
+  fullName:string;
   imageUrl?: string;
   rating?: string;
   preRating?: string;
   preMatchRating?: string | number | null;
   postRating?: string;
   postMatchRating?: PostMatchRating | null;
+  validatedMatch?: boolean;
 };
 
 type MatchTeam = {
@@ -388,6 +389,35 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
               eventFormat={match.eventFormat}
             />
           </div>
+
+          {!match.confirmed && (
+            <div className="mt-4 pt-4 border-t">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Awaiting Validation From
+              </h3>
+              <div className="mt-2 space-y-2">
+                {match.teams.map((team) =>
+                  [team.player1, team.player2]
+                    .filter((p) => p && p.validatedMatch === false)
+                    .map((p) => (
+                      <div
+                        key={p!.id}
+                        className="flex items-center gap-2 p-2 rounded-md border"
+                      >
+                        <Avatar
+                          name={p!.fullName}
+                          src={p!.imageUrl}
+                          size="sm"
+                        />
+                        <span className="text-sm font-medium">
+                          {p!.fullName}
+                        </span>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Modal>
