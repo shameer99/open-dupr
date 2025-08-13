@@ -269,6 +269,34 @@ const MatchCard: React.FC<MatchCardProps> = ({
     >
       <CardContent className="p-0">
         <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <div className="flex items-center gap-2">
+              {userDelta !== null && (
+                <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
+                  {userDelta >= 0 ? (
+                    <ChevronUp className="h-3 w-3 text-emerald-600" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3 text-rose-600" />
+                  )}
+                  <span
+                    className={
+                      userDelta >= 0 ? "text-emerald-700" : "text-rose-700"
+                    }
+                  >
+                    {Math.abs(userDelta).toFixed(3)}
+                  </span>
+                </span>
+              )}
+              {!match.confirmed && (
+                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
+                  Pending
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {match.eventDate && <span>{match.eventDate}</span>}
+            </div>
+          </div>
           <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
             <div
               className={`${
@@ -342,34 +370,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
             >
               <TeamStack team={teamB} />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <span className="flex items-center gap-2 truncate">
-              {match.venue}
-              {match.eventDate ? ` • ${match.eventDate}` : ""}
-              {!match.confirmed && (
-                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
-                  Pending
-                </span>
-              )}
-            </span>
-            {userDelta !== null && (
-              <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
-                {userDelta >= 0 ? (
-                  <ChevronUp className="h-3 w-3 text-emerald-600" />
-                ) : (
-                  <ChevronDown className="h-3 w-3 text-rose-600" />
-                )}
-                <span
-                  className={
-                    userDelta >= 0 ? "text-emerald-700" : "text-rose-700"
-                  }
-                >
-                  {Math.abs(userDelta).toFixed(3)}
-                </span>
-              </span>
-            )}
           </div>
 
           {needsValidation && (
