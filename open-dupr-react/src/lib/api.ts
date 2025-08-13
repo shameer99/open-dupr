@@ -1,6 +1,5 @@
 const BASE_URL = "https://api.dupr.gg";
 
-// Refresh token function
 export async function refreshAccessToken(): Promise<{
   accessToken: string;
   refreshToken: string;
@@ -26,10 +25,9 @@ export async function refreshAccessToken(): Promise<{
 
     const data = await response.json();
 
-    // The refresh endpoint returns a single token string as data.result, not an object
     const newAccessToken =
       typeof data.result === "string" ? data.result : data.result?.accessToken;
-    const newRefreshToken = localStorage.getItem("refreshToken"); // Keep existing refresh token
+    const newRefreshToken = localStorage.getItem("refreshToken");
 
     if (!newAccessToken || !newRefreshToken) {
       return null;
@@ -56,7 +54,6 @@ export async function apiFetch(
   options: RequestInit = {}
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
-  // For login endpoint, use a simple fetch without token logic
   if (path.includes("/auth/v1/login")) {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -91,17 +88,14 @@ export async function apiFetch(
     });
   };
 
-  // First attempt with current token
   const token = localStorage.getItem("accessToken");
   let response = await makeRequest(token || undefined);
 
-  // If 401 and we have a refresh token, try to refresh (but not for auth endpoints)
   if (
     response.status === 401 &&
     localStorage.getItem("refreshToken") &&
     !path.includes("/auth/")
   ) {
-    // If we're already refreshing, wait for it
     if (isRefreshing && refreshPromise) {
       const refreshResult = await refreshPromise;
       if (
@@ -112,7 +106,6 @@ export async function apiFetch(
         response = await makeRequest(refreshResult.accessToken);
       }
     } else {
-      // Start refresh process
       isRefreshing = true;
       refreshPromise = refreshAccessToken();
 
@@ -123,11 +116,9 @@ export async function apiFetch(
           refreshResult.accessToken &&
           refreshResult.refreshToken
         ) {
-          // Update localStorage with new tokens
           localStorage.setItem("accessToken", refreshResult.accessToken);
           localStorage.setItem("refreshToken", refreshResult.refreshToken);
 
-          // Trigger a custom event to update auth context
           window.dispatchEvent(
             new CustomEvent("tokenRefreshed", {
               detail: {
@@ -137,10 +128,8 @@ export async function apiFetch(
             })
           );
 
-          // Retry the original request
           response = await makeRequest(refreshResult.accessToken);
         } else {
-          // Refresh failed, redirect to login
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           window.location.href = "/login";
@@ -153,7 +142,6 @@ export async function apiFetch(
     }
   }
 
-  // If still 401 after refresh attempt, redirect to login
   if (response.status === 401) {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -170,7 +158,6 @@ export async function apiFetch(
 
 export const getMyProfile = () => apiFetch("/user/v1/profile");
 
-// Social/Follow API functions
 export const getFollowInfo = (feedId: number) =>
   apiFetch(`/activity/v1/user/${feedId}/followingInfo`);
 
@@ -190,7 +177,6 @@ export const followUser = (feedId: number) =>
 export const unfollowUser = (feedId: number) =>
   apiFetch(`/activity/v1/user/${feedId}/follow`, { method: "DELETE" });
 
-// Other User Profile API functions
 export const getOtherUserStats = (userId: number) =>
   apiFetch(`/user/calculated/v1.0/stats/${userId}`);
 
@@ -209,11 +195,9 @@ export const getOtherUserRatingHistory = (userId: number, type = "DOUBLES") =>
 export const getOtherUserFollowInfo = (userId: number) =>
   apiFetch(`/activity/v1.1/user/${userId}/followingInfo`);
 
-// Player profile by ID (includes ratings.singles/doubles)
 export const getPlayerById = (userId: number) =>
   apiFetch(`/player/v1.0/${userId}`);
 
-// Matches API
 export interface SaveMatchTeam {
   player1: number;
   player2?: number | "";
@@ -247,7 +231,6 @@ export const saveMatch = (body: SaveMatchRequestBody) =>
     body: JSON.stringify(body),
   });
 
-// Player search
 export interface PlayerSearchFilter {
   lat: number;
   lng: number;
@@ -277,7 +260,6 @@ export const searchPlayers = (searchRequest: PlayerSearchRequest) =>
     body: JSON.stringify(searchRequest),
   });
 
-// Match validation
 export const confirmMatch = (matchId: number) =>
   apiFetch("/match/v1.0/confirm", {
     method: "POST",
@@ -289,14 +271,10 @@ export const rejectMatch = (matchId: number) =>
     method: "DELETE",
   });
 
-// Current user match history (for self)
 export const getMyMatchHistory = (offset = 0, limit = 25) =>
   apiFetch(`/match/v1.0/history?offset=${offset}&limit=${limit}`);
 
-// Helper function to get pending matches for validation
 export const getPendingMatches = async () => {
-  // Get the current user's match history to check for pending validation
-  // Use maximum allowed limit of 25 for this endpoint
   const data = await getMyMatchHistory(0, 25);
   const matches = data?.result?.hits || [];
   return matches.filter((match: { confirmed?: boolean }) => !match.confirmed);

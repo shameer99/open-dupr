@@ -10,14 +10,11 @@ const formatRating = (value: unknown): string => {
   if (typeof value === "number") {
     return Number.isFinite(value) ? value.toFixed(3) : "-";
   }
-  // Preserve provided strings as-is (e.g., "NR" or "3.446")
   const text = String(value).trim();
   return text.length > 0 ? text : "-";
 };
 
 const PlayerRatings: React.FC<PlayerRatingsProps> = ({ singles, doubles }) => {
-
-
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 mt-2">

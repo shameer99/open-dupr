@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,43 +25,45 @@ const SearchPage: React.FC = () => {
   const [hasMore, setHasMore] = useState(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  const performSearch = async (reset = false) => {
-    if (!query.trim()) {
-      setHits([]);
-      setHasMore(false);
-      setOffset(0);
-      return;
-    }
-    try {
-      setLoading(true);
-      const body = {
-        offset: reset ? 0 : offset,
-        limit: DEFAULT_LIMIT,
-        query,
-        filter: {
-          // Minimal required geo filter per API guide; a large radius to be permissive
-          lat: 30.2672,
-          lng: -97.7431,
-          radiusInMeters: 5_000_000,
-          rating: { min: 1.0, max: 8.0 },
-        },
-        includeUnclaimedPlayers: false,
-      };
-      const resp = await apiFetch("/player/v1.0/search", {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
-      const newHits: SearchHit[] = resp?.result?.hits ?? [];
-      setHits((prev) => (reset ? newHits : [...prev, ...newHits]));
-      const nextOffset = (reset ? 0 : offset) + newHits.length;
-      setOffset(nextOffset);
-      setHasMore(newHits.length === DEFAULT_LIMIT);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Search failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const performSearch = useCallback(
+    async (reset = false) => {
+      if (!query.trim()) {
+        setHits([]);
+        setHasMore(false);
+        setOffset(0);
+        return;
+      }
+      try {
+        setLoading(true);
+        const body = {
+          offset: reset ? 0 : offset,
+          limit: DEFAULT_LIMIT,
+          query,
+          filter: {
+            lat: 30.2672,
+            lng: -97.7431,
+            radiusInMeters: 5_000_000,
+            rating: { min: 1.0, max: 8.0 },
+          },
+          includeUnclaimedPlayers: false,
+        };
+        const resp = await apiFetch("/player/v1.0/search", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        const newHits: SearchHit[] = resp?.result?.hits ?? [];
+        setHits((prev) => (reset ? newHits : [...prev, ...newHits]));
+        const nextOffset = (reset ? 0 : offset) + newHits.length;
+        setOffset(nextOffset);
+        setHasMore(newHits.length === DEFAULT_LIMIT);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Search failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [query, offset]
+  );
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -75,8 +77,7 @@ const SearchPage: React.FC = () => {
     );
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loading, offset, query]);
+  }, [hasMore, loading, offset, query, performSearch]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -23,17 +23,14 @@ const OtherUserPage: React.FC = () => {
       try {
         setLoading(true);
 
-        // First check if this is the current user's own profile
         const myProfile = await getMyProfile();
         const currentUserId = myProfile?.result?.id;
 
         if (currentUserId && currentUserId === parseInt(id)) {
-          // This is the user's own profile, redirect to /profile
           navigate("/profile", { replace: true });
           return;
         }
 
-        // Fetch minimal details and match history; also fetch full player by id for ratings
         const [, , matchHistoryData, playerDetail] = await Promise.all([
           getOtherUserStats(parseInt(id)).catch(() => null),
           getOtherUserFollowInfo(parseInt(id)).catch(() => null),
@@ -41,14 +38,9 @@ const OtherUserPage: React.FC = () => {
           getPlayerById(parseInt(id)).catch(() => null),
         ]);
 
-
-
-        // Extract user profile information from match history if available
-        // (since match history contains player info)
         let userProfile: Player | null = null;
 
         if (matchHistoryData?.result?.hits?.[0]?.teams) {
-          // Find the user in the match teams
           const userId = parseInt(id);
           const teams = matchHistoryData.result.hits[0].teams;
 
@@ -58,7 +50,7 @@ const OtherUserPage: React.FC = () => {
                 id: userId,
                 fullName: team.player1.fullName,
                 imageUrl: team.player1.imageUrl,
-                location: "Unknown location", // Match history doesn't include location
+                location: "Unknown location",
                 stats: {
                   singles: "NR",
                   doubles: "NR",
@@ -81,10 +73,7 @@ const OtherUserPage: React.FC = () => {
           }
         }
 
-        // If we couldn't get user info from match history, create a minimal profile
         if (!userProfile) {
-          // We can get basic info from followers/following data if available
-          // For now, create a minimal profile with just the ID
           userProfile = {
             id: parseInt(id),
             fullName: `User ${id}`,
@@ -97,7 +86,6 @@ const OtherUserPage: React.FC = () => {
           };
         }
 
-        // Override details from player detail endpoint
         const ratings = playerDetail?.result?.ratings;
         if (playerDetail?.result) {
           userProfile = {
@@ -117,9 +105,7 @@ const OtherUserPage: React.FC = () => {
               doubles: ratings?.doubles ?? userProfile.stats.doubles,
             },
           };
-
         }
-
 
         setPlayer(userProfile);
       } catch (err) {

@@ -36,7 +36,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         const data = await getFollowInfo(player.id);
         setFollowInfo(data.result);
       } catch {
-        // Silently handle follow info loading errors
+        // Error handling intentionally silent
       }
     };
 
@@ -50,7 +50,6 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
       try {
         const pendingMatches = await getPendingMatches();
 
-        // Count matches where the current user needs to validate (same logic as MatchCard)
         const userPendingCount = pendingMatches.filter(
           (match: {
             confirmed?: boolean;
@@ -59,10 +58,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
               player2?: { id?: number; validatedMatch?: boolean };
             }[];
           }) => {
-            // Must be unconfirmed
             if (match.confirmed) return false;
 
-            // Check if current user needs to validate this match
             return match.teams.some((team) =>
               [team.player1, team.player2].some(
                 (teamPlayer) =>
@@ -76,7 +73,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
 
         setPendingMatchesCount(userPendingCount);
       } catch {
-        // Silently handle pending matches loading errors
+        // Error handling intentionally silent
       }
     };
 
@@ -120,7 +117,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
                 });
               }
             } catch {
-              // Silently handle follow toggle errors
+              // Error handling intentionally silent
             } finally {
               setIsProcessingFollow(false);
             }

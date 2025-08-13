@@ -74,7 +74,7 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
 
       setSuggestions(combined);
     } catch {
-      // Silently handle suggestion loading errors
+      // Error handling intentionally silent
     }
   }, [myId]);
 
@@ -372,7 +372,7 @@ const RecordMatchPage: React.FC = () => {
           setTeam1([myPlayer, null]);
         }
       } catch {
-        // Silently handle profile loading errors
+        // Error handling intentionally silent
       }
     };
     void run();
@@ -386,7 +386,6 @@ const RecordMatchPage: React.FC = () => {
     newTeam1[index] = player;
     setTeam1(newTeam1);
 
-    // Auto-switch to doubles if adding a teammate
     if (index === 1 && player && format === "SINGLES") {
       setFormat("DOUBLES");
     }
@@ -401,7 +400,6 @@ const RecordMatchPage: React.FC = () => {
   const handleFormatChange = (newFormat: "SINGLES" | "DOUBLES") => {
     setFormat(newFormat);
     if (newFormat === "SINGLES") {
-      // Remove teammates when switching to singles
       setTeam1([team1[0], null]);
       setTeam2([team2[0], null]);
     }
@@ -594,7 +592,6 @@ const RecordMatchPage: React.FC = () => {
           )}
 
           <div className="space-y-6">
-            {/* Team 1 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 flex-1">
                 <div className="flex -space-x-2">
@@ -617,10 +614,8 @@ const RecordMatchPage: React.FC = () => {
               <ScoreInput value={team1Score} onChange={setTeam1Score} />
             </div>
 
-            {/* Separator */}
             <div className="border-t border-gray-200"></div>
 
-            {/* Team 2 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 flex-1">
                 <div className="flex -space-x-2">

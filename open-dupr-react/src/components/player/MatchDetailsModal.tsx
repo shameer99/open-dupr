@@ -68,8 +68,6 @@ function toNumber(val?: string | number | null): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
-//
-
 function extractImpactDelta(
   team: MatchTeam,
   playerIndex: 1 | 2,
@@ -90,7 +88,6 @@ function extractImpactDelta(
         : "matchSingleRatingImpactPlayer2"
     );
   }
-  // also try both in case eventFormat missing
   keysToTry.push(
     playerIndex === 1
       ? "matchDoubleRatingImpactPlayer1"
@@ -119,7 +116,6 @@ function getPostMatchRating(
       return toNumber(pmr.doubles);
     if (eventFormat === "SINGLES" && pmr.singles != null)
       return toNumber(pmr.singles);
-    // fallback: prefer doubles if present else singles
     if (pmr.doubles != null) return toNumber(pmr.doubles);
     if (pmr.singles != null) return toNumber(pmr.singles);
   }
@@ -280,8 +276,6 @@ function TeamHeader({ team }: { team: MatchTeam }) {
   );
 }
 
-// removed compact list; using prominent chips rendering below
-
 interface MatchDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -301,7 +295,6 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const onClose = () => onOpenChange(false);
 
-  // Check if current user needs to validate this match
   const needsValidation =
     currentUserId &&
     !match.confirmed &&
@@ -344,7 +337,6 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
     }
   };
 
-  // Ensure the current user's team is the left/top for coherence with cards
   const a0 = match.teams[0];
   const b0 = match.teams[1];
   const aHasUser =
@@ -360,7 +352,6 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
     navigate(`/player/${id}`);
   };
 
-  // Build game chips prominently
   const games = [1, 2, 3, 4, 5]
     .map((i) => {
       const l = teamA[`game${i}` as keyof MatchTeam] as number | undefined;

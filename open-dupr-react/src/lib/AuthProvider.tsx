@@ -12,7 +12,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.getItem("refreshToken")
   );
 
-  // Listen for token refresh events from api.ts
   useEffect(() => {
     const handleTokenRefresh = (event: CustomEvent) => {
       const { accessToken, refreshToken: newRefreshToken } = event.detail;

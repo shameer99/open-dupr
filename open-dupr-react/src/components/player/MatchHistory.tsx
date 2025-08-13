@@ -167,7 +167,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
               match={match}
               currentUserId={playerId}
               onMatchUpdate={() => {
-                // Reload matches when a match is updated
                 if (playerId) {
                   loadPage(playerId, 0);
                 }
