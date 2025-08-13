@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import MatchCard from "@/components/player/MatchCard";
+import {
+  ValidationQueueSkeleton,
+  LoadingPage,
+} from "@/components/ui/loading-skeletons";
+import { usePageLoading } from "@/lib/loading-context";
 import { getPendingMatches, getMyProfile } from "@/lib/api";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 
@@ -50,15 +55,24 @@ const ValidationQueuePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const { startPageLoad, completeLoadingStep, finishPageLoad } =
+    usePageLoading();
 
   const loadPendingMatches = useCallback(async () => {
     try {
       setLoading(true);
+      startPageLoad([
+        "Getting profile",
+        "Loading matches",
+        "Filtering matches",
+      ]);
+      completeLoadingStep("Getting profile");
       const profile = await getMyProfile();
       const userId = profile?.result?.id;
       if (!userId) throw new Error("Unable to get user profile");
 
       setCurrentUserId(userId);
+      completeLoadingStep("Loading matches");
       const matches = await getPendingMatches();
 
       // Filter matches where the current user needs to validate
@@ -71,15 +85,18 @@ const ValidationQueuePage: React.FC = () => {
         );
       }) as MatchData[];
 
+      completeLoadingStep("Filtering matches");
       setPendingMatches(userPendingMatches);
+      finishPageLoad();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load pending matches"
       );
+      finishPageLoad();
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [startPageLoad, completeLoadingStep, finishPageLoad]);
 
   useEffect(() => {
     loadPendingMatches();
@@ -87,17 +104,9 @@ const ValidationQueuePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-2xl font-bold">Validation Queue</h1>
-          </div>
-          <p className="text-muted-foreground">Loading pending matches...</p>
-        </div>
-      </div>
+      <LoadingPage>
+        <ValidationQueueSkeleton />
+      </LoadingPage>
     );
   }
 

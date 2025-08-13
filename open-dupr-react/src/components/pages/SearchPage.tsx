@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Avatar from "@/components/ui/avatar";
+import {
+  SearchResultSkeleton,
+  LoadingSpinner,
+} from "@/components/ui/loading-skeletons";
 import { apiFetch } from "@/lib/api";
 
 interface SearchHit {
@@ -105,8 +109,12 @@ const SearchPage: React.FC = () => {
       </form>
       {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
 
-      {hits.length === 0 && !loading ? (
+      {hits.length === 0 && !loading && query.trim() ? (
+        <p className="text-muted-foreground">No players found for "{query}".</p>
+      ) : hits.length === 0 && !loading ? (
         <p className="text-muted-foreground">Enter a query to find players.</p>
+      ) : loading && hits.length === 0 ? (
+        <SearchResultSkeleton />
       ) : (
         <div className="space-y-2">
           {hits.map((h) => (
@@ -132,9 +140,12 @@ const SearchPage: React.FC = () => {
             </button>
           ))}
           <div ref={loaderRef} />
-          {loading && (
-            <div className="py-3 text-center text-sm text-muted-foreground">
-              Loading…
+          {loading && hits.length > 0 && (
+            <div className="py-3 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading more...
+              </p>
             </div>
           )}
         </div>

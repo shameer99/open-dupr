@@ -8,6 +8,11 @@ import {
   getMyProfile,
 } from "@/lib/api";
 import PlayerProfile from "../player/PlayerProfile";
+import {
+  PlayerProfileSkeleton,
+  LoadingPage,
+} from "@/components/ui/loading-skeletons";
+import { usePageLoading } from "@/lib/loading-context";
 import type { Player } from "@/lib/types";
 
 const OtherUserPage: React.FC = () => {
@@ -16,20 +21,31 @@ const OtherUserPage: React.FC = () => {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { startPageLoad, completeLoadingStep, finishPageLoad } =
+    usePageLoading();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!id) return;
       try {
         setLoading(true);
+        startPageLoad([
+          "Checking user",
+          "Fetching profile",
+          "Loading user data",
+        ]);
 
+        completeLoadingStep("Checking user");
         const myProfile = await getMyProfile();
         const currentUserId = myProfile?.result?.id;
 
         if (currentUserId && currentUserId === parseInt(id)) {
+          finishPageLoad();
           navigate("/profile", { replace: true });
           return;
         }
+
+        completeLoadingStep("Fetching profile");
 
         const [, , matchHistoryData, playerDetail] = await Promise.all([
           getOtherUserStats(parseInt(id)).catch(() => null),
@@ -107,21 +123,28 @@ const OtherUserPage: React.FC = () => {
           };
         }
 
+        completeLoadingStep("Loading user data");
         setPlayer(userProfile);
+        finishPageLoad();
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load user profile"
         );
+        finishPageLoad();
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [id, navigate]);
+  }, [id, navigate, startPageLoad, completeLoadingStep, finishPageLoad]);
 
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
+    return (
+      <LoadingPage>
+        <PlayerProfileSkeleton />
+      </LoadingPage>
+    );
   }
 
   if (error) {

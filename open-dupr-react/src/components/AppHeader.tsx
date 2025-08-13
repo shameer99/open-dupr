@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
+import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Menu } from "lucide-react";
 
 const AppHeader: React.FC = () => {
@@ -41,7 +42,7 @@ const AppHeader: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <button
           type="button"
@@ -103,6 +104,7 @@ const AppHeader: React.FC = () => {
           )}
         </div>
       </div>
+      <NavigationProgress />
     </header>
   );
 };

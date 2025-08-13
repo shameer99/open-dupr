@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { getOtherUserStats } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
 import type { UserStats } from "@/lib/types";
 
 interface PlayerStatsProps {
@@ -46,16 +47,7 @@ const PlayerStats: React.FC<PlayerStatsProps> = ({ playerId }) => {
   }
 
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Stats</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Loading statistics...</p>
-        </CardContent>
-      </Card>
-    );
+    return <PlayerStatsSkeleton />;
   }
 
   if (error) {

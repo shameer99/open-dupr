@@ -3,6 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getFollowing, getOtherUserFollowInfo, getPlayerById } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import Avatar from "@/components/ui/avatar";
+import {
+  FollowUserListSkeleton,
+  LoadingSpinner,
+} from "@/components/ui/loading-skeletons";
+import { usePageLoading } from "@/lib/loading-context";
 import type { FollowUser } from "@/lib/types";
 
 const FollowingPage: React.FC = () => {
@@ -17,6 +22,8 @@ const FollowingPage: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const { startPageLoad, completeLoadingStep, finishPageLoad } =
+    usePageLoading();
   const PAGE_SIZE = 50;
 
   const loadPage = useCallback(async (userId: number, startOffset: number) => {
@@ -41,11 +48,18 @@ const FollowingPage: React.FC = () => {
       if (!id) return;
       try {
         setLoading(true);
+        startPageLoad([
+          "Getting user info",
+          "Loading following list",
+          "Rendering content",
+        ]);
+
         setFollowing([]);
         setOffset(0);
         setHasMore(true);
         const userId = parseInt(id);
 
+        completeLoadingStep("Getting user info");
         const [followInfoData, playerDetail]: [
           { result?: { followings?: number } } | null,
           { result?: { fullName?: string } } | null
@@ -59,18 +73,26 @@ const FollowingPage: React.FC = () => {
         const name = playerDetail?.result?.fullName as string | undefined;
         if (name) setTargetName(name);
 
+        completeLoadingStep("Loading following list");
         await loadPage(userId, 0);
+
+        // Wait a brief moment for React to render the content
+        setTimeout(() => {
+          completeLoadingStep("Rendering content");
+          finishPageLoad();
+        }, 50);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load following"
         );
+        finishPageLoad();
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id, loadPage]);
+  }, [id, loadPage, startPageLoad, completeLoadingStep, finishPageLoad]);
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -109,8 +131,8 @@ const FollowingPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
-        <div>Loading...</div>
+      <div className="container mx-auto p-4 max-w-2xl">
+        <FollowUserListSkeleton />
       </div>
     );
   }
@@ -171,8 +193,11 @@ const FollowingPage: React.FC = () => {
           ))}
           <div ref={loaderRef} />
           {isLoadingMore && (
-            <div className="py-4 text-center text-sm text-muted-foreground">
-              Loading more…
+            <div className="py-4 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading more...
+              </p>
             </div>
           )}
         </div>

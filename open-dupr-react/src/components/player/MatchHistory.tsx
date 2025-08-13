@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getOtherUserMatchHistory } from "@/lib/api";
 import MatchCard from "@/components/player/MatchCard";
 import { Button } from "@/components/ui/button";
+import {
+  MatchCardSkeleton,
+  LoadingSpinner,
+} from "@/components/ui/loading-skeletons";
 
 interface MatchHistoryProps {
   playerId?: number;
@@ -153,7 +157,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       </div>
 
       {loading && (
-        <p className="text-muted-foreground mt-2">Loading matches...</p>
+        <div className="mt-4 space-y-3">
+          {[1, 2, 3].map((i) => (
+            <MatchCardSkeleton key={i} />
+          ))}
+        </div>
       )}
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
@@ -175,8 +183,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           ))}
           <div ref={loaderRef} />
           {isLoadingMore && (
-            <div className="py-4 text-center text-sm text-muted-foreground">
-              Loading more…
+            <div className="py-4 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading more...
+              </p>
             </div>
           )}
         </div>
