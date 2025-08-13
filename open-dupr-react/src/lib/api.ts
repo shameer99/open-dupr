@@ -1,10 +1,18 @@
+import Cookies from "js-cookie";
+
 const BASE_URL = "https://api.dupr.gg";
+
+let accessToken: string | null = null;
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+};
 
 export async function refreshAccessToken(): Promise<{
   accessToken: string;
   refreshToken: string;
 } | null> {
-  const refreshToken = localStorage.getItem("refreshToken");
+  const refreshToken = Cookies.get("refreshToken");
 
   if (!refreshToken) {
     return null;
@@ -27,11 +35,13 @@ export async function refreshAccessToken(): Promise<{
 
     const newAccessToken =
       typeof data.result === "string" ? data.result : data.result?.accessToken;
-    const newRefreshToken = localStorage.getItem("refreshToken");
+    const newRefreshToken = Cookies.get("refreshToken");
 
     if (!newAccessToken || !newRefreshToken) {
       return null;
     }
+
+    setAccessToken(newAccessToken);
 
     return {
       accessToken: newAccessToken,
@@ -72,14 +82,14 @@ export async function apiFetch(
     return response.json();
   }
 
-  const makeRequest = async (accessToken?: string) => {
+  const makeRequest = async (token?: string) => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     return fetch(`${BASE_URL}${path}`, {
@@ -88,12 +98,11 @@ export async function apiFetch(
     });
   };
 
-  const token = localStorage.getItem("accessToken");
-  let response = await makeRequest(token || undefined);
+  let response = await makeRequest(accessToken || undefined);
 
   if (
     response.status === 401 &&
-    localStorage.getItem("refreshToken") &&
+    Cookies.get("refreshToken") &&
     !path.includes("/auth/")
   ) {
     if (isRefreshing && refreshPromise) {
@@ -116,9 +125,6 @@ export async function apiFetch(
           refreshResult.accessToken &&
           refreshResult.refreshToken
         ) {
-          localStorage.setItem("accessToken", refreshResult.accessToken);
-          localStorage.setItem("refreshToken", refreshResult.refreshToken);
-
           window.dispatchEvent(
             new CustomEvent("tokenRefreshed", {
               detail: {
@@ -130,8 +136,6 @@ export async function apiFetch(
 
           response = await makeRequest(refreshResult.accessToken);
         } else {
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
           window.location.href = "/login";
           throw new Error("Session expired");
         }
@@ -143,8 +147,6 @@ export async function apiFetch(
   }
 
   if (response.status === 401) {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     window.location.href = "/login";
     throw new Error("Unauthorized");
   }
