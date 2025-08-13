@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 interface PlayerRatingsProps {
   singles?: string | number | null;
@@ -16,16 +16,7 @@ const formatRating = (value: unknown): string => {
 };
 
 const PlayerRatings: React.FC<PlayerRatingsProps> = ({ singles, doubles }) => {
-  useEffect(() => {
-    // Quick debug for Safari vs Chrome behavior
 
-    console.log("[PlayerRatings] props", {
-      singles,
-      doubles,
-      typeofSingles: typeof singles,
-      typeofDoubles: typeof doubles,
-    });
-  }, [singles, doubles]);
 
   return (
     <div>

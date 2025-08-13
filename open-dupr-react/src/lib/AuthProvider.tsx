@@ -15,24 +15,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Listen for token refresh events from api.ts
   useEffect(() => {
     const handleTokenRefresh = (event: CustomEvent) => {
-      console.log("[authdebug] AuthProvider received tokenRefreshed event");
       const { accessToken, refreshToken: newRefreshToken } = event.detail;
-      console.log("[authdebug] Updating auth context with new tokens");
       setToken(accessToken);
       setRefreshToken(newRefreshToken);
     };
 
-    console.log(
-      "[authdebug] AuthProvider setting up tokenRefreshed event listener"
-    );
     window.addEventListener(
       "tokenRefreshed",
       handleTokenRefresh as EventListener
     );
     return () => {
-      console.log(
-        "[authdebug] AuthProvider cleaning up tokenRefreshed event listener"
-      );
       window.removeEventListener(
         "tokenRefreshed",
         handleTokenRefresh as EventListener

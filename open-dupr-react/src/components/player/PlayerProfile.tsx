@@ -35,8 +35,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
       try {
         const data = await getFollowInfo(player.id);
         setFollowInfo(data.result);
-      } catch (err) {
-        console.warn("Failed to load follow info:", err);
+      } catch {
+        // Silently handle follow info loading errors
       }
     };
 
@@ -75,8 +75,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         ).length;
 
         setPendingMatchesCount(userPendingCount);
-      } catch (err) {
-        console.warn("Failed to load pending matches:", err);
+      } catch {
+        // Silently handle pending matches loading errors
       }
     };
 
@@ -119,8 +119,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
                   followers: (followInfo.followers ?? 0) + 1,
                 });
               }
-            } catch (err) {
-              console.warn("Failed to toggle follow:", err);
+            } catch {
+              // Silently handle follow toggle errors
             } finally {
               setIsProcessingFollow(false);
             }
@@ -134,11 +134,6 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
 
   return (
     <div>
-      {(() => {
-        console.log("[PlayerProfile] player", player);
-        return null;
-      })()}
-
       {isSelf && pendingMatchesCount > 0 && (
         <div
           className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"

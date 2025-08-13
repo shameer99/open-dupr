@@ -73,8 +73,8 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
         );
 
       setSuggestions(combined);
-    } catch (error) {
-      console.error("Failed to load suggestions:", error);
+    } catch {
+      // Silently handle suggestion loading errors
     }
   }, [myId]);
 
@@ -108,8 +108,7 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
         setSearchResults(
           results.filter((player: PlayerSearchHit) => player.id !== myId)
         );
-      } catch (error) {
-        console.error("Search failed:", error);
+      } catch {
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -372,8 +371,8 @@ const RecordMatchPage: React.FC = () => {
           setMyProfile(myPlayer);
           setTeam1([myPlayer, null]);
         }
-      } catch (error) {
-        console.error("Failed to load profile:", error);
+      } catch {
+        // Silently handle profile loading errors
       }
     };
     void run();

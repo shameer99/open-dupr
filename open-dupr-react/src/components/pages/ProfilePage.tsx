@@ -13,7 +13,7 @@ const ProfilePage: React.FC = () => {
       try {
         const data = await getMyProfile();
 
-        console.log("[ProfilePage] getMyProfile result", data);
+
         setProfile(data.result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");

@@ -6,20 +6,12 @@ export async function refreshAccessToken(): Promise<{
   refreshToken: string;
 } | null> {
   const refreshToken = localStorage.getItem("refreshToken");
-  console.log(
-    "[authdebug] refreshAccessToken called, refreshToken exists:",
-    !!refreshToken
-  );
 
   if (!refreshToken) {
-    console.log("[authdebug] No refresh token found in localStorage");
     return null;
   }
 
   try {
-    console.log(
-      "[authdebug] Attempting refresh token request to /auth/v1/refresh"
-    );
     const response = await fetch(`${BASE_URL}/auth/v1/refresh`, {
       method: "GET",
       headers: {
@@ -28,46 +20,18 @@ export async function refreshAccessToken(): Promise<{
       },
     });
 
-    console.log("[authdebug] Refresh response status:", response.status);
-
     if (!response.ok) {
-      console.log("[authdebug] Refresh failed with status:", response.status);
-      const errorText = await response.text();
-      console.log("[authdebug] Refresh error response:", errorText);
       return null;
     }
 
     const data = await response.json();
-    console.log("[authdebug] Refresh successful, received response:");
-    console.log(
-      "[authdebug] Full response data:",
-      JSON.stringify(data, null, 2)
-    );
-    console.log("[authdebug] data.result:", data.result);
 
     // The refresh endpoint returns a single token string as data.result, not an object
     const newAccessToken =
       typeof data.result === "string" ? data.result : data.result?.accessToken;
     const newRefreshToken = localStorage.getItem("refreshToken"); // Keep existing refresh token
 
-    console.log("[authdebug] Parsed accessToken:", newAccessToken);
-    console.log("[authdebug] Using existing refreshToken:", newRefreshToken);
-    console.log(
-      "[authdebug] New accessToken length:",
-      newAccessToken?.length || 0
-    );
-    console.log(
-      "[authdebug] RefreshToken length:",
-      newRefreshToken?.length || 0
-    );
-
     if (!newAccessToken || !newRefreshToken) {
-      console.log(
-        "[authdebug] Missing tokens, accessToken:",
-        !!newAccessToken,
-        "refreshToken:",
-        !!newRefreshToken
-      );
       return null;
     }
 
@@ -76,7 +40,7 @@ export async function refreshAccessToken(): Promise<{
       refreshToken: newRefreshToken,
     };
   } catch (error) {
-    console.log("[authdebug] Refresh request failed with error:", error);
+    console.error("Token refresh failed:", error);
     return null;
   }
 }
@@ -90,12 +54,10 @@ let refreshPromise: Promise<{
 export async function apiFetch(
   path: string,
   options: RequestInit = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
-  console.log("[authdebug] apiFetch called for path:", path);
-
   // For login endpoint, use a simple fetch without token logic
   if (path.includes("/auth/v1/login")) {
-    console.log("[authdebug] Login endpoint detected, using simple fetch");
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...((options.headers as Record<string, string>) || {}),
@@ -107,16 +69,9 @@ export async function apiFetch(
     });
 
     if (!response.ok) {
-      console.log(
-        "[authdebug] Login request failed with status:",
-        response.status
-      );
-      const errorText = await response.text();
-      console.log("[authdebug] Login error response:", errorText);
       throw new Error(`API request failed with status ${response.status}`);
     }
 
-    console.log("[authdebug] Login request successful");
     return response.json();
   }
 
@@ -128,12 +83,6 @@ export async function apiFetch(
 
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
-      console.log(
-        "[authdebug] Making request with accessToken (length):",
-        accessToken.length
-      );
-    } else {
-      console.log("[authdebug] Making request without accessToken");
     }
 
     return fetch(`${BASE_URL}${path}`, {
@@ -143,15 +92,8 @@ export async function apiFetch(
   };
 
   // First attempt with current token
-  let token = localStorage.getItem("accessToken");
-  console.log("[authdebug] Current accessToken exists:", !!token);
-  console.log(
-    "[authdebug] Current refreshToken exists:",
-    !!localStorage.getItem("refreshToken")
-  );
-
+  const token = localStorage.getItem("accessToken");
   let response = await makeRequest(token || undefined);
-  console.log("[authdebug] Initial request response status:", response.status);
 
   // If 401 and we have a refresh token, try to refresh (but not for auth endpoints)
   if (
@@ -159,27 +101,18 @@ export async function apiFetch(
     localStorage.getItem("refreshToken") &&
     !path.includes("/auth/")
   ) {
-    console.log("[authdebug] Got 401, attempting token refresh...");
-
     // If we're already refreshing, wait for it
     if (isRefreshing && refreshPromise) {
-      console.log(
-        "[authdebug] Already refreshing, waiting for existing promise"
-      );
       const refreshResult = await refreshPromise;
       if (
         refreshResult &&
         refreshResult.accessToken &&
         refreshResult.refreshToken
       ) {
-        console.log("[authdebug] Using tokens from existing refresh");
         response = await makeRequest(refreshResult.accessToken);
-      } else {
-        console.log("[authdebug] Existing refresh failed, tokens missing");
       }
     } else {
       // Start refresh process
-      console.log("[authdebug] Starting new refresh process");
       isRefreshing = true;
       refreshPromise = refreshAccessToken();
 
@@ -190,9 +123,6 @@ export async function apiFetch(
           refreshResult.accessToken &&
           refreshResult.refreshToken
         ) {
-          console.log(
-            "[authdebug] Refresh successful, updating localStorage and retrying request"
-          );
           // Update localStorage with new tokens
           localStorage.setItem("accessToken", refreshResult.accessToken);
           localStorage.setItem("refreshToken", refreshResult.refreshToken);
@@ -209,12 +139,7 @@ export async function apiFetch(
 
           // Retry the original request
           response = await makeRequest(refreshResult.accessToken);
-          console.log(
-            "[authdebug] Retry request response status:",
-            response.status
-          );
         } else {
-          console.log("[authdebug] Refresh failed, redirecting to login");
           // Refresh failed, redirect to login
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
@@ -226,15 +151,10 @@ export async function apiFetch(
         refreshPromise = null;
       }
     }
-  } else if (response.status === 401) {
-    console.log("[authdebug] Got 401 but no refresh token available");
   }
 
   // If still 401 after refresh attempt, redirect to login
   if (response.status === 401) {
-    console.log(
-      "[authdebug] Still 401 after refresh attempt, redirecting to login"
-    );
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login";
@@ -242,11 +162,9 @@ export async function apiFetch(
   }
 
   if (!response.ok) {
-    console.log("[authdebug] Request failed with status:", response.status);
     throw new Error(`API request failed with status ${response.status}`);
   }
 
-  console.log("[authdebug] Request successful");
   return response.json();
 }
 
@@ -382,12 +300,4 @@ export const getPendingMatches = async () => {
   const data = await getMyMatchHistory(0, 25);
   const matches = data?.result?.hits || [];
   return matches.filter((match: { confirmed?: boolean }) => !match.confirmed);
-};
-
-// Debug helper function to test refresh endpoint directly
-export const debugTestRefresh = async () => {
-  console.log("[authdebug] === TESTING REFRESH ENDPOINT DIRECTLY ===");
-  const result = await refreshAccessToken();
-  console.log("[authdebug] Direct refresh test result:", result);
-  return result;
 };
