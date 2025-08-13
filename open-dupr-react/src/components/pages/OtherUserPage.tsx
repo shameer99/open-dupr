@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   getOtherUserStats,
   getOtherUserFollowInfo,
   getOtherUserMatchHistory,
   getPlayerById,
+  getMyProfile,
 } from "@/lib/api";
 import PlayerProfile from "../player/PlayerProfile";
 import type { Player } from "@/lib/types";
 
 const OtherUserPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,16 @@ const OtherUserPage: React.FC = () => {
       if (!id) return;
       try {
         setLoading(true);
+
+        // First check if this is the current user's own profile
+        const myProfile = await getMyProfile();
+        const currentUserId = myProfile?.result?.id;
+
+        if (currentUserId && currentUserId === parseInt(id)) {
+          // This is the user's own profile, redirect to /profile
+          navigate("/profile", { replace: true });
+          return;
+        }
 
         // Fetch minimal details and match history; also fetch full player by id for ratings
         const [, , matchHistoryData, playerDetail] = await Promise.all([
@@ -142,7 +154,7 @@ const OtherUserPage: React.FC = () => {
     };
 
     fetchUserProfile();
-  }, [id]);
+  }, [id, navigate]);
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading...</div>;
