@@ -29,6 +29,11 @@ const AppHeader: React.FC = () => {
     navigate("/search");
   };
 
+  const goToRecordMatch = () => {
+    setOpen(false);
+    navigate("/record-match");
+  };
+
   const logout = () => {
     setOpen(false);
     setToken(null);
@@ -78,6 +83,13 @@ const AppHeader: React.FC = () => {
                 className="w-full px-3 py-2 text-left hover:bg-accent"
               >
                 Search Players
+              </button>
+              <button
+                type="button"
+                onClick={goToRecordMatch}
+                className="w-full px-3 py-2 text-left hover:bg-accent"
+              >
+                Record Match
               </button>
               <div className="my-1 h-px bg-border" />
               <button

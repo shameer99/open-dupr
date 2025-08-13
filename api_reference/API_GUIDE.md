@@ -258,6 +258,62 @@ Content-Type: application/json
 
 ## Player Search
 
+## Record a Match
+
+### Save Match
+
+Following the extraction process, this endpoint allows recording a new match. It maps to `PUT /match/{version}/save` with body schema `MatchRequest`.
+
+**Endpoint:** `PUT /match/v1.0/save`
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Request Body (subset for minimal singles entry):**
+
+```json
+{
+  "event": "Open DUPR match",
+  "eventDate": "2025-08-10",
+  "location": "",
+  "matchType": "SIDE_ONLY",
+  "format": "SINGLES",
+  "notify": true,
+  "scores": [{ "first": 11, "second": 9 }],
+  "team1": {
+    "player1": 8585842234,
+    "player2": "",
+    "game1": 11,
+    "game2": -1,
+    "game3": -1,
+    "game4": -1,
+    "game5": -1,
+    "winner": true
+  },
+  "team2": {
+    "player1": 7114776205,
+    "player2": "",
+    "game1": 9,
+    "game2": -1,
+    "game3": -1,
+    "game4": -1,
+    "game5": -1,
+    "winner": false
+  }
+}
+```
+
+Notes:
+
+- Required fields per schema: `eventDate`, `format`, `notify`, `scores`, `team1`, `team2`.
+- `team.player2` may be sent as an empty string for singles.
+- `scores` is an array of `{ first, second }` pairs; for a single game, provide one pair.
+- `matchType` supports `SIDE_ONLY` or `RALLY`. Minimal flow uses `SIDE_ONLY`.
+
 ### Search Players
 
 **Endpoint:** `POST /player/{version}/search`

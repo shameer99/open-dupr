@@ -14,6 +14,7 @@ import NotFoundPage from "./components/pages/NotFoundPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import AppShell from "./components/AppShell.tsx";
 import SearchPage from "./components/pages/SearchPage.tsx";
+import RecordMatchPage from "./components/pages/RecordMatchPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -69,6 +70,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <ProtectedRoute>
                 <AppShell>
                   <SearchPage />
+                </AppShell>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record-match"
+            element={
+              <ProtectedRoute>
+                <AppShell>
+                  <RecordMatchPage />
                 </AppShell>
               </ProtectedRoute>
             }

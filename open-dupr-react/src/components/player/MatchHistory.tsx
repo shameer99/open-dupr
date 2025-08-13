@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getOtherUserMatchHistory } from "@/lib/api";
 import MatchCard from "@/components/player/MatchCard";
+import { Button } from "@/components/ui/button";
 
 interface MatchHistoryProps {
   playerId?: number;
@@ -44,6 +46,7 @@ type MatchData = {
 };
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
+  const navigate = useNavigate();
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,11 +133,16 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
 
   return (
     <div>
-      <div className="flex flex-col">
-        <h2 className="text-xl font-bold">Match History</h2>
-        <p className="text-sm text-muted-foreground">
-          {count} {count === 1 ? "match" : "matches"}
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold">Match History</h2>
+          <p className="text-sm text-muted-foreground">
+            {count} {count === 1 ? "match" : "matches"}
+          </p>
+        </div>
+        <Button variant="default" onClick={() => navigate("/record-match")}>
+          Record match
+        </Button>
       </div>
 
       {loading && (
