@@ -1,129 +1,23 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import MatchDetailsModal from "@/components/player/MatchDetailsModal";
 import { CheckCircle, XCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { confirmMatch, rejectMatch } from "@/lib/api";
-
-type PostMatchRating = {
-  singles?: number | string | null;
-  doubles?: number | string | null;
-};
-
-type PlayerRef = {
-  id?: number;
-  fullName: string;
-  imageUrl?: string;
-  rating?: string;
-  preRating?: string;
-  previousRating?: string;
-  oldRating?: string;
-  postRating?: string;
-  newRating?: string;
-  afterRating?: string;
-  postMatchRating?: PostMatchRating | null;
-  delta?: string | number | null;
-  ratingDelta?: string | number | null;
-  validatedMatch?: boolean;
-};
-
-type MatchTeam = {
-  id?: number;
-  serial?: number;
-  player1: PlayerRef;
-  player2?: PlayerRef | null;
-  winner?: boolean;
-  delta?: string;
-  teamRating?: string;
-  game1?: number;
-  game2?: number;
-  game3?: number;
-  game4?: number;
-  game5?: number;
-  preMatchRatingAndImpact?: Record<string, string | number | null | undefined>;
-};
-
-type Match = {
-  id: number;
-  venue?: string;
-  location?: string;
-  tournament?: string;
-  eventDate?: string;
-  eventFormat?: string;
-  teams: MatchTeam[];
-  noOfGames?: number;
-  confirmed?: boolean;
-};
+import {
+  getDisplayName,
+  getGamePairs,
+  MatchScoreDisplay,
+  computeUserDeltaForTeam,
+  arrangeTeamsForUser,
+} from "./shared/MatchDisplay";
+import type { Match, MatchTeam } from "./shared/MatchDisplay";
 
 interface MatchCardProps {
   match: Match;
   currentUserId?: number;
   onMatchUpdate?: () => void;
-}
-
-function getDisplayName(fullName: string) {
-  const cleaned = fullName.trim().replace(/\s+/g, " ");
-  const parts = cleaned.split(" ");
-  if (parts.length === 1) return parts[0];
-  const first = parts[0];
-  const lastInitial = parts[parts.length - 1]?.charAt(0) ?? "";
-  return `${first} ${lastInitial}.`;
-}
-
-function toNumber(val?: string | number | null): number | null {
-  if (val === undefined || val === null) return null;
-  const num = typeof val === "number" ? val : parseFloat(val);
-  return Number.isFinite(num) ? num : null;
-}
-
-function parseDelta(delta?: string | number | null): number | null {
-  if (delta === undefined || delta === null) return null;
-  if (typeof delta === "number") return delta;
-  const cleaned = delta.replace(/[+]/g, "");
-  const num = parseFloat(cleaned);
-  return Number.isFinite(num) ? num : null;
-}
-
-function computeUserDeltaForTeam(
-  team: MatchTeam,
-  userId?: number
-): number | null {
-  if (!userId) return null;
-  const player = [team.player1, team.player2].find((p) => p && p.id === userId);
-  if (!player) return null;
-  const preFromField = toNumber(
-    player.preRating ?? player.previousRating ?? player.oldRating
-  );
-  const postMatch = player.postMatchRating ?? null;
-  const postFromField = postMatch
-    ? toNumber(postMatch.doubles ?? postMatch.singles)
-    : toNumber(
-        player.postRating ??
-          player.newRating ??
-          player.afterRating ??
-          player.rating
-      );
-  if (preFromField !== null && postFromField !== null)
-    return postFromField - preFromField;
-  const playerDelta = parseDelta(player.delta ?? player.ratingDelta);
-  if (playerDelta !== null) return playerDelta;
-  const idx = team.player1?.id === userId ? 1 : 2;
-  const impact = team.preMatchRatingAndImpact || {};
-  const doublesKey =
-    idx === 1
-      ? "matchDoubleRatingImpactPlayer1"
-      : "matchDoubleRatingImpactPlayer2";
-  const singlesKey =
-    idx === 1
-      ? "matchSingleRatingImpactPlayer1"
-      : "matchSingleRatingImpactPlayer2";
-  const impactVal =
-    toNumber(impact[doublesKey]) ?? toNumber(impact[singlesKey]);
-  if (impactVal !== null) return impactVal;
-  const teamDelta = parseDelta(team.delta);
-  if (teamDelta !== null) return teamDelta;
-  return null;
 }
 
 function TeamStack({ team }: { team: MatchTeam }) {
@@ -159,56 +53,18 @@ function TeamStack({ team }: { team: MatchTeam }) {
   );
 }
 
-function getGamePairs(a?: MatchTeam, b?: MatchTeam) {
-  const pairs: { a: number; b: number }[] = [];
-  if (!a || !b) return pairs;
-  const indices = [1, 2, 3, 4, 5] as const;
-  for (const i of indices) {
-    const left = a[`game${i}` as keyof MatchTeam] as number | undefined;
-    const right = b[`game${i}` as keyof MatchTeam] as number | undefined;
-    if (
-      typeof left === "number" &&
-      left >= 0 &&
-      typeof right === "number" &&
-      right >= 0
-    ) {
-      pairs.push({ a: left, b: right });
-    }
-  }
-  return pairs;
-}
-
 const MatchCard: React.FC<MatchCardProps> = ({
   match,
   currentUserId,
   onMatchUpdate,
 }) => {
-  const originalA = match.teams[0];
-  const originalB = match.teams[1];
-  let teamA = originalA;
-  let teamB = originalB;
-
-  if (currentUserId && originalA && originalB) {
-    const aHasUser = [originalA.player1?.id, originalA.player2?.id].includes(
-      currentUserId
-    );
-    const bHasUser = [originalB.player1?.id, originalB.player2?.id].includes(
-      currentUserId
-    );
-    if (!aHasUser && bHasUser) {
-      teamA = originalB;
-      teamB = originalA;
-    }
-  }
-
+  const navigate = useNavigate();
+  const { teamA, teamB } = arrangeTeamsForUser(match.teams, currentUserId);
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
-
   const gamePairs = getGamePairs(teamA, teamB);
-  const isUserContext = Boolean(currentUserId);
   const userDelta = computeUserDeltaForTeam(teamA, currentUserId);
 
-  const [open, setOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Check if current user needs to validate this match
@@ -257,13 +113,31 @@ const MatchCard: React.FC<MatchCardProps> = ({
   return (
     <Card
       className="p-4 cursor-pointer transition hover:bg-accent/40"
-      onClick={() => setOpen(true)}
+      onClick={() => {
+        const path = currentUserId
+          ? `/match/${match.id}/player/${currentUserId}`
+          : `/match/${match.id}`;
+        navigate(path, {
+          state: {
+            match,
+            perspectiveUserId: currentUserId,
+          },
+        });
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          setOpen(true);
+          const path = currentUserId
+            ? `/match/${match.id}/player/${currentUserId}`
+            : `/match/${match.id}`;
+          navigate(path, {
+            state: {
+              match,
+              perspectiveUserId: currentUserId,
+            },
+          });
         }
       }}
     >
@@ -306,62 +180,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
               <TeamStack team={teamA} />
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
-              {gamePairs.length === 1 && (
-                <div className="text-5xl md:text-6xl font-bold leading-none tabular-nums">
-                  {(() => {
-                    const g = gamePairs[0];
-                    const aWon = g.a > g.b;
-                    const aClass = isUserContext
-                      ? aWon
-                        ? "text-emerald-600"
-                        : "text-rose-600"
-                      : aWon
-                      ? "text-foreground"
-                      : "text-muted-foreground";
-                    const bClass = isUserContext
-                      ? "text-muted-foreground"
-                      : !aWon
-                      ? "text-foreground"
-                      : "text-muted-foreground";
-                    return (
-                      <>
-                        <span className={aClass}>{g.a}</span>
-                        <span className="mx-1 text-foreground">–</span>
-                        <span className={bClass}>{g.b}</span>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-              {gamePairs.length > 1 && (
-                <div className="grid gap-1 text-base md:text-lg font-semibold tabular-nums">
-                  {gamePairs.map((g, i) => {
-                    const aWon = g.a > g.b;
-                    const aClass = isUserContext
-                      ? aWon
-                        ? "text-emerald-600"
-                        : "text-rose-600"
-                      : aWon
-                      ? "text-foreground"
-                      : "text-muted-foreground";
-                    const bClass = isUserContext
-                      ? "text-muted-foreground"
-                      : !aWon
-                      ? "text-foreground"
-                      : "text-muted-foreground";
-                    return (
-                      <div key={i} className="text-center">
-                        <span className={aClass}>{g.a}</span>
-                        <span className="mx-1 text-foreground">–</span>
-                        <span className={bClass}>{g.b}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {gamePairs.length === 0 && (
-                <div className="text-muted-foreground">—</div>
-              )}
+              <MatchScoreDisplay
+                games={gamePairs}
+                currentUserId={currentUserId}
+                size="small"
+              />
             </div>
             <div
               className={`${
@@ -398,13 +221,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
           )}
         </div>
       </CardContent>
-      <MatchDetailsModal
-        open={open}
-        onOpenChange={setOpen}
-        match={match}
-        currentUserId={currentUserId}
-        onMatchUpdate={onMatchUpdate}
-      />
     </Card>
   );
 };

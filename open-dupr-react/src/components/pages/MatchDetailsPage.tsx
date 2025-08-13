@@ -1,72 +1,30 @@
-import React, { useState } from "react";
-import Modal from "@/components/ui/modal";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { X, CheckCircle, XCircle } from "lucide-react";
-import { confirmMatch, rejectMatch } from "@/lib/api";
-
-type PostMatchRating = {
-  singles?: number | string | null;
-  doubles?: number | string | null;
-};
-
-type PlayerRef = {
-  id?: number;
-  fullName: string;
-  imageUrl?: string;
-  rating?: string;
-  preRating?: string;
-  preMatchRating?: string | number | null;
-  postRating?: string;
-  postMatchRating?: PostMatchRating | null;
-  validatedMatch?: boolean;
-};
-
-type MatchTeam = {
-  id?: number;
-  serial?: number;
-  player1: PlayerRef;
-  player2?: PlayerRef | null;
-  winner?: boolean;
-  delta?: string;
-  teamRating?: string;
-  game1?: number;
-  game2?: number;
-  game3?: number;
-  game4?: number;
-  game5?: number;
-  preMatchRatingAndImpact?: Record<string, string | number | null | undefined>;
-};
-
-type Match = {
-  id: number;
-  venue?: string;
-  location?: string;
-  tournament?: string;
-  eventDate?: string;
-  eventFormat?: string;
-  teams: MatchTeam[];
-  noOfGames?: number;
-  confirmed?: boolean;
-  status?: string;
-};
-
-function getDisplayName(fullName: string) {
-  const cleaned = fullName.trim().replace(/\s+/g, " ");
-  const parts = cleaned.split(" ");
-  if (parts.length === 1) return parts[0];
-  const first = parts[0];
-  const lastInitial = parts[parts.length - 1]?.charAt(0) ?? "";
-  return `${first} ${lastInitial}.`;
-}
-
-function toNumber(val?: string | number | null): number | null {
-  if (val === undefined || val === null) return null;
-  const num = typeof val === "number" ? val : parseFloat(val);
-  return Number.isFinite(num) ? num : null;
-}
+import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import {
+  getMatchDetails,
+  confirmMatch,
+  rejectMatch,
+  getMyProfile,
+} from "@/lib/api";
+import {
+  getDisplayName,
+  toNumber,
+  getGamePairs,
+  MatchScoreDisplay,
+  TeamHeader,
+  arrangeTeamsForUser,
+} from "../player/shared/MatchDisplay";
+import { MatchDetailsSkeleton } from "@/components/ui/loading-skeletons";
+import { usePageLoading } from "@/lib/loading-context";
+import type {
+  Match,
+  MatchTeam,
+  PlayerRef,
+} from "../player/shared/MatchDisplay";
 
 function extractImpactDelta(
   team: MatchTeam,
@@ -243,57 +201,169 @@ function TeamBlock({
   );
 }
 
-function TeamHeader({ team }: { team: MatchTeam }) {
-  const isDoubles = Boolean(team.player2);
-  return (
-    <div className="flex items-center gap-2 min-w-0">
-      <div className="flex -space-x-2">
-        <Avatar
-          name={team.player1.fullName}
-          src={team.player1.imageUrl}
-          size="sm"
-          className="ring-2 ring-background"
-        />
-        {isDoubles && (
-          <Avatar
-            name={team.player2!.fullName}
-            src={team.player2!.imageUrl}
-            size="sm"
-            className="ring-2 ring-background"
-          />
-        )}
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-sm font-medium">
-          {isDoubles
-            ? `${getDisplayName(team.player1.fullName)} & ${getDisplayName(
-                team.player2!.fullName
-              )}`
-            : getDisplayName(team.player1.fullName)}
+const MatchDetailsPage: React.FC = () => {
+  const { id, playerId } = useParams<{ id: string; playerId?: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Try to get data from navigation state first
+  const navigationState = location.state as {
+    match?: Match;
+    perspectiveUserId?: number;
+  } | null;
+  const passedMatch = navigationState?.match;
+  const passedPerspectiveUserId = navigationState?.perspectiveUserId;
+
+  const [match, setMatch] = useState<Match | null>(passedMatch || null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [perspectiveUserId] = useState<number | null>(
+    passedPerspectiveUserId || (playerId ? parseInt(playerId) : null)
+  );
+  const [loading, setLoading] = useState(!passedMatch); // Skip loading if we have data
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { startPageLoad, completeLoadingStep, finishPageLoad } =
+    usePageLoading();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id) {
+        setError("Invalid match ID");
+        setLoading(false);
+        finishPageLoad();
+        return;
+      }
+
+      // If we already have match data from navigation, we only need to fetch user profile
+      if (passedMatch) {
+        try {
+          startPageLoad(["Loading user profile"]);
+          completeLoadingStep("Loading user profile");
+
+          const profileData = await getMyProfile().then((r) => r?.result);
+          if (profileData?.id) {
+            setCurrentUserId(profileData.id);
+          }
+
+          finishPageLoad();
+        } catch (err) {
+          console.error("Failed to fetch user profile:", err);
+          finishPageLoad();
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // Otherwise, fetch both match details and user profile
+      try {
+        startPageLoad([
+          "Fetching match details",
+          "Loading user profile",
+          "Processing match data",
+        ]);
+
+        setLoading(true);
+
+        completeLoadingStep("Fetching match details");
+        const matchResponse = getMatchDetails(parseInt(id));
+
+        completeLoadingStep("Loading user profile");
+        const profileResponse = getMyProfile();
+
+        // Wait for both to complete
+        const [matchData, profileData] = await Promise.all([
+          matchResponse.then((r) => r?.result),
+          profileResponse.then((r) => r?.result),
+        ]);
+
+        completeLoadingStep("Processing match data");
+
+        if (matchData) {
+          setMatch(matchData);
+        } else {
+          setError("Match not found");
+        }
+
+        if (profileData?.id) {
+          setCurrentUserId(profileData.id);
+        }
+
+        finishPageLoad();
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        setError("Failed to load match details");
+        finishPageLoad();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, passedMatch, startPageLoad, completeLoadingStep, finishPageLoad]);
+
+  const handleConfirm = async () => {
+    if (!match || !currentUserId || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await confirmMatch(match.id);
+      // Refresh match data
+      const response = await getMatchDetails(match.id);
+      const matchData = response?.result;
+      if (matchData) {
+        setMatch(matchData);
+      }
+    } catch (err) {
+      console.error("Failed to confirm match:", err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!match || !currentUserId || isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      await rejectMatch(match.id);
+      navigate(-1);
+    } catch (err) {
+      console.error("Failed to reject match:", err);
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleClickPlayer = (id?: number) => {
+    if (!id) return;
+    navigate(`/player/${id}`);
+  };
+
+  if (loading) {
+    return <MatchDetailsSkeleton />;
+  }
+
+  if (error || !match) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="text-destructive mb-4">
+              {error || "Match not found"}
+            </div>
+            <Button variant="outline" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Go Back
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-interface MatchDetailsModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  match: Match;
-  currentUserId?: number;
-  onMatchUpdate?: () => void;
-}
-
-const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
-  open,
-  onOpenChange,
-  match,
-  currentUserId,
-  onMatchUpdate,
-}) => {
-  const navigate = useNavigate();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const onClose = () => onOpenChange(false);
+    );
+  }
 
   const needsValidation =
     currentUserId &&
@@ -307,138 +377,67 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
       )
     );
 
-  const handleConfirm = async () => {
-    if (!currentUserId || isProcessing) return;
-
-    try {
-      setIsProcessing(true);
-      await confirmMatch(match.id);
-      onMatchUpdate?.();
-      onClose();
-    } catch (err) {
-      console.error("Failed to confirm match:", err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleReject = async () => {
-    if (!currentUserId || isProcessing) return;
-
-    try {
-      setIsProcessing(true);
-      await rejectMatch(match.id);
-      onMatchUpdate?.();
-      onClose();
-    } catch (err) {
-      console.error("Failed to reject match:", err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const a0 = match.teams[0];
-  const b0 = match.teams[1];
-  const aHasUser =
-    currentUserId && [a0.player1?.id, a0.player2?.id].includes(currentUserId);
-  const bHasUser =
-    currentUserId && [b0.player1?.id, b0.player2?.id].includes(currentUserId);
-  const teamA = !aHasUser && bHasUser ? b0 : a0;
-  const teamB = !aHasUser && bHasUser ? a0 : b0;
-
-  const handleClickPlayer = (id?: number) => {
-    if (!id) return;
-    onClose();
-    navigate(`/player/${id}`);
-  };
-
-  const games = [1, 2, 3, 4, 5]
-    .map((i) => {
-      const l = teamA[`game${i}` as keyof MatchTeam] as number | undefined;
-      const r = teamB[`game${i}` as keyof MatchTeam] as number | undefined;
-      if (typeof l === "number" && l >= 0 && typeof r === "number" && r >= 0) {
-        return { l, r };
-      }
-      return null;
-    })
-    .filter(Boolean) as { l: number; r: number }[];
-  const aIsWinner = Boolean(teamA?.winner);
-  const bIsWinner = Boolean(teamB?.winner);
-  const isUserContext = Boolean(currentUserId);
-  const aScoreClass = isUserContext
-    ? aIsWinner
-      ? "text-emerald-600"
-      : bIsWinner
-      ? "text-rose-600"
-      : "text-foreground"
-    : aIsWinner
-    ? "text-foreground"
-    : "text-muted-foreground";
-  const bScoreClass = isUserContext
-    ? "text-muted-foreground"
-    : bIsWinner
-    ? "text-foreground"
-    : "text-muted-foreground";
+  // Use perspective user for team arrangement and colors, fallback to logged-in user
+  const effectiveUserId = perspectiveUserId || currentUserId;
+  const { teamA, teamB } = arrangeTeamsForUser(
+    match.teams,
+    effectiveUserId || undefined
+  );
+  const games = getGamePairs(teamA, teamB);
 
   return (
-    <Modal open={open} onClose={onClose} ariaLabel="Match details">
-      <Card className="rounded-xl border-0 shadow-none">
-        <CardHeader className="px-4 pt-4 pb-2">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle className="text-base">
-                {match.venue}
-                {match.location ? ` • ${match.location}` : ""}
-              </CardTitle>
-              <div className="text-sm text-muted-foreground">
-                {match.eventDate}
-                {match.tournament ? ` • ${match.tournament}` : ""}
+    <div className="container mx-auto p-4 max-w-4xl">
+      <div className="mb-4">
+        <Button variant="outline" onClick={handleBack}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+      </div>
+
+      <Card className="rounded-xl">
+        <CardHeader className="px-6 pt-6 pb-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              {(match.eventName || match.venue) && (
+                <CardTitle className="text-xl">
+                  {match.eventName || match.venue}
+                </CardTitle>
+              )}
+              <div className="text-sm text-muted-foreground font-mono">
+                ID: {match.id}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border hover:bg-accent"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {match.venue && (
+              <div className="text-sm text-muted-foreground">
+                {match.location
+                  ? `${match.venue} • ${match.location}`
+                  : match.venue}
+              </div>
+            )}
+            <div className="text-sm text-muted-foreground">
+              {match.eventDate}
+              {match.tournament ? ` • ${match.tournament}` : ""}
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="px-4 pb-4">
-          <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6">
+        <CardContent className="px-6 pb-6">
+          <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-8">
             <div className="justify-self-start">
               <TeamHeader team={teamA} />
             </div>
             <div className="flex flex-col items-center justify-center gap-2">
-              {games.length === 1 && (
-                <div className="text-5xl font-bold leading-none tabular-nums">
-                  <span className={aScoreClass}>{games[0].l}</span>
-                  <span className="mx-1 text-foreground">–</span>
-                  <span className={bScoreClass}>{games[0].r}</span>
-                </div>
-              )}
-              {games.length > 1 && (
-                <div className="grid gap-1 text-lg md:text-xl font-semibold tabular-nums">
-                  {games.map((g, i) => (
-                    <div key={i} className="text-center">
-                      <span className={aScoreClass}>{g.l}</span>
-                      <span className="mx-1 text-foreground">–</span>
-                      <span className={bScoreClass}>{g.r}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {games.length === 0 && (
-                <div className="text-muted-foreground">—</div>
-              )}
+              <MatchScoreDisplay
+                games={games}
+                currentUserId={effectiveUserId || undefined}
+                size="large"
+              />
             </div>
             <div className="justify-self-end">
               <TeamHeader team={teamB} />
             </div>
           </div>
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
             <TeamBlock
               team={teamA}
               onClickPlayer={handleClickPlayer}
@@ -452,18 +451,18 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
           </div>
 
           {!match.confirmed && (
-            <div className="mt-4 pt-4 border-t">
-              <h3 className="text-sm font-medium text-muted-foreground">
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
                 Awaiting Validation From
               </h3>
-              <div className="mt-2 space-y-2">
+              <div className="space-y-2">
                 {match.teams.map((team) =>
                   [team.player1, team.player2]
                     .filter((p) => p && p.validatedMatch === false)
                     .map((p) => (
                       <div
                         key={p!.id}
-                        className="flex items-center gap-2 p-2 rounded-md border"
+                        className="flex items-center gap-3 p-3 rounded-md border"
                       >
                         <Avatar
                           name={p!.fullName}
@@ -481,13 +480,14 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
           )}
 
           {needsValidation && (
-            <div className="mt-4 pt-4 border-t">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4">
                 Action Required
               </h3>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <Button
                   variant="outline"
+                  size="lg"
                   className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
                   onClick={handleConfirm}
                   disabled={isProcessing}
@@ -497,6 +497,7 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
                 </Button>
                 <Button
                   variant="outline"
+                  size="lg"
                   className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
                   onClick={handleReject}
                   disabled={isProcessing}
@@ -509,8 +510,8 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
           )}
         </CardContent>
       </Card>
-    </Modal>
+    </div>
   );
 };
 
-export default MatchDetailsModal;
+export default MatchDetailsPage;

@@ -185,3 +185,100 @@ export const FollowUserListSkeleton: React.FC = () => (
     ))}
   </div>
 );
+
+export const MatchDetailsSkeleton: React.FC = () => (
+  <div className="container mx-auto p-4 max-w-4xl">
+    <div className="mb-4">
+      <Skeleton className="h-10 w-20" />
+    </div>
+
+    <Card className="rounded-xl">
+      <CardContent className="px-6 pt-6 pb-4">
+        <div className="space-y-2 mb-6">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-4 w-64" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-8">
+          <div className="justify-self-start">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex -space-x-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+              <div className="min-w-0">
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Skeleton className="h-16 w-24" />
+          </div>
+
+          <div className="justify-self-end">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex -space-x-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+              <div className="min-w-0">
+                <Skeleton className="h-4 w-28" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="grid gap-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 rounded-md border p-2"
+              >
+                <span className="flex items-center gap-3 min-w-0">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                </span>
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 rounded-md border p-2"
+              >
+                <span className="flex items-center gap-3 min-w-0">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-4 w-20" />
+                </span>
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 pt-6 border-t">
+          <Skeleton className="h-4 w-40 mb-4" />
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-md border"
+              >
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+);

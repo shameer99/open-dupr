@@ -279,3 +279,6 @@ export const getPendingMatches = async () => {
   const matches = data?.result?.hits || [];
   return matches.filter((match: { confirmed?: boolean }) => !match.confirmed);
 };
+
+export const getMatchDetails = (matchId: number) =>
+  apiFetch(`/match/${matchId}`);

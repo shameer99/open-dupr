@@ -16,6 +16,7 @@ import AppShell from "./components/AppShell.tsx";
 import SearchPage from "./components/pages/SearchPage.tsx";
 import RecordMatchPage from "./components/pages/RecordMatchPage.tsx";
 import ValidationQueuePage from "./components/pages/ValidationQueuePage.tsx";
+import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -82,6 +83,26 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <ProtectedRoute>
                   <AppShell>
                     <ValidationQueuePage />
+                  </AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/match/:id"
+              element={
+                <ProtectedRoute>
+                  <AppShell>
+                    <MatchDetailsPage />
+                  </AppShell>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/match/:id/player/:playerId"
+              element={
+                <ProtectedRoute>
+                  <AppShell>
+                    <MatchDetailsPage />
                   </AppShell>
                 </ProtectedRoute>
               }

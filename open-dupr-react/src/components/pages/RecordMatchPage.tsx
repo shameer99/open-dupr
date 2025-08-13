@@ -429,7 +429,6 @@ const RecordMatchPage: React.FC = () => {
 
       const team1Won = team1Score > team2Score;
       const body: SaveMatchRequestBody = {
-        event: "Open DUPR match",
         eventDate,
         location: "",
         matchType: "SIDE_ONLY",
