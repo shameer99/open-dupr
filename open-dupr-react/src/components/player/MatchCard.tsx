@@ -3,7 +3,7 @@ import Avatar from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import MatchDetailsModal from "@/components/player/MatchDetailsModal";
-import { ChevronDown, ChevronUp, CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { confirmMatch, rejectMatch } from "@/lib/api";
 
 type PostMatchRating = {
@@ -92,7 +92,6 @@ function computeUserDeltaForTeam(
   if (!userId) return null;
   const player = [team.player1, team.player2].find((p) => p && p.id === userId);
   if (!player) return null;
-  // Try direct player pre/post fields
   const preFromField = toNumber(
     player.preRating ?? player.previousRating ?? player.oldRating
   );
@@ -107,10 +106,8 @@ function computeUserDeltaForTeam(
       );
   if (preFromField !== null && postFromField !== null)
     return postFromField - preFromField;
-  // Try explicit delta fields on player
   const playerDelta = parseDelta(player.delta ?? player.ratingDelta);
   if (playerDelta !== null) return playerDelta;
-  // Try team preMatchRatingAndImpact
   const idx = team.player1?.id === userId ? 1 : 2;
   const impact = team.preMatchRatingAndImpact || {};
   const doublesKey =
@@ -124,20 +121,16 @@ function computeUserDeltaForTeam(
   const impactVal =
     toNumber(impact[doublesKey]) ?? toNumber(impact[singlesKey]);
   if (impactVal !== null) return impactVal;
-  // Fallback to team delta if available
   const teamDelta = parseDelta(team.delta);
   if (teamDelta !== null) return teamDelta;
-  // Fallback to derive from rating + team delta if rating present
-  const ratingNow = toNumber(player.rating);
-  if (ratingNow !== null && teamDelta !== null) return teamDelta;
   return null;
 }
 
 function TeamStack({ team }: { team: MatchTeam }) {
   const isDoubles = Boolean(team.player2);
   return (
-    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 min-w-0">
-      <div className="flex -space-x-2 md:-space-x-3">
+    <div className="flex items-center gap-2 min-w-0">
+      <div className="flex -space-x-2">
         <Avatar
           name={team.player1.fullName}
           src={team.player1.imageUrl}
@@ -153,7 +146,7 @@ function TeamStack({ team }: { team: MatchTeam }) {
           />
         )}
       </div>
-      <div className="flex flex-col leading-tight md:min-w-0">
+      <div className="min-w-0">
         <span className="font-medium truncate">
           {isDoubles
             ? `${getDisplayName(team.player1.fullName)} & ${getDisplayName(
@@ -166,67 +159,23 @@ function TeamStack({ team }: { team: MatchTeam }) {
   );
 }
 
-function TeamScoreChips({
-  team,
-  opponent,
-  maxGames,
-}: {
-  team: MatchTeam;
-  opponent: MatchTeam;
-  maxGames: number;
-}) {
-  const teamGames = [
-    team.game1,
-    team.game2,
-    team.game3,
-    team.game4,
-    team.game5,
-  ].filter((g) => typeof g === "number" && g >= 0) as number[];
-  const opponentGames = [
-    opponent.game1,
-    opponent.game2,
-    opponent.game3,
-    opponent.game4,
-    opponent.game5,
-  ].filter((g) => typeof g === "number" && g >= 0) as number[];
-
-  const len = Math.min(teamGames.length, opponentGames.length);
-  const effective = Math.max(maxGames, len);
-  if (effective === 0) return null;
-
-  return (
-    <div
-      className="grid justify-end gap-1.5 md:gap-2"
-      style={{ gridTemplateColumns: `repeat(${effective}, 2rem)` }}
-    >
-      {Array.from({ length: effective }).map((_, i) => {
-        const mine = teamGames[i] as number | undefined;
-        const theirs = opponentGames[i] as number | undefined;
-        if (mine === undefined || theirs === undefined) {
-          return (
-            <span
-              key={i}
-              className="w-8 h-6 md:h-7 rounded-full border bg-muted/40"
-            />
-          );
-        }
-        const won = mine > theirs;
-        return (
-          <span
-            key={i}
-            className={`w-8 h-6 md:h-7 inline-flex items-center justify-center rounded-full text-[10px] md:text-xs font-semibold border ${
-              won
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : "bg-rose-50 text-rose-700 border-rose-200"
-            }`}
-            title={`Game ${i + 1}: ${mine}-${theirs}`}
-          >
-            {mine}
-          </span>
-        );
-      })}
-    </div>
-  );
+function getGamePairs(a?: MatchTeam, b?: MatchTeam) {
+  const pairs: { a: number; b: number }[] = [];
+  if (!a || !b) return pairs;
+  const indices = [1, 2, 3, 4, 5] as const;
+  for (const i of indices) {
+    const left = a[`game${i}` as keyof MatchTeam] as number | undefined;
+    const right = b[`game${i}` as keyof MatchTeam] as number | undefined;
+    if (
+      typeof left === "number" &&
+      left >= 0 &&
+      typeof right === "number" &&
+      right >= 0
+    ) {
+      pairs.push({ a: left, b: right });
+    }
+  }
+  return pairs;
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({
@@ -254,26 +203,10 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
+
+  const gamePairs = getGamePairs(teamA, teamB);
+  const isUserContext = Boolean(currentUserId);
   const userDelta = computeUserDeltaForTeam(teamA, currentUserId);
-  const gamesA = [
-    teamA?.game1,
-    teamA?.game2,
-    teamA?.game3,
-    teamA?.game4,
-    teamA?.game5,
-  ].filter((g) => typeof g === "number" && (g as number) >= 0) as number[];
-  const gamesB = [
-    teamB?.game1,
-    teamB?.game2,
-    teamB?.game3,
-    teamB?.game4,
-    teamB?.game5,
-  ].filter((g) => typeof g === "number" && (g as number) >= 0) as number[];
-  const declaredNoOfGames =
-    typeof match.noOfGames === "number" && match.noOfGames > 0
-      ? match.noOfGames
-      : 0;
-  const maxGames = Math.max(declaredNoOfGames, gamesA.length, gamesB.length);
 
   const [open, setOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -336,62 +269,118 @@ const MatchCard: React.FC<MatchCardProps> = ({
     >
       <CardContent className="p-0">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="shrink-0">
-              <div
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold border ${
-                  teamAWon || teamBWon
-                    ? teamAWon
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : "bg-rose-50 text-rose-700 border-rose-200"
-                    : "bg-muted text-muted-foreground"
-                }`}
-                title={teamAWon ? "Win" : teamBWon ? "Loss" : "Pending"}
-              >
-                <span>{teamAWon ? "W" : teamBWon ? "L" : "-"}</span>
-                {userDelta !== null && (
-                  <span className="ml-1 inline-flex items-center font-mono">
-                    {userDelta >= 0 ? (
-                      <ChevronUp className="h-3 w-3" />
-                    ) : (
-                      <ChevronDown className="h-3 w-3" />
-                    )}
-                    <span>{Math.abs(userDelta).toFixed(3)}</span>
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0 truncate text-right">
-              {!match.confirmed && (
-                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 text-xs font-medium">
-                  Pending Validation
-                </span>
-              )}
-              <span className="truncate">
-                {match.venue}
-                {match.eventDate ? ` • ${match.eventDate}` : ""}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="truncate">
+              {match.venue}
+              {match.eventDate ? ` • ${match.eventDate}` : ""}
+            </span>
+            {!match.confirmed && (
+              <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
+                Pending
               </span>
-            </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-2">
+          <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
             <div
               className={`${
-                teamAWon ? "opacity-100" : "opacity-70"
-              } flex items-center gap-3`}
+                teamAWon
+                  ? "opacity-100 text-emerald-700"
+                  : "opacity-80 text-muted-foreground"
+              } min-w-0`}
             >
               <TeamStack team={teamA} />
             </div>
-            <TeamScoreChips team={teamA} opponent={teamB} maxGames={maxGames} />
-
+            <div className="flex flex-col items-center justify-center gap-1">
+              {gamePairs.length === 1 && (
+                <div className="text-5xl md:text-6xl font-bold leading-none tabular-nums">
+                  {(() => {
+                    const g = gamePairs[0];
+                    const aWon = g.a > g.b;
+                    const aClass = isUserContext
+                      ? aWon
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                      : aWon
+                      ? "text-foreground"
+                      : "text-muted-foreground";
+                    const bClass = isUserContext
+                      ? "text-muted-foreground"
+                      : !aWon
+                      ? "text-foreground"
+                      : "text-muted-foreground";
+                    return (
+                      <>
+                        <span className={aClass}>{g.a}</span>
+                        <span className="mx-1 text-foreground">–</span>
+                        <span className={bClass}>{g.b}</span>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+              {gamePairs.length > 1 && (
+                <div className="grid gap-1 text-base md:text-lg font-semibold tabular-nums">
+                  {gamePairs.map((g, i) => {
+                    const aWon = g.a > g.b;
+                    const aClass = isUserContext
+                      ? aWon
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                      : aWon
+                      ? "text-foreground"
+                      : "text-muted-foreground";
+                    const bClass = isUserContext
+                      ? "text-muted-foreground"
+                      : !aWon
+                      ? "text-foreground"
+                      : "text-muted-foreground";
+                    return (
+                      <div key={i} className="text-center">
+                        <span className={aClass}>{g.a}</span>
+                        <span className="mx-1 text-foreground">–</span>
+                        <span className={bClass}>{g.b}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {gamePairs.length === 0 && (
+                <div className="text-muted-foreground">—</div>
+              )}
+            </div>
             <div
               className={`${
-                teamBWon ? "opacity-100" : "opacity-70"
-              } flex items-center gap-3`}
+                teamBWon
+                  ? "opacity-100 text-emerald-700"
+                  : "opacity-80 text-muted-foreground"
+              } min-w-0 md:justify-self-end`}
             >
               <TeamStack team={teamB} />
             </div>
-            <TeamScoreChips team={teamB} opponent={teamA} maxGames={maxGames} />
+          </div>
+
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span className="truncate">
+              {match.venue}
+              {match.eventDate ? ` • ${match.eventDate}` : ""}
+            </span>
+            {userDelta !== null && (
+              <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
+                {userDelta >= 0 ? (
+                  <ChevronUp className="h-3 w-3 text-emerald-600" />
+                ) : (
+                  <ChevronDown className="h-3 w-3 text-rose-600" />
+                )}
+                <span
+                  className={
+                    userDelta >= 0 ? "text-emerald-700" : "text-rose-700"
+                  }
+                >
+                  {Math.abs(userDelta).toFixed(3)}
+                </span>
+              </span>
+            )}
           </div>
 
           {needsValidation && (

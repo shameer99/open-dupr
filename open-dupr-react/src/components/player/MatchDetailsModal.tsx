@@ -246,7 +246,7 @@ function TeamBlock({
 function TeamHeader({ team }: { team: MatchTeam }) {
   const isDoubles = Boolean(team.player2);
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 min-w-0">
       <div className="flex -space-x-2">
         <Avatar
           name={team.player1.fullName}
@@ -362,6 +362,23 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
       return null;
     })
     .filter(Boolean) as { l: number; r: number }[];
+  const aIsWinner = Boolean(teamA?.winner);
+  const bIsWinner = Boolean(teamB?.winner);
+  const isUserContext = Boolean(currentUserId);
+  const aScoreClass = isUserContext
+    ? aIsWinner
+      ? "text-emerald-600"
+      : bIsWinner
+      ? "text-rose-600"
+      : "text-foreground"
+    : aIsWinner
+    ? "text-foreground"
+    : "text-muted-foreground";
+  const bScoreClass = isUserContext
+    ? "text-muted-foreground"
+    : bIsWinner
+    ? "text-foreground"
+    : "text-muted-foreground";
 
   return (
     <Modal open={open} onClose={onClose} ariaLabel="Match details">
@@ -389,26 +406,31 @@ const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
           </div>
         </CardHeader>
         <CardContent className="px-4 pb-4">
-          <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-start md:gap-6">
+          <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6">
             <div className="justify-self-start">
               <TeamHeader team={teamA} />
             </div>
             <div className="flex flex-col items-center justify-center gap-2">
-              {games.length > 0 && (
-                <div className="flex flex-wrap items-center justify-center gap-2">
+              {games.length === 1 && (
+                <div className="text-5xl font-bold leading-none tabular-nums">
+                  <span className={aScoreClass}>{games[0].l}</span>
+                  <span className="mx-1 text-foreground">–</span>
+                  <span className={bScoreClass}>{games[0].r}</span>
+                </div>
+              )}
+              {games.length > 1 && (
+                <div className="grid gap-1 text-lg md:text-xl font-semibold tabular-nums">
                   {games.map((g, i) => (
-                    <span
-                      key={i}
-                      className={`rounded-full px-3 py-1.5 text-sm font-semibold border ${
-                        g.l > g.r
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-rose-50 text-rose-700 border-rose-200"
-                      }`}
-                    >
-                      {g.l}-{g.r}
-                    </span>
+                    <div key={i} className="text-center">
+                      <span className={aScoreClass}>{g.l}</span>
+                      <span className="mx-1 text-foreground">–</span>
+                      <span className={bScoreClass}>{g.r}</span>
+                    </div>
                   ))}
                 </div>
+              )}
+              {games.length === 0 && (
+                <div className="text-muted-foreground">—</div>
               )}
             </div>
             <div className="justify-self-end">
