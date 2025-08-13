@@ -8,8 +8,7 @@ import { LoadingProvider } from "./lib/loading-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
 
-import FollowersPage from "./components/pages/FollowersPage.tsx";
-import FollowingPage from "./components/pages/FollowingPage.tsx";
+import FollowersFollowingPage from "./components/pages/FollowersFollowingPage.tsx";
 import OtherUserPage from "./components/pages/OtherUserPage.tsx";
 import NotFoundPage from "./components/pages/NotFoundPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
@@ -38,21 +37,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             />
 
             <Route
-              path="/user/:id/followers"
+              path="/user/:id/social"
               element={
                 <ProtectedRoute>
                   <AppShell>
-                    <FollowersPage />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/user/:id/following"
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <FollowingPage />
+                    <FollowersFollowingPage />
                   </AppShell>
                 </ProtectedRoute>
               }

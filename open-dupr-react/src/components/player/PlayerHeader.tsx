@@ -29,11 +29,11 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   const navigate = useNavigate();
 
   const handleFollowersClick = () => {
-    navigate(`/user/${playerId}/followers`);
+    navigate(`/user/${playerId}/social?tab=followers`);
   };
 
   const handleFollowingClick = () => {
-    navigate(`/user/${playerId}/following`);
+    navigate(`/user/${playerId}/social?tab=following`);
   };
 
   const calculateAge = (dateString?: string): number | null => {
