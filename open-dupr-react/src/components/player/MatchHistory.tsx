@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 interface MatchHistoryProps {
   playerId?: number;
+  isSelf?: boolean;
 }
 
 type PlayerRef = {
@@ -45,7 +46,10 @@ type MatchData = {
   confirmed?: boolean;
 };
 
-const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
+const MatchHistory: React.FC<MatchHistoryProps> = ({
+  playerId,
+  isSelf = false,
+}) => {
   const navigate = useNavigate();
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -140,9 +144,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ playerId }) => {
             {count} {count === 1 ? "match" : "matches"}
           </p>
         </div>
-        <Button variant="default" onClick={() => navigate("/record-match")}>
-          Record match
-        </Button>
+        {isSelf && (
+          <Button variant="default" onClick={() => navigate("/record-match")}>
+            Add Match
+          </Button>
+        )}
       </div>
 
       {loading && (

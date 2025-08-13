@@ -89,7 +89,7 @@ const AppHeader: React.FC = () => {
                 onClick={goToRecordMatch}
                 className="w-full px-3 py-2 text-left hover:bg-accent"
               >
-                Record Match
+                Add Match
               </button>
               <div className="my-1 h-px bg-border" />
               <button

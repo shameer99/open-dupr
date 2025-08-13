@@ -482,9 +482,7 @@ const RecordMatchPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 px-4 py-6">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Record Match
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Match</h1>
             <p className="text-gray-600">Step 1 of 2</p>
           </div>
 

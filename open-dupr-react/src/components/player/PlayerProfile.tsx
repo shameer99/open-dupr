@@ -114,7 +114,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         <PlayerStats playerId={player.id} />
       </div>
       <div className="mt-8">
-        <MatchHistory playerId={player.id} />
+        <MatchHistory playerId={player.id} isSelf={isSelf} />
       </div>
 
       <Modal
