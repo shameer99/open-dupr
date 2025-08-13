@@ -172,15 +172,17 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
                       {player.fullName}
                     </span>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleRemovePlayer(index)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    Remove
-                  </Button>
+                  {!(teamLabel === "Your Team" && index === 0) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRemovePlayer(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <button
