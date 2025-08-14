@@ -481,7 +481,6 @@ const RecordMatchPage: React.FC = () => {
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Match</h1>
-            <p className="text-gray-600">Step 1 of 2</p>
           </div>
 
           <Card className="p-6 space-y-6 bg-white shadow-sm">
@@ -582,7 +581,6 @@ const RecordMatchPage: React.FC = () => {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Match Score</h1>
-          <p className="text-gray-600">Step 2 of 2</p>
         </div>
 
         <Card className="p-6 space-y-6 bg-white shadow-sm">
