@@ -228,7 +228,7 @@ const FollowersFollowingPage: React.FC = () => {
     activeTab === "followers" ? followersHasMore : followingHasMore;
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl h-screen flex flex-col">
+    <div className="container mx-auto p-4 max-w-2xl h-full flex flex-col">
       <div className="flex-shrink-0">
         <div className="flex items-center mb-6">
           <div className="flex items-center gap-3 flex-1">
