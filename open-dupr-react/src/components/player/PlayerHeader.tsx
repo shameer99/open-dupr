@@ -4,6 +4,7 @@ import Avatar from "@/components/ui/avatar";
 import Modal from "@/components/ui/modal";
 import { X } from "lucide-react";
 import type { FollowInfo } from "@/lib/types";
+import EnlargedAvatar from "./EnlargedAvatar";
 
 interface PlayerHeaderProps {
   name: string;
@@ -110,11 +111,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
         className="bg-transparent shadow-none border-none w-auto max-w-none"
       >
         <div className="relative">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="max-w-[80vw] max-h-[80vh] rounded-lg"
-          />
+          <EnlargedAvatar src={imageUrl} name={name} />
           <button
             onClick={() => setIsModalOpen(false)}
             className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 transition-colors"
