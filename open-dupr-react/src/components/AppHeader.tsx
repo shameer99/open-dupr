@@ -46,7 +46,12 @@ const AppHeader: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={goToProfile}
+          className="flex items-center gap-2"
+          aria-label="Go to profile"
+        >
           <img
             src="/logo.png"
             alt="Open DUPR"
@@ -57,7 +62,7 @@ const AppHeader: React.FC = () => {
               Open DUPR
             </span>
           )}
-        </div>
+        </button>
 
         {title && (
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
