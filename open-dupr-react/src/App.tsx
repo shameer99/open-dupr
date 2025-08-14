@@ -1,7 +1,12 @@
+import { ThemeProvider } from "./lib/ThemeProvider";
 import Login from "./components/pages/Login";
 
 function App() {
-  return <Login />;
+  return (
+    <ThemeProvider>
+      <Login />
+    </ThemeProvider>
+  );
 }
 
 export default App;

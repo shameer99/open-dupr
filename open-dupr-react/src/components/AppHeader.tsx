@@ -4,12 +4,12 @@ import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Menu, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/lib/ThemeProvider";
+import { useTheme } from "@/lib/useTheme";
 
 const AppHeader: React.FC = () => {
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
