@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { AuthContext } from "./auth-context";
 import type { AuthContextType } from "./types";
 
@@ -31,18 +31,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const value: AuthContextType = {
-    token,
-    refreshToken,
-    setToken: (newToken: string | null) => {
-      setToken(newToken);
-      if (newToken) {
-        localStorage.setItem("accessToken", newToken);
-      } else {
-        localStorage.removeItem("accessToken");
-      }
-    },
-    setRefreshToken: (newRefreshToken: string | null) => {
+  const setTokenHandler = useCallback((newToken: string | null) => {
+    setToken(newToken);
+    if (newToken) {
+      localStorage.setItem("accessToken", newToken);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
+  }, []);
+
+  const setRefreshTokenHandler = useCallback(
+    (newRefreshToken: string | null) => {
       setRefreshToken(newRefreshToken);
       if (newRefreshToken) {
         localStorage.setItem("refreshToken", newRefreshToken);
@@ -50,13 +49,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.removeItem("refreshToken");
       }
     },
-    logout: () => {
-      setToken(null);
-      setRefreshToken(null);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-    },
-  };
+    []
+  );
+
+  const logoutHandler = useCallback(() => {
+    setToken(null);
+    setRefreshToken(null);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      token,
+      refreshToken,
+      setToken: setTokenHandler,
+      setRefreshToken: setRefreshTokenHandler,
+      logout: logoutHandler,
+    }),
+    [
+      token,
+      refreshToken,
+      setTokenHandler,
+      setRefreshTokenHandler,
+      logoutHandler,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
