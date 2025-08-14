@@ -359,12 +359,11 @@ const RecordMatchPage: React.FC = () => {
   }, [team1, team2]);
 
   useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
+    const fetchProfile = async () => {
       try {
         const data = await getMyProfile();
         const profile = data?.result;
-        if (!cancelled && profile) {
+        if (profile) {
           const myPlayer: Player = {
             id: profile.id,
             fullName: profile.fullName,
@@ -377,9 +376,17 @@ const RecordMatchPage: React.FC = () => {
         // Error handling intentionally silent
       }
     };
-    void run();
+
+    // Listen for the custom event that fires after login
+    window.addEventListener("tokenRefreshed", fetchProfile);
+
+    // Initial fetch if token is already there
+    if (localStorage.getItem("accessToken")) {
+      fetchProfile();
+    }
+
     return () => {
-      cancelled = true;
+      window.removeEventListener("tokenRefreshed", fetchProfile);
     };
   }, []);
 
@@ -483,49 +490,13 @@ const RecordMatchPage: React.FC = () => {
           />
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="flex -space-x-2">
-                  {team1
-                    .filter((p) => p !== null)
-                    .map((player, idx) => (
-                      <Avatar
-                        key={player!.id}
-                        src={player!.imageUrl}
-                        name={player!.fullName}
-                        size="sm"
-                        className={idx > 0 ? "border-2 border-white" : ""}
-                      />
-                    ))}
-                </div>
-                <span className="text-sm font-medium text-gray-800 truncate">
-                  {getTeamDisplay(team1)}
-                </span>
-              </div>
+            <div className="flex items-center justify-center">
               <ScoreInput value={team1Score} onChange={setTeam1Score} />
             </div>
 
             <div className="border-t border-gray-200"></div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="flex -space-x-2">
-                  {team2
-                    .filter((p) => p !== null)
-                    .map((player, idx) => (
-                      <Avatar
-                        key={player!.id}
-                        src={player!.imageUrl}
-                        name={player!.fullName}
-                        size="sm"
-                        className={idx > 0 ? "border-2 border-white" : ""}
-                      />
-                    ))}
-                </div>
-                <span className="text-sm font-medium text-gray-800 truncate">
-                  {getTeamDisplay(team2)}
-                </span>
-              </div>
+            <div className="flex items-center justify-center">
               <ScoreInput value={team2Score} onChange={setTeam2Score} />
             </div>
           </div>
