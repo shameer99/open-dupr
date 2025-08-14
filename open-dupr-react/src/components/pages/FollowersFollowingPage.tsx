@@ -41,6 +41,7 @@ const FollowersFollowingPage: React.FC = () => {
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the scrollable container
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
   const PAGE_SIZE = 50;
@@ -177,7 +178,7 @@ const FollowersFollowingPage: React.FC = () => {
           }
         }
       },
-      { root: null, rootMargin: "200px", threshold: 0 }
+      { root: scrollContainerRef.current, rootMargin: "200px", threshold: 0 }
     );
 
     observer.observe(loaderRef.current);
@@ -254,107 +255,114 @@ const FollowersFollowingPage: React.FC = () => {
     activeTab === "followers" ? followersHasMore : followingHasMore;
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex items-center mb-6">
-        <div className="flex items-center gap-3 flex-1">
-          <Button
-            variant="outline"
-            onClick={handleBackClick}
-            aria-label="Go back"
-          >
-            ← Back
-          </Button>
-          <Avatar src={targetImage} name={targetName} size="md" />
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold">
-              {targetName ? `${targetName}` : "User"}
-            </h1>
+    <div className="container mx-auto p-4 max-w-2xl h-screen flex flex-col">
+      <div className="flex-shrink-0">
+        <div className="flex items-center mb-6">
+          <div className="flex items-center gap-3 flex-1">
+            <Button
+              variant="outline"
+              onClick={handleBackClick}
+              aria-label="Go back"
+            >
+              ← Back
+            </Button>
+            <Avatar src={targetImage} name={targetName} size="md" />
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold">
+                {targetName ? `${targetName}` : "User"}
+              </h1>
+            </div>
           </div>
         </div>
+
+        <div className="flex border-b border-gray-200 mb-6">
+          <button
+            onClick={() => handleTabChange("followers")}
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+              activeTab === "followers"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Followers
+            {typeof followersCount === "number" && (
+              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                {followersCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleTabChange("following")}
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+              activeTab === "following"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Following
+            {typeof followingCount === "number" && (
+              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                {followingCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="flex border-b border-gray-200 mb-6">
-        <button
-          onClick={() => handleTabChange("followers")}
-          className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
-            activeTab === "followers"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Followers
-          {typeof followersCount === "number" && (
-            <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {followersCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => handleTabChange("following")}
-          className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
-            activeTab === "following"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Following
-          {typeof followingCount === "number" && (
-            <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {followingCount}
-            </span>
-          )}
-        </button>
+      <div
+        className="flex-grow overflow-y-auto"
+        ref={scrollContainerRef}
+      >
+        {listLoading && currentList.length === 0 ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
+              >
+                <div className="h-12 w-12 rounded-full bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded" />
+                  <div className="h-3 w-24 bg-gray-200 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : currentList.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">
+            No {activeTab} to display.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {currentList.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border"
+                onClick={() => handleUserClick(user.id)}
+              >
+                <Avatar src={user.profileImage} name={user.name} size="md" />
+                <div className="flex-1">
+                  <p className="font-medium">
+                    {user.name?.trim().replace(/\s+/g, " ")}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Click to view profile
+                  </p>
+                </div>
+              </div>
+            ))}
+            <div ref={loaderRef} />
+            {(isLoadingMore || listLoading) && hasMore && (
+              <div className="py-4 text-center">
+                <LoadingSpinner size="sm" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Loading more...
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {listLoading && currentList.length === 0 ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
-            >
-              <div className="h-12 w-12 rounded-full bg-gray-200" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-32 bg-gray-200 rounded" />
-                <div className="h-3 w-24 bg-gray-200 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : currentList.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">
-          No {activeTab} to display.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {currentList.map((user) => (
-            <div
-              key={user.id}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border"
-              onClick={() => handleUserClick(user.id)}
-            >
-              <Avatar src={user.profileImage} name={user.name} size="md" />
-              <div className="flex-1">
-                <p className="font-medium">
-                  {user.name?.trim().replace(/\s+/g, " ")}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Click to view profile
-                </p>
-              </div>
-            </div>
-          ))}
-          <div ref={loaderRef} />
-          {(isLoadingMore || listLoading) && hasMore && (
-            <div className="py-4 text-center">
-              <LoadingSpinner size="sm" />
-              <p className="text-sm text-muted-foreground mt-2">
-                Loading more...
-              </p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
