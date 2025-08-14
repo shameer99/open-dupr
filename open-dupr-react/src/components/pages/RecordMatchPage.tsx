@@ -188,16 +188,12 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
                 <button
                   type="button"
                   onClick={() => handleAddPlayer(index)}
-                  className="w-full flex items-center space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center space-x-3 p-4 bg-white rounded-xl"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400 text-lg font-bold">+</span>
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                    <span className="text-gray-400 text-xl">+</span>
                   </div>
-                  <span className="text-gray-500 font-medium">
-                    {index === 0 && teamLabel === "Your Team"
-                      ? "Add Teammate"
-                      : "Add Opponent"}
-                  </span>
+                  <span className="font-medium text-gray-400">Add Player</span>
                 </button>
               )}
 
@@ -347,9 +343,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
 
 const RecordMatchPage: React.FC = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2>(1);
   const [eventDate, setEventDate] = useState<string>(todayStr());
-  const [format, setFormat] = useState<"SINGLES" | "DOUBLES">("SINGLES");
   const [team1, setTeam1] = useState<(Player | null)[]>([null, null]);
   const [team2, setTeam2] = useState<(Player | null)[]>([null, null]);
   const [team1Score, setTeam1Score] = useState<number>(0);
@@ -357,6 +351,12 @@ const RecordMatchPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<Player | undefined>();
+
+  const format = useMemo(() => {
+    const team1PlayerCount = team1.filter(Boolean).length;
+    const team2PlayerCount = team2.filter(Boolean).length;
+    return team1PlayerCount > 1 || team2PlayerCount > 1 ? "DOUBLES" : "SINGLES";
+  }, [team1, team2]);
 
   useEffect(() => {
     let cancelled = false;
@@ -387,10 +387,6 @@ const RecordMatchPage: React.FC = () => {
     const newTeam1 = [...team1];
     newTeam1[index] = player;
     setTeam1(newTeam1);
-
-    if (index === 1 && player && format === "SINGLES") {
-      setFormat("DOUBLES");
-    }
   };
 
   const handleTeam2PlayerSelect = (index: number, player: Player | null) => {
@@ -399,28 +395,17 @@ const RecordMatchPage: React.FC = () => {
     setTeam2(newTeam2);
   };
 
-  const handleFormatChange = (newFormat: "SINGLES" | "DOUBLES") => {
-    setFormat(newFormat);
-    if (newFormat === "SINGLES") {
-      setTeam1([team1[0], null]);
-      setTeam2([team2[0], null]);
-    }
-  };
-
-  const canProceedToStep2 = useMemo(() => {
-    const hasOpponent = team2[0] !== null;
-    if (format === "SINGLES") {
-      return hasOpponent;
-    } else {
-      const hasMyTeammate = team1[1] !== null;
-      const hasOpponentTeammate = team2[1] !== null;
-      return hasOpponent && hasMyTeammate && hasOpponentTeammate;
-    }
-  }, [team1, team2, format]);
-
   const canSubmit = useMemo(() => {
-    return team1Score > 0 || team2Score > 0;
-  }, [team1Score, team2Score]);
+    if (team1Score === 0 && team2Score === 0) return false;
+
+    const team1PlayerCount = team1.filter(Boolean).length;
+    const team2PlayerCount = team2.filter(Boolean).length;
+
+    if (team1PlayerCount === 0 || team2PlayerCount === 0) return false;
+    if (team1PlayerCount !== team2PlayerCount) return false;
+
+    return true;
+  }, [team1, team2, team1Score, team2Score]);
 
   const onSubmit = async () => {
     if (!myProfile || !team2[0]) return;
@@ -475,114 +460,11 @@ const RecordMatchPage: React.FC = () => {
     return activePlayers.map((p) => p.fullName.split(" ")[0]).join(" + ");
   };
 
-  if (step === 1) {
-    return (
-      <div className="min-h-screen bg-gray-50 px-4 py-6">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Match</h1>
-            <p className="text-gray-600">Step 1 of 2</p>
-          </div>
-
-          <Card className="p-6 space-y-6 bg-white shadow-sm">
-            {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="eventDate"
-                className="text-sm font-medium text-gray-700"
-              >
-                Match Date
-              </Label>
-              <Input
-                id="eventDate"
-                type="date"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-700">
-                Format
-              </Label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => handleFormatChange("SINGLES")}
-                  className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    format === "SINGLES"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Singles
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleFormatChange("DOUBLES")}
-                  className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    format === "DOUBLES"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Doubles
-                </button>
-              </div>
-            </div>
-
-            <TeamSelector
-              players={team1}
-              onPlayerSelect={handleTeam1PlayerSelect}
-              maxPlayers={format === "SINGLES" ? 1 : 2}
-              teamLabel="Your Team"
-              myId={myProfile?.id}
-            />
-
-            <TeamSelector
-              players={team2}
-              onPlayerSelect={handleTeam2PlayerSelect}
-              maxPlayers={format === "SINGLES" ? 1 : 2}
-              teamLabel="Opponent Team"
-              myId={myProfile?.id}
-            />
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/profile")}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                disabled={!canProceedToStep2}
-                onClick={() => setStep(2)}
-                className="flex-1"
-              >
-                Next
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Match Score</h1>
-          <p className="text-gray-600">Step 2 of 2</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Match</h1>
         </div>
 
         <Card className="p-6 space-y-6 bg-white shadow-sm">
@@ -591,6 +473,14 @@ const RecordMatchPage: React.FC = () => {
               {error}
             </div>
           )}
+
+          <TeamSelector
+            players={team1}
+            onPlayerSelect={handleTeam1PlayerSelect}
+            maxPlayers={2}
+            teamLabel="Your Team"
+            myId={myProfile?.id}
+          />
 
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -640,14 +530,38 @@ const RecordMatchPage: React.FC = () => {
             </div>
           </div>
 
+          <TeamSelector
+            players={team2}
+            onPlayerSelect={handleTeam2PlayerSelect}
+            maxPlayers={2}
+            teamLabel="Opponent Team"
+            myId={myProfile?.id}
+          />
+
+          <div className="space-y-2">
+            <Label
+              htmlFor="eventDate"
+              className="text-sm font-medium text-gray-700"
+            >
+              Match Date
+            </Label>
+            <Input
+              id="eventDate"
+              type="date"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              className="w-full"
+            />
+          </div>
+
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={() => setStep(1)}
+              onClick={() => navigate("/profile")}
               className="flex-1"
             >
-              Back
+              Cancel
             </Button>
             <Button
               type="button"
