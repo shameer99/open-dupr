@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("refreshToken");
   }, []);
 
-  const value = useMemo(
+  const value = useMemo<AuthContextType>(
     () => ({
       token,
       refreshToken,
