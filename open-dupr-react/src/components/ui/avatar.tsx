@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
+import { cn } from "@/lib/utils";
+
 interface AvatarProps {
   src?: string;
   name: string;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  onClick?: () => void;
 }
 
 const sizeClasses = {
@@ -20,6 +23,7 @@ const Avatar: React.FC<AvatarProps> = ({
   name,
   size = "lg",
   className = "",
+  onClick,
 }) => {
   const [imageError, setImageError] = useState(false);
   const initials = getInitials(name);
@@ -29,7 +33,15 @@ const Avatar: React.FC<AvatarProps> = ({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full flex items-center justify-center ${className}`}
+      className={cn(
+        sizeClasses[size],
+        "rounded-full flex items-center justify-center",
+        className,
+        {
+          "cursor-pointer": !!onClick,
+        }
+      )}
+      onClick={onClick}
     >
       {shouldShowInitials ? (
         <div
