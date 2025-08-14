@@ -41,53 +41,50 @@ const FollowersFollowingPage: React.FC = () => {
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the scrollable container
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
   const PAGE_SIZE = 50;
 
-  const loadFollowersPage = useCallback(
-    async (userId: number, startOffset: number) => {
-      try {
-        setIsLoadingMore(true);
-        const response = await getFollowers(userId, startOffset, PAGE_SIZE);
-        const newItems: FollowUser[] = response?.results ?? [];
-        setFollowers((prev) =>
-          startOffset === 0 ? newItems : [...prev, ...newItems]
-        );
-        setFollowersHasMore(newItems.length === PAGE_SIZE);
-        setFollowersOffset(startOffset + newItems.length);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load followers"
-        );
-      } finally {
-        setIsLoadingMore(false);
-      }
-    },
-    []
-  );
+  const loadMoreData = useCallback(
+    async (tab: TabType, startOffset: number) => {
+      if (!id) return;
+      const userId = parseInt(id);
+      const isFollowers = tab === "followers";
 
-  const loadFollowingPage = useCallback(
-    async (userId: number, startOffset: number) => {
+      setIsLoadingMore(true);
+
       try {
-        setIsLoadingMore(true);
-        const response = await getFollowing(userId, startOffset, PAGE_SIZE);
+        const response = isFollowers
+          ? await getFollowers(userId, startOffset, PAGE_SIZE)
+          : await getFollowing(userId, startOffset, PAGE_SIZE);
+
         const newItems: FollowUser[] = response?.results ?? [];
-        setFollowing((prev) =>
-          startOffset === 0 ? newItems : [...prev, ...newItems]
-        );
-        setFollowingHasMore(newItems.length === PAGE_SIZE);
-        setFollowingOffset(startOffset + newItems.length);
+
+        if (isFollowers) {
+          setFollowers((prev) =>
+            startOffset === 0 ? newItems : [...prev, ...newItems]
+          );
+          setFollowersHasMore(newItems.length === PAGE_SIZE);
+          setFollowersOffset(startOffset + newItems.length);
+        } else {
+          setFollowing((prev) =>
+            startOffset === 0 ? newItems : [...prev, ...newItems]
+          );
+          setFollowingHasMore(newItems.length === PAGE_SIZE);
+          setFollowingOffset(startOffset + newItems.length);
+        }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load following"
+          err instanceof Error
+            ? err.message
+            : `Failed to load ${tab}`
         );
       } finally {
         setIsLoadingMore(false);
       }
     },
-    []
+    [id]
   );
 
   // Initial load and when visiting a different player id
@@ -134,11 +131,7 @@ const FollowersFollowingPage: React.FC = () => {
 
         // Load the first page for the currently active tab without triggering a full-page skeleton
         setListLoading(true);
-        if (activeTab === "followers") {
-          await loadFollowersPage(userId, 0);
-        } else {
-          await loadFollowingPage(userId, 0);
-        }
+        await loadMoreData(activeTab, 0);
         setListLoading(false);
 
         setTimeout(() => {
@@ -164,17 +157,15 @@ const FollowersFollowingPage: React.FC = () => {
 
   useEffect(() => {
     if (!loaderRef.current) return;
-    if (!id) return;
-    const userId = parseInt(id);
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting && !isLoadingMore && !pageLoading) {
-          if (activeTab === "followers" && followersHasMore) {
-            void loadFollowersPage(userId, followersOffset);
-          } else if (activeTab === "following" && followingHasMore) {
-            void loadFollowingPage(userId, followingOffset);
+          const hasMore = activeTab === "followers" ? followersHasMore : followingHasMore;
+          if (hasMore) {
+            const offset = activeTab === "followers" ? followersOffset : followingOffset;
+            void loadMoreData(activeTab, offset);
           }
         }
       },
@@ -183,18 +174,7 @@ const FollowersFollowingPage: React.FC = () => {
 
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [
-    id,
-    activeTab,
-    followersHasMore,
-    followingHasMore,
-    isLoadingMore,
-    pageLoading,
-    followersOffset,
-    followingOffset,
-    loadFollowersPage,
-    loadFollowingPage,
-  ]);
+  }, [activeTab, followersHasMore, followingHasMore, isLoadingMore, pageLoading, followersOffset, followingOffset, loadMoreData]);
 
   const handleTabChange = async (newTab: TabType) => {
     if (newTab === activeTab) return;
@@ -202,17 +182,10 @@ const FollowersFollowingPage: React.FC = () => {
     setActiveTab(newTab);
     setSearchParams({ tab: newTab });
 
-    if (!id) return;
-    const userId = parseInt(id);
-
-    // If the target tab has not been loaded yet, fetch its first page and show a list-only loading state
-    if (newTab === "followers" && followers.length === 0) {
+    const list = newTab === "followers" ? followers : following;
+    if (list.length === 0) {
       setListLoading(true);
-      await loadFollowersPage(userId, 0);
-      setListLoading(false);
-    } else if (newTab === "following" && following.length === 0) {
-      setListLoading(true);
-      await loadFollowingPage(userId, 0);
+      await loadMoreData(newTab, 0);
       setListLoading(false);
     }
   };
