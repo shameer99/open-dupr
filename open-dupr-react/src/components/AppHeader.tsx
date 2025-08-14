@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/lib/ThemeProvider";
 
 const AppHeader: React.FC = () => {
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -41,6 +43,10 @@ const AppHeader: React.FC = () => {
     navigate("/login");
   };
 
+  const toggleTheme = () => {
+    setTheme();
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
@@ -61,13 +67,20 @@ const AppHeader: React.FC = () => {
         </button>
 
         <div className="relative" ref={menuRef}>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setOpen((v) => !v)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={toggleTheme}>
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setOpen((v) => !v)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
 
           {open && (
             <div className="absolute right-0 mt-2 w-48 rounded-md border bg-card shadow-md">
