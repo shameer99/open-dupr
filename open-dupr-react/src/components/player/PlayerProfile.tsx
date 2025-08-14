@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useHeader } from "@/lib/header-context";
 import PlayerHeader from "./PlayerHeader";
 import PlayerRatings from "./PlayerRatings";
 import MatchHistory from "./MatchHistory";
@@ -24,11 +25,35 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   player,
   isSelf = false,
 }) => {
+  const { setTitle } = useHeader();
   const navigate = useNavigate();
   const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
   const [showEditInfo, setShowEditInfo] = useState(false);
   const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setTitle(entry.isIntersecting ? null : player.fullName);
+      },
+      { rootMargin: "-80px 0px 0px 0px" }
+    );
+
+    const currentHeader = headerRef.current;
+
+    if (currentHeader) {
+      observer.observe(currentHeader);
+    }
+
+    return () => {
+      if (currentHeader) {
+        observer.unobserve(currentHeader);
+      }
+      setTitle(null);
+    };
+  }, [player.fullName, setTitle]);
 
   useEffect(() => {
     const fetchFollowInfo = async () => {
@@ -160,9 +185,10 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         </div>
       )}
 
-      <PlayerHeader
-        name={player.fullName}
-        imageUrl={player.imageUrl}
+      <div ref={headerRef}>
+        <PlayerHeader
+          name={player.fullName}
+          imageUrl={player.imageUrl}
         location={
           player.location ||
           player.addresses?.[0]?.formattedAddress ||
@@ -175,6 +201,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         followInfo={followInfo}
         action={actionNode}
       />
+      </div>
       <div className="mt-8">
         <PlayerRatings
           singles={player.stats?.singles ?? null}
