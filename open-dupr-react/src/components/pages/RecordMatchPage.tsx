@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import Avatar from "@/components/ui/avatar";
 import { useHeader } from "@/lib/header-context";
+import { MatchScoreDisplay } from "@/components/player/shared/MatchDisplay";
+import { getDisplayName } from "@/components/player/shared/match-utils";
 import {
   saveMatch,
   type SaveMatchRequestBody,
@@ -417,27 +419,6 @@ const RecordMatchPage: React.FC = () => {
     };
   }, []);
 
-  const generateConfirmationText = () => {
-    if (!myProfile || !opponent1) return "";
-
-    const myTeam = myTeammate
-      ? `${myProfile.fullName} and ${myTeammate.fullName}`
-      : myProfile.fullName;
-
-    const opponentTeam = opponent2
-      ? `${opponent1.fullName} and ${opponent2.fullName}`
-      : opponent1.fullName;
-
-    const winner = myScore > opponentScore ? myTeam : opponentTeam;
-    const loser = myScore > opponentScore ? opponentTeam : myTeam;
-    const winScore = Math.max(myScore, opponentScore);
-    const loseScore = Math.min(myScore, opponentScore);
-
-    const matchType = format === "SINGLES" ? "singles" : "doubles";
-
-    return `Confirm ${matchType} match: ${winner} beat ${loser} ${winScore}-${loseScore}`;
-  };
-
   const onSubmit = async () => {
     if (!myProfile || !opponent1) return;
 
@@ -550,10 +531,110 @@ const RecordMatchPage: React.FC = () => {
         {showConfirmation && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
                 Confirm Match
               </h3>
-              <p className="text-gray-700 mb-6">{generateConfirmationText()}</p>
+
+              {/* Match Card Style Display */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-xs font-medium text-gray-500">
+                    <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
+                      Pending
+                    </span>
+                    <span>{eventDate}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+                    {/* My Team */}
+                    <div
+                      className={`${
+                        myScore > opponentScore
+                          ? "text-emerald-700"
+                          : "text-rose-700"
+                      } min-w-0 md:justify-self-start`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex -space-x-2">
+                          {myProfile && (
+                            <Avatar
+                              src={myProfile.imageUrl}
+                              name={myProfile.fullName}
+                              size="sm"
+                              className="ring-2 ring-background"
+                            />
+                          )}
+                          {myTeammate && (
+                            <Avatar
+                              src={myTeammate.imageUrl}
+                              name={myTeammate.fullName}
+                              size="sm"
+                              className="ring-2 ring-background"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-medium truncate">
+                            {myTeammate
+                              ? `${getDisplayName(
+                                  myProfile?.fullName || ""
+                                )} & ${getDisplayName(myTeammate.fullName)}`
+                              : getDisplayName(myProfile?.fullName || "")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Score */}
+                    <div className="flex flex-col items-center justify-center gap-1">
+                      <MatchScoreDisplay
+                        games={[{ a: myScore, b: opponentScore }]}
+                        size="small"
+                      />
+                    </div>
+
+                    {/* Opponent Team */}
+                    <div
+                      className={`${
+                        opponentScore > myScore
+                          ? "text-emerald-700"
+                          : "text-rose-700"
+                      } min-w-0 self-end md:justify-self-end`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="min-w-0">
+                          <span className="font-medium truncate">
+                            {opponent2
+                              ? `${getDisplayName(
+                                  opponent1?.fullName || ""
+                                )} & ${getDisplayName(opponent2.fullName)}`
+                              : getDisplayName(opponent1?.fullName || "")}
+                          </span>
+                        </div>
+                        <div className="flex -space-x-2">
+                          {opponent1 && (
+                            <Avatar
+                              src={opponent1.imageUrl}
+                              name={opponent1.fullName}
+                              size="sm"
+                              className="ring-2 ring-background"
+                            />
+                          )}
+                          {opponent2 && (
+                            <Avatar
+                              src={opponent2.imageUrl}
+                              name={opponent2.fullName}
+                              size="sm"
+                              className="ring-2 ring-background"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3">
                 <Button
                   type="button"
@@ -562,7 +643,7 @@ const RecordMatchPage: React.FC = () => {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  Edit
                 </Button>
                 <Button
                   type="button"
