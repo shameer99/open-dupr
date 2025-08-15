@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/useAuth";
+import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Menu, User, Search, Plus, LogOut } from "lucide-react";
 
 const AppHeader: React.FC = () => {
+  const { title } = useHeader();
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
   const [open, setOpen] = useState(false);
@@ -47,7 +49,7 @@ const AppHeader: React.FC = () => {
         <button
           type="button"
           onClick={goToProfile}
-          className="flex items-center gap-1 font-semibold tracking-tight text-lg"
+          className="flex items-center gap-2"
           aria-label="Go to profile"
         >
           <img
@@ -55,10 +57,18 @@ const AppHeader: React.FC = () => {
             alt="Open DUPR"
             className="block h-8 w-8 shrink-0"
           />
-          <span className="inline-block leading-none max-[320px]:hidden">
-            Open DUPR
-          </span>
+          {!title && (
+            <span className="font-semibold tracking-tight text-lg leading-none max-[320px]:hidden">
+              Open DUPR
+            </span>
+          )}
         </button>
+
+        {title && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          </div>
+        )}
 
         <div className="relative" ref={menuRef}>
           <Button
