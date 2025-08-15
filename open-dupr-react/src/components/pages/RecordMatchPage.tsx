@@ -8,6 +8,7 @@ import Avatar from "@/components/ui/avatar";
 import { useHeader } from "@/lib/header-context";
 import { MatchScoreDisplay } from "@/components/player/shared/MatchDisplay";
 import { getDisplayName } from "@/components/player/shared/match-utils";
+import { extractApiErrorMessage } from "@/lib/utils";
 import {
   saveMatch,
   type SaveMatchRequestBody,
@@ -472,24 +473,7 @@ const RecordMatchPage: React.FC = () => {
       await saveMatch(body);
       navigate("/profile");
     } catch (err: unknown) {
-      // Extract the API response message if available
-      if (
-        err &&
-        typeof err === "object" &&
-        "response" in err &&
-        err.response &&
-        typeof err.response === "object" &&
-        "data" in err.response &&
-        err.response.data &&
-        typeof err.response.data === "object" &&
-        "message" in err.response.data
-      ) {
-        setError(err.response.data.message as string);
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Failed to save match");
-      }
+      setError(extractApiErrorMessage(err, "Failed to save match"));
     } finally {
       setIsSubmitting(false);
     }

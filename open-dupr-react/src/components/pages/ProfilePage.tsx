@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getMyProfile } from "@/lib/api";
+import { extractApiErrorMessage } from "@/lib/utils";
 import PlayerProfile from "../player/PlayerProfile";
 import {
   PlayerProfileSkeleton,
@@ -29,7 +30,7 @@ const ProfilePage: React.FC = () => {
 
         finishPageLoad();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(extractApiErrorMessage(err, "An error occurred"));
         finishPageLoad(); // Complete loading even on error
       } finally {
         setLoading(false);

@@ -10,6 +10,7 @@ import {
 import { usePageLoading } from "@/lib/loading-context";
 import { getPendingMatches, getMyProfile } from "@/lib/api";
 import { ArrowLeft, CheckCircle } from "lucide-react";
+import { extractApiErrorMessage } from "@/lib/utils";
 
 type PlayerRef = {
   id?: number;
@@ -89,9 +90,7 @@ const ValidationQueuePage: React.FC = () => {
       setPendingMatches(userPendingMatches);
       finishPageLoad();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load pending matches"
-      );
+      setError(extractApiErrorMessage(err, "Failed to load pending matches"));
       finishPageLoad();
     } finally {
       setLoading(false);

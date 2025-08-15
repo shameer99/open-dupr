@@ -10,6 +10,7 @@ import {
   rejectMatch,
   getMyProfile,
 } from "@/lib/api";
+import { extractApiErrorMessage } from "@/lib/utils";
 import { MatchScoreDisplay, TeamHeader } from "../player/shared/MatchDisplay";
 import {
   getDisplayName,
@@ -289,7 +290,7 @@ const MatchDetailsPage: React.FC = () => {
         finishPageLoad();
       } catch (err) {
         console.error("Failed to fetch data:", err);
-        setError("Failed to load match details");
+        setError(extractApiErrorMessage(err, "Failed to load match details"));
         finishPageLoad();
       } finally {
         setLoading(false);

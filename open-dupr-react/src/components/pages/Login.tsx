@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
+import { extractApiErrorMessage } from "@/lib/utils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,12 +25,11 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-
       setToken(data.result.accessToken);
       setRefreshToken(data.result.refreshToken);
       navigate("/profile");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch (err: unknown) {
+      setError(extractApiErrorMessage(err, "Login failed"));
     }
 
     setLoading(false);

@@ -66,7 +66,30 @@ export async function apiFetch(
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      // Try to get the actual error message from the response
+      let errorMessage = `API request failed with status ${response.status}`;
+      let errorData = null;
+
+      try {
+        const errorResponse = await response.json();
+        if (errorResponse && typeof errorResponse === "object") {
+          errorData = errorResponse;
+          if (errorResponse.message) {
+            errorMessage = errorResponse.message;
+          }
+        }
+      } catch {
+        // If we can't parse the error response, use the generic message
+      }
+
+      const error = new Error(errorMessage);
+      (
+        error as Error & { response: { data: unknown; status: number } }
+      ).response = {
+        data: errorData,
+        status: response.status,
+      };
+      throw error;
     }
 
     return response.json();
