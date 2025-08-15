@@ -4,10 +4,10 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
 
 const AppHeader: React.FC = () => {
-  const { title } = useHeader();
+  const { title, showBackButton, onBackClick, actionButton } = useHeader();
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
   const [open, setOpen] = useState(false);
@@ -46,23 +46,35 @@ const AppHeader: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <button
-          type="button"
-          onClick={goToProfile}
-          className="flex items-center gap-2"
-          aria-label="Go to profile"
-        >
-          <img
-            src="/logo.png"
-            alt="Open DUPR"
-            className="block h-8 w-8 shrink-0"
-          />
-          {!title && (
-            <span className="font-semibold tracking-tight text-lg leading-none max-[320px]:hidden">
-              Open DUPR
-            </span>
-          )}
-        </button>
+        {showBackButton ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBackClick}
+            className="shrink-0"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        ) : (
+          <button
+            type="button"
+            onClick={goToProfile}
+            className="flex items-center gap-2"
+            aria-label="Go to profile"
+          >
+            <img
+              src="/logo.png"
+              alt="Open DUPR"
+              className="block h-8 w-8 shrink-0"
+            />
+            {!title && (
+              <span className="font-semibold tracking-tight text-lg leading-none max-[320px]:hidden">
+                Open DUPR
+              </span>
+            )}
+          </button>
+        )}
 
         <div
           className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${
@@ -72,52 +84,66 @@ const AppHeader: React.FC = () => {
           <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
         </div>
 
-        <div className="relative" ref={menuRef}>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setOpen((v) => !v)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-
-          {open && (
-            <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
-              <button
-                type="button"
-                onClick={goToProfile}
-                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-              >
-                <User className="h-5 w-5" />
-                My Profile
-              </button>
-              <button
-                type="button"
-                onClick={goToSearch}
-                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-              >
-                <Search className="h-5 w-5" />
-                Search Players
-              </button>
-              <button
-                type="button"
-                onClick={goToRecordMatch}
-                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-              >
-                <Plus className="h-5 w-5" />
-                Add Match
-              </button>
-              <div className="my-1 h-px bg-border" />
-              <button
-                type="button"
-                onClick={logout}
-                className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
-              >
-                <LogOut className="h-5 w-5" />
-                Log out
-              </button>
-            </div>
+        <div className="flex items-center gap-2">
+          {actionButton && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={actionButton.onClick}
+              disabled={actionButton.disabled}
+              className="text-sm"
+            >
+              {actionButton.text}
+            </Button>
           )}
+
+          <div className="relative" ref={menuRef}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setOpen((v) => !v)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+
+            {open && (
+              <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
+                <button
+                  type="button"
+                  onClick={goToProfile}
+                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                >
+                  <User className="h-5 w-5" />
+                  My Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={goToSearch}
+                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                >
+                  <Search className="h-5 w-5" />
+                  Search Players
+                </button>
+                <button
+                  type="button"
+                  onClick={goToRecordMatch}
+                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Match
+                </button>
+                <div className="my-1 h-px bg-border" />
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <NavigationProgress />

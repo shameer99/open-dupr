@@ -5,6 +5,20 @@ import type { ReactNode } from "react";
 interface HeaderContextType {
   title: string | null;
   setTitle: (title: string | null) => void;
+  showBackButton: boolean;
+  setShowBackButton: (show: boolean) => void;
+  onBackClick?: () => void;
+  setOnBackClick: (callback?: () => void) => void;
+  actionButton?: {
+    text: string;
+    onClick: () => void;
+    disabled?: boolean;
+  };
+  setActionButton: (button?: {
+    text: string;
+    onClick: () => void;
+    disabled?: boolean;
+  }) => void;
 }
 
 const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
@@ -13,9 +27,27 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [title, setTitle] = useState<string | null>(null);
+  const [showBackButton, setShowBackButton] = useState<boolean>(false);
+  const [onBackClick, setOnBackClick] = useState<(() => void) | undefined>(
+    undefined
+  );
+  const [actionButton, setActionButton] = useState<
+    { text: string; onClick: () => void; disabled?: boolean } | undefined
+  >(undefined);
 
   return (
-    <HeaderContext.Provider value={{ title, setTitle }}>
+    <HeaderContext.Provider
+      value={{
+        title,
+        setTitle,
+        showBackButton,
+        setShowBackButton,
+        onBackClick,
+        setOnBackClick,
+        actionButton,
+        setActionButton,
+      }}
+    >
       {children}
     </HeaderContext.Provider>
   );

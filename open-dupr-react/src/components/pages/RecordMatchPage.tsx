@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import Avatar from "@/components/ui/avatar";
+import { useHeader } from "@/lib/header-context";
 import {
   saveMatch,
   type SaveMatchRequestBody,
@@ -23,29 +24,24 @@ interface Player {
   imageUrl?: string;
 }
 
-interface TeamSelectorProps {
-  players: (Player | null)[];
-  onPlayerSelect: (index: number, player: Player | null) => void;
-  maxPlayers: number;
-  teamLabel: string;
+interface PlayerSlotProps {
+  player: Player | null;
+  onPlayerSelect: (player: Player | null) => void;
   myId?: number;
+  canRemove?: boolean;
 }
 
-const TeamSelector: React.FC<TeamSelectorProps> = ({
-  players,
+const PlayerSlot: React.FC<PlayerSlotProps> = ({
+  player,
   onPlayerSelect,
-  maxPlayers,
-  teamLabel,
   myId,
+  canRemove = true,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlayerSearchHit[]>([]);
   const [suggestions, setSuggestions] = useState<PlayerSearchHit[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [activePlayerIndex, setActivePlayerIndex] = useState<number | null>(
-    null
-  );
 
   const loadSuggestions = useCallback(async () => {
     if (!myId) return;
@@ -125,160 +121,128 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
     return () => clearTimeout(timeoutId);
   }, [searchQuery, performSearch]);
 
-  const handlePlayerClick = (player: PlayerSearchHit) => {
-    if (activePlayerIndex !== null) {
-      onPlayerSelect(activePlayerIndex, {
-        id: player.id,
-        fullName: player.fullName,
-        imageUrl: player.imageUrl,
-      });
-      setActivePlayerIndex(null);
-      setShowDropdown(false);
-      setSearchQuery("");
-    }
+  const handlePlayerClick = (playerData: PlayerSearchHit) => {
+    onPlayerSelect({
+      id: playerData.id,
+      fullName: playerData.fullName,
+      imageUrl: playerData.imageUrl,
+    });
+    setShowDropdown(false);
+    setSearchQuery("");
   };
 
-  const handleAddPlayer = (index: number) => {
-    setActivePlayerIndex(index);
-    setShowDropdown(true);
-  };
-
-  const handleRemovePlayer = (index: number) => {
-    onPlayerSelect(index, null);
+  const handleRemove = () => {
+    onPlayerSelect(null);
   };
 
   const displayResults = searchQuery.trim() ? searchResults : suggestions;
 
-  return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-800">{teamLabel}</h3>
-
-      <div className="space-y-3">
-        {Array.from({ length: maxPlayers }, (_, index) => {
-          const player = players[index];
-          const isAddingPlayer = activePlayerIndex === index && showDropdown;
-
-          return (
-            <div key={index} className="relative">
-              {player ? (
-                <div className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <Avatar
-                      src={player.imageUrl}
-                      name={player.fullName}
-                      size="sm"
-                    />
-                    <span className="font-medium text-gray-800">
-                      {player.fullName}
-                    </span>
-                  </div>
-                  {!(teamLabel === "Your Team" && index === 0) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRemovePlayer(index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleAddPlayer(index)}
-                  className="w-full flex items-center space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-400 text-lg font-bold">+</span>
-                  </div>
-                  <span className="text-gray-500 font-medium">
-                    {index === 0 && teamLabel === "Your Team"
-                      ? "Add Teammate"
-                      : "Add Opponent"}
-                  </span>
-                </button>
-              )}
-
-              {isAddingPlayer && (
-                <Card className="absolute z-10 w-full mt-2 max-h-64 overflow-y-auto bg-white shadow-lg">
-                  <div className="p-3 border-b">
-                    <Input
-                      placeholder="Search for player..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="text-sm"
-                      autoFocus
-                    />
-                  </div>
-
-                  {isSearching && (
-                    <div className="p-3 text-center text-sm text-gray-500">
-                      Searching...
-                    </div>
-                  )}
-
-                  {!isSearching &&
-                    displayResults.length === 0 &&
-                    searchQuery.trim() && (
-                      <div className="p-3 text-center text-sm text-gray-500">
-                        No players found
-                      </div>
-                    )}
-
-                  {!searchQuery.trim() && suggestions.length > 0 && (
-                    <div className="p-2 text-xs font-medium text-gray-500 border-b bg-gray-50">
-                      From your network
-                    </div>
-                  )}
-
-                  {displayResults.map((player) => (
-                    <button
-                      key={player.id}
-                      type="button"
-                      className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 transition-colors text-left"
-                      onClick={() => handlePlayerClick(player)}
-                    >
-                      <Avatar
-                        src={player.imageUrl}
-                        name={player.fullName}
-                        size="sm"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate text-sm">
-                          {player.fullName}
-                        </p>
-                        {player.location && (
-                          <p className="text-xs text-gray-500 truncate">
-                            {player.location}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-
-                  <div className="p-2 border-t">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setActivePlayerIndex(null);
-                        setShowDropdown(false);
-                        setSearchQuery("");
-                      }}
-                      className="w-full text-xs"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </Card>
-              )}
-            </div>
-          );
-        })}
+  if (player) {
+    return (
+      <div className="flex flex-col items-center space-y-3 relative">
+        <div className="relative">
+          <Avatar src={player.imageUrl} name={player.fullName} size="lg" />
+          {canRemove && (
+            <button
+              onClick={handleRemove}
+              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <span className="text-sm font-bold text-gray-900 text-center leading-tight">
+          {player.fullName}
+        </span>
       </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center space-y-3 relative">
+      <button
+        onClick={() => setShowDropdown(true)}
+        className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
+      >
+        <span className="text-gray-400 text-xl">+</span>
+      </button>
+      <span className="text-xs text-gray-500 text-center leading-tight">
+        Add Player
+      </span>
+
+      {showDropdown && (
+        <Card className="fixed inset-x-4 top-1/2 transform -translate-y-1/2 max-h-80 overflow-y-auto bg-white shadow-xl z-50 md:absolute md:inset-x-auto md:top-full md:left-1/2 md:-translate-x-1/2 md:translate-y-0 md:mt-2 md:w-72">
+          <div className="p-4 border-b">
+            <Input
+              placeholder="Search for player..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="text-sm"
+              autoFocus
+            />
+          </div>
+
+          {isSearching && (
+            <div className="p-4 text-center text-sm text-gray-500">
+              Searching...
+            </div>
+          )}
+
+          {!isSearching &&
+            displayResults.length === 0 &&
+            searchQuery.trim() && (
+              <div className="p-4 text-center text-sm text-gray-500">
+                No players found
+              </div>
+            )}
+
+          {!searchQuery.trim() && suggestions.length > 0 && (
+            <div className="p-3 text-xs font-medium text-gray-500 border-b bg-gray-50">
+              From your network
+            </div>
+          )}
+
+          {displayResults.map((playerData) => (
+            <button
+              key={playerData.id}
+              type="button"
+              className="w-full flex items-center space-x-3 p-4 hover:bg-gray-50 transition-colors text-left"
+              onClick={() => handlePlayerClick(playerData)}
+            >
+              <Avatar
+                src={playerData.imageUrl}
+                name={playerData.fullName}
+                size="sm"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate text-sm">
+                  {playerData.fullName}
+                </p>
+                {playerData.location && (
+                  <p className="text-xs text-gray-500 truncate">
+                    {playerData.location}
+                  </p>
+                )}
+              </div>
+            </button>
+          ))}
+
+          <div className="p-3 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowDropdown(false);
+                setSearchQuery("");
+              }}
+              className="w-full text-xs"
+            >
+              Cancel
+            </Button>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
@@ -315,18 +279,18 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0"
+        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
         onClick={handleDecrement}
         disabled={value <= 0}
       >
-        <span className="text-lg font-bold">−</span>
+        −
       </Button>
 
       <input
         type="number"
         value={value}
         onChange={handleInputChange}
-        className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+        className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
         min="0"
         max={max}
       />
@@ -335,11 +299,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0"
+        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
         onClick={handleIncrement}
         disabled={value >= max}
       >
-        <span className="text-lg font-bold">+</span>
+        +
       </Button>
     </div>
   );
@@ -347,16 +311,87 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
 
 const RecordMatchPage: React.FC = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2>(1);
+  const { setTitle, setShowBackButton, setOnBackClick, setActionButton } =
+    useHeader();
   const [eventDate, setEventDate] = useState<string>(todayStr());
-  const [format, setFormat] = useState<"SINGLES" | "DOUBLES">("SINGLES");
-  const [team1, setTeam1] = useState<(Player | null)[]>([null, null]);
-  const [team2, setTeam2] = useState<(Player | null)[]>([null, null]);
-  const [team1Score, setTeam1Score] = useState<number>(0);
-  const [team2Score, setTeam2Score] = useState<number>(0);
+  const [myTeammate, setMyTeammate] = useState<Player | null>(null);
+  const [opponent1, setOpponent1] = useState<Player | null>(null);
+  const [opponent2, setOpponent2] = useState<Player | null>(null);
+  const [myScore, setMyScore] = useState<number>(0);
+  const [opponentScore, setOpponentScore] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<Player | undefined>();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const format = useMemo(() => {
+    const hasMyTeammate = myTeammate !== null;
+    const hasOpponent2 = opponent2 !== null;
+    return hasMyTeammate || hasOpponent2 ? "DOUBLES" : "SINGLES";
+  }, [myTeammate, opponent2]);
+
+  const canSubmit = useMemo(() => {
+    const hasOpponent = opponent1 !== null;
+    const hasScore = myScore > 0 || opponentScore > 0;
+
+    if (format === "SINGLES") {
+      return hasOpponent && hasScore;
+    } else {
+      const hasAllPlayers = myTeammate !== null && opponent2 !== null;
+      return hasOpponent && hasAllPlayers && hasScore;
+    }
+  }, [opponent1, myTeammate, opponent2, myScore, opponentScore, format]);
+
+  const hasAnyInput = useMemo(() => {
+    return (
+      myTeammate !== null ||
+      opponent1 !== null ||
+      opponent2 !== null ||
+      myScore > 0 ||
+      opponentScore > 0
+    );
+  }, [myTeammate, opponent1, opponent2, myScore, opponentScore]);
+
+  const handleBackClick = () => {
+    if (hasAnyInput) {
+      if (
+        confirm(
+          "Are you sure you want to leave? Any unsaved changes will be lost."
+        )
+      ) {
+        navigate("/profile");
+      }
+    } else {
+      navigate("/profile");
+    }
+  };
+
+  const handleSave = () => {
+    if (canSubmit) {
+      setShowConfirmation(true);
+    }
+  };
+
+  useEffect(() => {
+    setTitle("New Match");
+    setShowBackButton(true);
+    setOnBackClick(() => handleBackClick);
+
+    return () => {
+      setTitle(null);
+      setShowBackButton(false);
+      setOnBackClick(undefined);
+      setActionButton(undefined);
+    };
+  }, [setTitle, setShowBackButton, setOnBackClick, setActionButton]);
+
+  useEffect(() => {
+    setActionButton({
+      text: "Save",
+      onClick: handleSave,
+      disabled: !canSubmit || isSubmitting,
+    });
+  }, [setActionButton, canSubmit, isSubmitting]);
 
   useEffect(() => {
     let cancelled = false;
@@ -371,7 +406,6 @@ const RecordMatchPage: React.FC = () => {
             imageUrl: profile.imageUrl,
           };
           setMyProfile(myPlayer);
-          setTeam1([myPlayer, null]);
         }
       } catch {
         // Error handling intentionally silent
@@ -383,79 +417,61 @@ const RecordMatchPage: React.FC = () => {
     };
   }, []);
 
-  const handleTeam1PlayerSelect = (index: number, player: Player | null) => {
-    const newTeam1 = [...team1];
-    newTeam1[index] = player;
-    setTeam1(newTeam1);
+  const generateConfirmationText = () => {
+    if (!myProfile || !opponent1) return "";
 
-    if (index === 1 && player && format === "SINGLES") {
-      setFormat("DOUBLES");
-    }
+    const myTeam = myTeammate
+      ? `${myProfile.fullName} and ${myTeammate.fullName}`
+      : myProfile.fullName;
+
+    const opponentTeam = opponent2
+      ? `${opponent1.fullName} and ${opponent2.fullName}`
+      : opponent1.fullName;
+
+    const winner = myScore > opponentScore ? myTeam : opponentTeam;
+    const loser = myScore > opponentScore ? opponentTeam : myTeam;
+    const winScore = Math.max(myScore, opponentScore);
+    const loseScore = Math.min(myScore, opponentScore);
+
+    const matchType = format === "SINGLES" ? "singles" : "doubles";
+
+    return `Confirm ${matchType} match: ${winner} beat ${loser} ${winScore}-${loseScore}`;
   };
-
-  const handleTeam2PlayerSelect = (index: number, player: Player | null) => {
-    const newTeam2 = [...team2];
-    newTeam2[index] = player;
-    setTeam2(newTeam2);
-  };
-
-  const handleFormatChange = (newFormat: "SINGLES" | "DOUBLES") => {
-    setFormat(newFormat);
-    if (newFormat === "SINGLES") {
-      setTeam1([team1[0], null]);
-      setTeam2([team2[0], null]);
-    }
-  };
-
-  const canProceedToStep2 = useMemo(() => {
-    const hasOpponent = team2[0] !== null;
-    if (format === "SINGLES") {
-      return hasOpponent;
-    } else {
-      const hasMyTeammate = team1[1] !== null;
-      const hasOpponentTeammate = team2[1] !== null;
-      return hasOpponent && hasMyTeammate && hasOpponentTeammate;
-    }
-  }, [team1, team2, format]);
-
-  const canSubmit = useMemo(() => {
-    return team1Score > 0 || team2Score > 0;
-  }, [team1Score, team2Score]);
 
   const onSubmit = async () => {
-    if (!myProfile || !team2[0]) return;
+    if (!myProfile || !opponent1) return;
 
     try {
       setIsSubmitting(true);
       setError(null);
 
-      const team1Won = team1Score > team2Score;
+      const myTeamWon = myScore > opponentScore;
       const body: SaveMatchRequestBody = {
         eventDate,
         location: "",
         matchType: "SIDE_ONLY",
         format,
         notify: true,
-        scores: [{ first: team1Score, second: team2Score }],
+        scores: [{ first: myScore, second: opponentScore }],
         team1: {
           player1: myProfile.id,
-          player2: format === "DOUBLES" && team1[1] ? team1[1].id : "",
-          game1: team1Score,
+          player2: format === "DOUBLES" && myTeammate ? myTeammate.id : "",
+          game1: myScore,
           game2: -1,
           game3: -1,
           game4: -1,
           game5: -1,
-          winner: team1Won,
+          winner: myTeamWon,
         },
         team2: {
-          player1: team2[0].id,
-          player2: format === "DOUBLES" && team2[1] ? team2[1].id : "",
-          game1: team2Score,
+          player1: opponent1.id,
+          player2: format === "DOUBLES" && opponent2 ? opponent2.id : "",
+          game1: opponentScore,
           game2: -1,
           game3: -1,
           game4: -1,
           game5: -1,
-          winner: !team1Won,
+          winner: !myTeamWon,
         },
       };
 
@@ -468,197 +484,98 @@ const RecordMatchPage: React.FC = () => {
     }
   };
 
-  const getTeamDisplay = (team: (Player | null)[]) => {
-    const activePlayers = team.filter((p) => p !== null) as Player[];
-    if (activePlayers.length === 0) return "No players";
-    if (activePlayers.length === 1) return activePlayers[0].fullName;
-    return activePlayers.map((p) => p.fullName.split(" ")[0]).join(" + ");
-  };
-
-  if (step === 1) {
-    return (
-      <div className="min-h-screen bg-gray-50 px-4 py-6">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Match</h1>
-            <p className="text-gray-600">Step 1 of 2</p>
-          </div>
-
-          <Card className="p-6 space-y-6 bg-white shadow-sm">
-            {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="eventDate"
-                className="text-sm font-medium text-gray-700"
-              >
-                Match Date
-              </Label>
-              <Input
-                id="eventDate"
-                type="date"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-700">
-                Format
-              </Label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => handleFormatChange("SINGLES")}
-                  className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    format === "SINGLES"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Singles
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleFormatChange("DOUBLES")}
-                  className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    format === "DOUBLES"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Doubles
-                </button>
-              </div>
-            </div>
-
-            <TeamSelector
-              players={team1}
-              onPlayerSelect={handleTeam1PlayerSelect}
-              maxPlayers={format === "SINGLES" ? 1 : 2}
-              teamLabel="Your Team"
-              myId={myProfile?.id}
-            />
-
-            <TeamSelector
-              players={team2}
-              onPlayerSelect={handleTeam2PlayerSelect}
-              maxPlayers={format === "SINGLES" ? 1 : 2}
-              teamLabel="Opponent Team"
-              myId={myProfile?.id}
-            />
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/profile")}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                disabled={!canProceedToStep2}
-                onClick={() => setStep(2)}
-                className="flex-1"
-              >
-                Next
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Match Score</h1>
-          <p className="text-gray-600">Step 2 of 2</p>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-sm mx-auto space-y-6">
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-6">
+          <div className="flex items-center space-x-3 md:flex-col md:items-start md:space-x-0 md:space-y-1">
+            <Label
+              htmlFor="eventDate"
+              className="text-sm font-medium text-gray-700 shrink-0 md:mb-0"
+            >
+              Date
+            </Label>
+            <Input
+              id="eventDate"
+              type="date"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              className="flex-1 md:w-full"
+            />
+          </div>
+
+          <div className="flex justify-center space-x-6">
+            {myProfile && (
+              <PlayerSlot
+                player={myProfile}
+                onPlayerSelect={() => {}}
+                canRemove={false}
+              />
+            )}
+            <PlayerSlot
+              player={myTeammate}
+              onPlayerSelect={setMyTeammate}
+              myId={myProfile?.id}
+            />
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-6 justify-center items-center">
+              <ScoreInput value={myScore} onChange={setMyScore} />
+              <div className="text-2xl font-bold text-gray-400">vs</div>
+              <ScoreInput value={opponentScore} onChange={setOpponentScore} />
+            </div>
+          </div>
+
+          <div className="flex justify-center space-x-6">
+            <PlayerSlot
+              player={opponent1}
+              onPlayerSelect={setOpponent1}
+              myId={myProfile?.id}
+            />
+            <PlayerSlot
+              player={opponent2}
+              onPlayerSelect={setOpponent2}
+              myId={myProfile?.id}
+            />
+          </div>
         </div>
 
-        <Card className="p-6 space-y-6 bg-white shadow-sm">
-          {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="flex -space-x-2">
-                  {team1
-                    .filter((p) => p !== null)
-                    .map((player, idx) => (
-                      <Avatar
-                        key={player!.id}
-                        src={player!.imageUrl}
-                        name={player!.fullName}
-                        size="sm"
-                        className={idx > 0 ? "border-2 border-white" : ""}
-                      />
-                    ))}
-                </div>
-                <span className="text-sm font-medium text-gray-800 truncate">
-                  {getTeamDisplay(team1)}
-                </span>
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Confirm Match
+              </h3>
+              <p className="text-gray-700 mb-6">{generateConfirmationText()}</p>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowConfirmation(false)}
+                  className="flex-1"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={onSubmit}
+                  className="flex-1"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Confirm"}
+                </Button>
               </div>
-              <ScoreInput value={team1Score} onChange={setTeam1Score} />
-            </div>
-
-            <div className="border-t border-gray-200"></div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="flex -space-x-2">
-                  {team2
-                    .filter((p) => p !== null)
-                    .map((player, idx) => (
-                      <Avatar
-                        key={player!.id}
-                        src={player!.imageUrl}
-                        name={player!.fullName}
-                        size="sm"
-                        className={idx > 0 ? "border-2 border-white" : ""}
-                      />
-                    ))}
-                </div>
-                <span className="text-sm font-medium text-gray-800 truncate">
-                  {getTeamDisplay(team2)}
-                </span>
-              </div>
-              <ScoreInput value={team2Score} onChange={setTeam2Score} />
             </div>
           </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setStep(1)}
-              className="flex-1"
-            >
-              Back
-            </Button>
-            <Button
-              type="button"
-              disabled={!canSubmit || isSubmitting}
-              onClick={onSubmit}
-              className="flex-1"
-            >
-              {isSubmitting ? "Saving..." : "Save Match"}
-            </Button>
-          </div>
-        </Card>
+        )}
       </div>
     </div>
   );
