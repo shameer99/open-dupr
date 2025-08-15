@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
 import type { FollowUser } from "@/lib/types";
+import FollowButton from "@/components/player/FollowButton";
 
 type TabType = "followers" | "following";
 
@@ -220,6 +221,15 @@ const FollowersFollowingPage: React.FC = () => {
     navigate(`/player/${userId}`);
   };
 
+  const handleFollowStateChange = (userId: number, isFollowed: boolean) => {
+    const updateUser = (list: FollowUser[]) =>
+      list.map((user) =>
+        user.id === userId ? { ...user, isFollow: isFollowed } : user
+      );
+    setFollowers(updateUser);
+    setFollowing(updateUser);
+  };
+
   const handleBackClick = () => {
     const canGoBack =
       window.history.state &&
@@ -330,18 +340,26 @@ const FollowersFollowingPage: React.FC = () => {
           {currentList.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors border"
-              onClick={() => handleUserClick(user.id)}
+              className="flex items-center gap-3 p-3 rounded-lg border"
             >
-              <Avatar src={user.profileImage} name={user.name} size="md" />
-              <div className="flex-1">
-                <p className="font-medium">
-                  {user.name?.trim().replace(/\s+/g, " ")}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Click to view profile
-                </p>
+              <div
+                className="flex items-center gap-3 flex-1 cursor-pointer"
+                onClick={() => handleUserClick(user.id)}
+              >
+                <Avatar src={user.profileImage} name={user.name} size="md" />
+                <div className="flex-1">
+                  <p className="font-medium">
+                    {user.name?.trim().replace(/\s+/g, " ")}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Click to view profile
+                  </p>
+                </div>
               </div>
+              <FollowButton
+                user={user}
+                onFollowStateChange={handleFollowStateChange}
+              />
             </div>
           ))}
           <div ref={loaderRef} />
