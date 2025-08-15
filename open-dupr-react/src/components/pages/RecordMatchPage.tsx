@@ -481,7 +481,7 @@ const RecordMatchPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-sm mx-auto space-y-6">
+      <div className="max-w-sm mx-auto lg:max-w-4xl space-y-6">
         <div className="space-y-6">
           <div className="flex items-center space-x-3 md:flex-col md:items-start md:space-x-0 md:space-y-1">
             <Label
@@ -499,43 +499,115 @@ const RecordMatchPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-center space-x-6">
-            {myProfile && (
+          {/* Mobile Layout - Stacked */}
+          <div className="lg:hidden space-y-4">
+            <div className="flex justify-center space-x-4">
+              {myProfile && (
+                <PlayerSlot
+                  player={myProfile}
+                  onPlayerSelect={() => {}}
+                  canRemove={false}
+                />
+              )}
               <PlayerSlot
-                player={myProfile}
-                onPlayerSelect={() => {}}
-                canRemove={false}
+                player={myTeammate}
+                onPlayerSelect={setMyTeammate}
+                myId={myProfile?.id}
+                label="Add Teammate"
               />
-            )}
-            <PlayerSlot
-              player={myTeammate}
-              onPlayerSelect={setMyTeammate}
-              myId={myProfile?.id}
-              label="Add Teammate"
-            />
-          </div>
+            </div>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-6 justify-center items-center">
-              <ScoreInput value={myScore} onChange={setMyScore} />
-              <div className="text-2xl font-bold text-gray-400">VS</div>
-              <ScoreInput value={opponentScore} onChange={setOpponentScore} />
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="flex flex-col space-y-3 justify-center items-center">
+                <ScoreInput value={myScore} onChange={setMyScore} />
+                <div className="text-xl font-bold text-gray-400">VS</div>
+                <ScoreInput value={opponentScore} onChange={setOpponentScore} />
+              </div>
+            </div>
+
+            <div className="flex justify-center space-x-4">
+              <PlayerSlot
+                player={opponent1}
+                onPlayerSelect={setOpponent1}
+                myId={myProfile?.id}
+                label="Add Opponent"
+              />
+              <PlayerSlot
+                player={opponent2}
+                onPlayerSelect={setOpponent2}
+                myId={myProfile?.id}
+                label="Add Opponent"
+              />
             </div>
           </div>
 
-          <div className="flex justify-center space-x-6">
-            <PlayerSlot
-              player={opponent1}
-              onPlayerSelect={setOpponent1}
-              myId={myProfile?.id}
-              label="Add Opponent"
-            />
-            <PlayerSlot
-              player={opponent2}
-              onPlayerSelect={setOpponent2}
-              myId={myProfile?.id}
-              label="Add Opponent"
-            />
+          {/* Desktop Layout - Horizontal */}
+          <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-12 lg:items-start">
+            {/* Team 1 - Left Side */}
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  My Team
+                </h3>
+              </div>
+              <div className="flex flex-col items-center space-y-6">
+                {myProfile && (
+                  <PlayerSlot
+                    player={myProfile}
+                    onPlayerSelect={() => {}}
+                    canRemove={false}
+                  />
+                )}
+                <PlayerSlot
+                  player={myTeammate}
+                  onPlayerSelect={setMyTeammate}
+                  myId={myProfile?.id}
+                  label="Add Teammate"
+                />
+              </div>
+            </div>
+
+            {/* Scores - Center */}
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Score
+                </h3>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-6">
+                <div className="flex flex-col space-y-6 items-center">
+                  <ScoreInput value={myScore} onChange={setMyScore} />
+                  <div className="text-3xl font-bold text-gray-400">VS</div>
+                  <ScoreInput
+                    value={opponentScore}
+                    onChange={setOpponentScore}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Team 2 - Right Side */}
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Opponents
+                </h3>
+              </div>
+              <div className="flex flex-col items-center space-y-6">
+                <PlayerSlot
+                  player={opponent1}
+                  onPlayerSelect={setOpponent1}
+                  myId={myProfile?.id}
+                  label="Add Opponent"
+                />
+                <PlayerSlot
+                  player={opponent2}
+                  onPlayerSelect={setOpponent2}
+                  myId={myProfile?.id}
+                  label="Add Opponent"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
