@@ -31,6 +31,7 @@ interface PlayerSlotProps {
   onPlayerSelect: (player: Player | null) => void;
   myId?: number;
   canRemove?: boolean;
+  label?: string;
 }
 
 const PlayerSlot: React.FC<PlayerSlotProps> = ({
@@ -38,6 +39,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
   onPlayerSelect,
   myId,
   canRemove = true,
+  label = "Add Player",
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlayerSearchHit[]>([]);
@@ -169,7 +171,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
         <span className="text-gray-400 text-xl">+</span>
       </button>
       <span className="text-xs text-gray-500 text-center leading-tight">
-        Add Player
+        {label}
       </span>
 
       {showDropdown && (
@@ -513,13 +515,14 @@ const RecordMatchPage: React.FC = () => {
               player={myTeammate}
               onPlayerSelect={setMyTeammate}
               myId={myProfile?.id}
+              label="Add Teammate"
             />
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-6 justify-center items-center">
               <ScoreInput value={myScore} onChange={setMyScore} />
-              <div className="text-2xl font-bold text-gray-400">vs</div>
+              <div className="text-2xl font-bold text-gray-400">VS</div>
               <ScoreInput value={opponentScore} onChange={setOpponentScore} />
             </div>
           </div>
@@ -529,11 +532,13 @@ const RecordMatchPage: React.FC = () => {
               player={opponent1}
               onPlayerSelect={setOpponent1}
               myId={myProfile?.id}
+              label="Add Opponent"
             />
             <PlayerSlot
               player={opponent2}
               onPlayerSelect={setOpponent2}
               myId={myProfile?.id}
+              label="Add Opponent"
             />
           </div>
         </div>
