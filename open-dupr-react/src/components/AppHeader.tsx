@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut } from "lucide-react";
 
 const AppHeader: React.FC = () => {
   const { title } = useHeader();
@@ -80,34 +80,38 @@ const AppHeader: React.FC = () => {
           </Button>
 
           {open && (
-            <div className="absolute right-0 mt-2 w-48 rounded-md border bg-card shadow-md">
+            <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
               <button
                 type="button"
                 onClick={goToProfile}
-                className="w-full px-3 py-2 text-left hover:bg-accent"
+                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
               >
+                <User className="h-5 w-5" />
                 My Profile
               </button>
               <button
                 type="button"
                 onClick={goToSearch}
-                className="w-full px-3 py-2 text-left hover:bg-accent"
+                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
               >
+                <Search className="h-5 w-5" />
                 Search Players
               </button>
               <button
                 type="button"
                 onClick={goToRecordMatch}
-                className="w-full px-3 py-2 text-left hover:bg-accent"
+                className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
               >
+                <Plus className="h-5 w-5" />
                 Add Match
               </button>
               <div className="my-1 h-px bg-border" />
               <button
                 type="button"
                 onClick={logout}
-                className="w-full px-3 py-2 text-left text-red-600 hover:bg-accent"
+                className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
               >
+                <LogOut className="h-5 w-5" />
                 Log out
               </button>
             </div>

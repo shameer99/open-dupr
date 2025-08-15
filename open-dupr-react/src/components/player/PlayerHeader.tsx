@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
+import Modal from "@/components/ui/modal";
+import { X } from "lucide-react";
 import type { FollowInfo } from "@/lib/types";
+import EnlargedAvatar from "./EnlargedAvatar";
 
 interface PlayerHeaderProps {
   name: string;
@@ -26,6 +29,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   followInfo,
   action,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleFollowersClick = () => {
@@ -64,12 +68,18 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   ) as string[];
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex items-start space-x-4">
-        <Avatar src={imageUrl} name={name} size="xl" />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold mb-1">
-            {name?.trim().replace(/\s+/g, " ")}
+    <>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start space-x-4">
+          <Avatar
+            src={imageUrl}
+            name={name}
+            size="xl"
+            onClick={() => setIsModalOpen(true)}
+          />
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold mb-1">
+              {name?.trim().replace(/\s+/g, " ")}
           </h1>
           <p className="text-muted-foreground mb-3">{metaParts.join(" · ")}</p>
 
@@ -95,6 +105,23 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
       </div>
       {action ? <div className="sm:ml-4 w-full sm:w-auto">{action}</div> : null}
     </div>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        className="bg-transparent shadow-none border-none w-auto max-w-none"
+      >
+        <div className="relative">
+          <EnlargedAvatar src={imageUrl} name={name} />
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 transition-colors"
+            aria-label="Close"
+          >
+            <X size={24} />
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 };
 
