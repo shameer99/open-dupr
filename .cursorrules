@@ -12,7 +12,7 @@
 
 ## Code Verification
 
-- After making code changes, verify them by running the project's linting and type-checking commands
+- After making code changes, verify them by running the project's linting and build commands
 - Find these commands in package.json or other configuration files
 - Do NOT run the full development server
 - Examples: `bun run lint`, `bun run build`
