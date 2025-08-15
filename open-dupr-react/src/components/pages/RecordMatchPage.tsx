@@ -669,50 +669,44 @@ const RecordMatchPage: React.FC = () => {
     }
   }, [canSubmit]);
 
-  // Setup header on mount, cleanup on unmount
+  // Effect for setting up and tearing down header elements on mount/unmount
   useEffect(() => {
     setTitle("New Match");
     setShowBackButton(true);
     setShowHamburgerMenu(false);
 
-    // Set the action button, but don't add it to dependencies
-    // so this effect only runs on mount/unmount.
-    // The separate effect below will handle disabling/enabling.
-    setActionButton({
-      text: "Save",
-      onClick: handleSave,
-      disabled: true, // Start disabled
-    });
-
+    // Cleanup on unmount
     return () => {
       setTitle(null);
       setShowBackButton(false);
+      setShowHamburgerMenu(true);
       setOnBackClick(undefined);
       setActionButton(undefined);
-      setShowHamburgerMenu(true);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     setTitle,
     setShowBackButton,
+    setShowHamburgerMenu,
     setOnBackClick,
     setActionButton,
-    setShowHamburgerMenu,
   ]);
 
-  // Update back-click handler when it changes
+  // Effect for updating the handlers/button when their dependencies change
   useEffect(() => {
     setOnBackClick(() => handleBackClick);
-  }, [setOnBackClick, handleBackClick]);
-
-  // Update action button state
-  useEffect(() => {
     setActionButton({
       text: "Save",
       onClick: handleSave,
       disabled: !canSubmit || isSubmitting,
     });
-  }, [setActionButton, canSubmit, isSubmitting, handleSave]);
+  }, [
+    setOnBackClick,
+    handleBackClick,
+    setActionButton,
+    handleSave,
+    canSubmit,
+    isSubmitting,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
