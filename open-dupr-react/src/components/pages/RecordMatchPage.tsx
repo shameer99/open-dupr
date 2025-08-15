@@ -707,15 +707,11 @@ const RecordMatchPage: React.FC = () => {
 
   // Update action button state
   useEffect(() => {
-    setActionButton((prev) =>
-      prev
-        ? { ...prev, disabled: !canSubmit || isSubmitting }
-        : {
-            text: "Save",
-            onClick: handleSave,
-            disabled: !canSubmit || isSubmitting,
-          }
-    );
+    setActionButton({
+      text: "Save",
+      onClick: handleSave,
+      disabled: !canSubmit || isSubmitting,
+    });
   }, [setActionButton, canSubmit, isSubmitting, handleSave]);
 
   useEffect(() => {
