@@ -528,6 +528,54 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
   );
 };
 
+const useContinuousChange = (
+  changeFn: () => void,
+  value: number,
+  isIncrement: boolean
+) => {
+  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const savedCallback = React.useRef(changeFn);
+
+  React.useEffect(() => {
+    savedCallback.current = changeFn;
+  }, [changeFn]);
+
+  const getDelay = React.useCallback(() => {
+    const isApproachingSlowdown = isIncrement
+      ? value === 10 || value === 20
+      : value === 11 || value === 21;
+    if (isApproachingSlowdown) return 500;
+    if (value >= 21) return 80;
+    if (value >= 11) return 150;
+    return 200;
+  }, [value, isIncrement]);
+
+  const stop = React.useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  const start = React.useCallback(() => {
+    stop();
+    savedCallback.current(); // immediate change
+
+    const loop = () => {
+      savedCallback.current();
+      intervalRef.current = setTimeout(loop, getDelay());
+    };
+
+    intervalRef.current = setTimeout(loop, 400); // initial delay before repeating
+  }, [stop, getDelay]);
+
+  React.useEffect(() => {
+    return stop; // Cleanup on unmount
+  }, [stop]);
+
+  return { start, stop };
+};
+
 interface ScoreInputProps {
   value: number;
   onChange: (value: number) => void;
@@ -539,19 +587,28 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   onChange,
   max = 999,
 }) => {
-  const handleIncrement = () => {
+  const handleIncrement = useCallback(() => {
     if (value < max) onChange(value + 1);
-  };
+  }, [value, max, onChange]);
 
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     if (value > 0) onChange(value - 1);
-  };
+  }, [value, onChange]);
+
+  const { start: startIncrement, stop: stopIncrement } = useContinuousChange(
+    handleIncrement,
+    value,
+    true
+  );
+  const { start: startDecrement, stop: stopDecrement } = useContinuousChange(
+    handleDecrement,
+    value,
+    false
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // Only allow numeric input
     if (!/^\d*$/.test(inputValue)) return;
-
     const newValue = parseInt(inputValue) || 0;
     if (newValue >= 0 && newValue <= max) {
       onChange(newValue);
@@ -559,7 +616,6 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Select all text when input is focused for easy overwriting
     e.target.select();
   };
 
@@ -570,7 +626,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         variant="outline"
         size="sm"
         className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
-        onClick={handleDecrement}
+        onMouseDown={startDecrement}
+        onMouseUp={stopDecrement}
+        onMouseLeave={stopDecrement}
+        onTouchStart={startDecrement}
+        onTouchEnd={stopDecrement}
         disabled={value <= 0}
       >
         −
@@ -591,7 +651,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         variant="outline"
         size="sm"
         className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
-        onClick={handleIncrement}
+        onMouseDown={startIncrement}
+        onMouseUp={stopIncrement}
+        onMouseLeave={stopIncrement}
+        onTouchStart={startIncrement}
+        onTouchEnd={stopIncrement}
         disabled={value >= max}
       >
         +
