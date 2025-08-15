@@ -382,6 +382,7 @@ const RecordMatchPage: React.FC = () => {
 
   const handleSave = () => {
     if (canSubmit) {
+      setError(null);
       setShowConfirmation(true);
     }
   };
@@ -470,8 +471,25 @@ const RecordMatchPage: React.FC = () => {
 
       await saveMatch(body);
       navigate("/profile");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save match");
+    } catch (err: unknown) {
+      // Extract the API response message if available
+      if (
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        err.response &&
+        typeof err.response === "object" &&
+        "data" in err.response &&
+        err.response.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        setError(err.response.data.message as string);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to save match");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -480,12 +498,6 @@ const RecordMatchPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-sm mx-auto space-y-6">
-        {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
         <div className="space-y-6">
           <div className="flex items-center space-x-3 md:flex-col md:items-start md:space-x-0 md:space-y-1">
             <Label
@@ -549,6 +561,12 @@ const RecordMatchPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
                 Confirm Match
               </h3>
+
+              {error && (
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600 mb-4">
+                  {error}
+                </div>
+              )}
 
               {/* Match Card Style Display */}
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -654,7 +672,10 @@ const RecordMatchPage: React.FC = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowConfirmation(false)}
+                  onClick={() => {
+                    setShowConfirmation(false);
+                    setError(null);
+                  }}
                   className="flex-1"
                   disabled={isSubmitting}
                 >
