@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import Avatar from "@/components/ui/avatar";
 import { useHeader } from "@/lib/header-context";
 import { MatchScoreDisplay } from "@/components/player/shared/MatchDisplay";
@@ -16,6 +15,7 @@ import {
   searchPlayers,
   getFollowers,
   getFollowing,
+  getMyMatchHistory,
   type PlayerSearchHit,
 } from "@/lib/api";
 
@@ -44,16 +44,21 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlayerSearchHit[]>([]);
-  const [suggestions, setSuggestions] = useState<PlayerSearchHit[]>([]);
+  const [friends, setFriends] = useState<PlayerSearchHit[]>([]);
+  const [recentOpponents, setRecentOpponents] = useState<PlayerSearchHit[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoadingFriends, setIsLoadingFriends] = useState(false);
+  const [isLoadingRecent, setIsLoadingRecent] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const loadSuggestions = useCallback(async () => {
+  // Load friends (followers + following)
+  const loadFriends = useCallback(async () => {
     if (!myId) return;
+    setIsLoadingFriends(true);
     try {
       const [followersResp, followingResp] = await Promise.all([
-        getFollowers(myId, 0, 10),
-        getFollowing(myId, 0, 10),
+        getFollowers(myId, 0, 20),
+        getFollowing(myId, 0, 20),
       ]);
 
       const followers = followersResp?.results || [];
@@ -73,15 +78,80 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
             } as PlayerSearchHit)
         );
 
-      setSuggestions(combined);
+      setFriends(combined);
     } catch {
       // Error handling intentionally silent
+    } finally {
+      setIsLoadingFriends(false);
+    }
+  }, [myId]);
+
+  // Load recent opponents from match history
+  const loadRecentOpponents = useCallback(async () => {
+    if (!myId) return;
+    setIsLoadingRecent(true);
+    try {
+      const response = await getMyMatchHistory(0, 20);
+      const matches = response?.result?.hits || [];
+
+      const opponentIds = new Set<number>();
+      const recentPlayers: PlayerSearchHit[] = [];
+
+      for (const match of matches) {
+        if (match.team1?.player1 && match.team1.player1 !== myId) {
+          if (!opponentIds.has(match.team1.player1)) {
+            opponentIds.add(match.team1.player1);
+            recentPlayers.push({
+              id: match.team1.player1,
+              fullName: match.team1.player1Name || "Unknown Player",
+              imageUrl: match.team1.player1Image,
+            });
+          }
+        }
+        if (match.team1?.player2 && match.team1.player2 !== myId) {
+          if (!opponentIds.has(match.team1.player2)) {
+            opponentIds.add(match.team1.player2);
+            recentPlayers.push({
+              id: match.team1.player2,
+              fullName: match.team1.player2Name || "Unknown Player",
+              imageUrl: match.team1.player2Image,
+            });
+          }
+        }
+        if (match.team2?.player1 && match.team2.player1 !== myId) {
+          if (!opponentIds.has(match.team2.player1)) {
+            opponentIds.add(match.team2.player1);
+            recentPlayers.push({
+              id: match.team2.player1,
+              fullName: match.team2.player1Name || "Unknown Player",
+              imageUrl: match.team2.player1Image,
+            });
+          }
+        }
+        if (match.team2?.player2 && match.team2.player2 !== myId) {
+          if (!opponentIds.has(match.team2.player2)) {
+            opponentIds.add(match.team2.player2);
+            recentPlayers.push({
+              id: match.team2.player2,
+              fullName: match.team2.player2Name || "Unknown Player",
+              imageUrl: match.team2.player2Image,
+            });
+          }
+        }
+      }
+
+      setRecentOpponents(recentPlayers.slice(0, 10));
+    } catch {
+      // Error handling intentionally silent
+    } finally {
+      setIsLoadingRecent(false);
     }
   }, [myId]);
 
   useEffect(() => {
-    loadSuggestions();
-  }, [loadSuggestions]);
+    loadFriends();
+    loadRecentOpponents();
+  }, [loadFriends, loadRecentOpponents]);
 
   const performSearch = useCallback(
     async (query: string) => {
@@ -132,15 +202,13 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
       fullName: playerData.fullName,
       imageUrl: playerData.imageUrl,
     });
-    setShowDropdown(false);
+    setShowModal(false);
     setSearchQuery("");
   };
 
   const handleRemove = () => {
     onPlayerSelect(null);
   };
-
-  const displayResults = searchQuery.trim() ? searchResults : suggestions;
 
   if (player) {
     return (
@@ -164,91 +232,208 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
   }
 
   return (
-    <div className="flex flex-col items-center space-y-3 relative">
-      <button
-        onClick={() => setShowDropdown(true)}
-        className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
-      >
-        <span className="text-gray-400 text-xl">+</span>
-      </button>
-      <span className="text-xs text-gray-500 text-center leading-tight">
-        {label}
-      </span>
+    <>
+      <div className="flex flex-col items-center space-y-3 relative">
+        <button
+          onClick={() => setShowModal(true)}
+          className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
+        >
+          <span className="text-gray-400 text-xl">+</span>
+        </button>
+        <span className="text-xs text-gray-500 text-center leading-tight">
+          {label}
+        </span>
+      </div>
 
-      {showDropdown && (
-        <Card className="fixed inset-x-4 top-1/2 transform -translate-y-1/2 max-h-80 overflow-y-auto bg-white shadow-xl z-50 md:absolute md:inset-x-auto md:top-full md:left-1/2 md:-translate-x-1/2 md:translate-y-0 md:mt-2 md:w-72">
-          <div className="p-4 border-b">
-            <Input
-              placeholder="Search for player..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="text-sm"
-              autoFocus
-            />
-          </div>
-
-          {isSearching && (
-            <div className="p-4 text-center text-sm text-gray-500">
-              Searching...
-            </div>
-          )}
-
-          {!isSearching &&
-            displayResults.length === 0 &&
-            searchQuery.trim() && (
-              <div className="p-4 text-center text-sm text-gray-500">
-                No players found
+      {/* Player Selection Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Select Player
+                </h3>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                >
+                  <span className="text-gray-600 text-lg">×</span>
+                </button>
               </div>
-            )}
-
-          {!searchQuery.trim() && suggestions.length > 0 && (
-            <div className="p-3 text-xs font-medium text-gray-500 border-b bg-gray-50">
-              From your network
             </div>
-          )}
 
-          {displayResults.map((playerData) => (
-            <button
-              key={playerData.id}
-              type="button"
-              className="w-full flex items-center space-x-3 p-4 hover:bg-gray-50 transition-colors text-left"
-              onClick={() => handlePlayerClick(playerData)}
-            >
-              <Avatar
-                src={playerData.imageUrl}
-                name={playerData.fullName}
-                size="sm"
+            {/* Search Box */}
+            <div className="p-6 border-b border-gray-100">
+              <Input
+                placeholder="Search for player..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="text-base h-12"
+                autoFocus
               />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate text-sm">
-                  {playerData.fullName}
-                </p>
-                {playerData.location && (
-                  <p className="text-xs text-gray-500 truncate">
-                    {playerData.location}
-                  </p>
-                )}
-              </div>
-            </button>
-          ))}
+            </div>
 
-          <div className="p-3 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setShowDropdown(false);
-                setSearchQuery("");
-              }}
-              className="w-full text-xs"
-            >
-              Cancel
-            </Button>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto max-h-[60vh]">
+              {/* Search Results */}
+              {searchQuery.trim() && (
+                <div className="p-6 border-b border-gray-100">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">
+                    Search Results
+                  </h4>
+                  {isSearching ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Searching...
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="space-y-3">
+                      {searchResults.map((playerData) => (
+                        <button
+                          key={playerData.id}
+                          type="button"
+                          className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                          onClick={() => handlePlayerClick(playerData)}
+                        >
+                          <Avatar
+                            src={playerData.imageUrl}
+                            name={playerData.fullName}
+                            size="md"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate text-sm">
+                              {playerData.fullName}
+                            </p>
+                            {playerData.location && (
+                              <p className="text-xs text-gray-500 truncate">
+                                {playerData.location}
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      No players found
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Recent Opponents */}
+              {!searchQuery.trim() && recentOpponents.length > 0 && (
+                <div className="p-6 border-b border-gray-100">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">
+                    Recent Opponents
+                  </h4>
+                  <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                    {isLoadingRecent ? (
+                      <div className="flex space-x-4">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="flex-shrink-0 text-center">
+                            <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
+                            <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      recentOpponents.map((playerData) => (
+                        <button
+                          key={playerData.id}
+                          type="button"
+                          className="flex-shrink-0 text-center group"
+                          onClick={() => handlePlayerClick(playerData)}
+                        >
+                          <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                            <Avatar
+                              src={playerData.imageUrl}
+                              name={playerData.fullName}
+                              size="lg"
+                            />
+                          </div>
+                          <p className="text-xs font-medium text-gray-900 truncate w-16">
+                            {playerData.fullName}
+                          </p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Friends */}
+              {!searchQuery.trim() && friends.length > 0 && (
+                <div className="p-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-4">
+                    Friends
+                  </h4>
+                  <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                    {isLoadingFriends ? (
+                      <div className="flex space-x-4">
+                        {[...Array(3)].map((_, i) => (
+                          <div key={i} className="flex-shrink-0 text-center">
+                            <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
+                            <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      friends.map((playerData) => (
+                        <button
+                          key={playerData.id}
+                          type="button"
+                          className="flex-shrink-0 text-center group"
+                          onClick={() => handlePlayerClick(playerData)}
+                        >
+                          <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                            <Avatar
+                              src={playerData.imageUrl}
+                              name={playerData.fullName}
+                              size="lg"
+                            />
+                          </div>
+                          <p className="text-xs font-medium text-gray-900 truncate w-16">
+                            {playerData.fullName}
+                          </p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!searchQuery.trim() &&
+                friends.length === 0 &&
+                recentOpponents.length === 0 &&
+                !isLoadingFriends &&
+                !isLoadingRecent && (
+                  <div className="p-6 text-center text-gray-500">
+                    <p>No recent players or friends found</p>
+                    <p className="text-sm mt-1">
+                      Try searching for a player above
+                    </p>
+                  </div>
+                )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowModal(false)}
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
-        </Card>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -326,8 +511,13 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
 
 const RecordMatchPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setTitle, setShowBackButton, setOnBackClick, setActionButton } =
-    useHeader();
+  const {
+    setTitle,
+    setShowBackButton,
+    setOnBackClick,
+    setActionButton,
+    setShowHamburgerMenu,
+  } = useHeader();
   const [eventDate, setEventDate] = useState<string>(todayStr());
   const [myTeammate, setMyTeammate] = useState<Player | null>(null);
   const [opponent1, setOpponent1] = useState<Player | null>(null);
@@ -367,7 +557,7 @@ const RecordMatchPage: React.FC = () => {
     );
   }, [myTeammate, opponent1, opponent2, myScore, opponentScore]);
 
-  const handleBackClick = () => {
+  const handleBackClick = useCallback(() => {
     if (hasAnyInput) {
       if (
         confirm(
@@ -379,27 +569,36 @@ const RecordMatchPage: React.FC = () => {
     } else {
       navigate("/profile");
     }
-  };
+  }, [hasAnyInput, navigate]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (canSubmit) {
       setError(null);
       setShowConfirmation(true);
     }
-  };
+  }, [canSubmit]);
 
   useEffect(() => {
     setTitle("New Match");
     setShowBackButton(true);
     setOnBackClick(() => handleBackClick);
+    setShowHamburgerMenu(false);
 
     return () => {
       setTitle(null);
       setShowBackButton(false);
       setOnBackClick(undefined);
       setActionButton(undefined);
+      setShowHamburgerMenu(true);
     };
-  }, [setTitle, setShowBackButton, setOnBackClick, setActionButton]);
+  }, [
+    setTitle,
+    setShowBackButton,
+    setOnBackClick,
+    setActionButton,
+    setShowHamburgerMenu,
+    handleBackClick,
+  ]);
 
   useEffect(() => {
     setActionButton({
@@ -407,7 +606,7 @@ const RecordMatchPage: React.FC = () => {
       onClick: handleSave,
       disabled: !canSubmit || isSubmitting,
     });
-  }, [setActionButton, canSubmit, isSubmitting]);
+  }, [setActionButton, canSubmit, isSubmitting, handleSave]);
 
   useEffect(() => {
     let cancelled = false;

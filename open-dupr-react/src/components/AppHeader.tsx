@@ -8,8 +8,15 @@ import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 const AppHeader: React.FC = () => {
-  const { title, showBackButton, onBackClick, actionButton, avatarUrl, playerName } =
-    useHeader();
+  const {
+    title,
+    showBackButton,
+    onBackClick,
+    actionButton,
+    avatarUrl,
+    playerName,
+    showHamburgerMenu,
+  } = useHeader();
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
   const [open, setOpen] = useState(false);
@@ -83,24 +90,28 @@ const AppHeader: React.FC = () => {
             title ? "opacity-100" : "opacity-0 -translate-y-6"
           }`}
         >
-                      <div className="flex items-center gap-3">
-              {(avatarUrl || playerName) && (
-                <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt=""
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(playerName || "")}`}>
-                      {getInitials(playerName || "")}
-                    </div>
-                  )}
-                </div>
-              )}
-              <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-            </div>
+          <div className="flex items-center gap-3">
+            {(avatarUrl || playerName) && (
+              <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(
+                      playerName || ""
+                    )}`}
+                  >
+                    {getInitials(playerName || "")}
+                  </div>
+                )}
+              </div>
+            )}
+            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -116,53 +127,55 @@ const AppHeader: React.FC = () => {
             </Button>
           )}
 
-          <div className="relative" ref={menuRef}>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setOpen((v) => !v)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+          {showHamburgerMenu && (
+            <div className="relative" ref={menuRef}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setOpen((v) => !v)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
 
-            {open && (
-              <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
-                <button
-                  type="button"
-                  onClick={goToProfile}
-                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                >
-                  <User className="h-5 w-5" />
-                  My Profile
-                </button>
-                <button
-                  type="button"
-                  onClick={goToSearch}
-                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                >
-                  <Search className="h-5 w-5" />
-                  Search Players
-                </button>
-                <button
-                  type="button"
-                  onClick={goToRecordMatch}
-                  className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                >
-                  <Plus className="h-5 w-5" />
-                  Add Match
-                </button>
-                <div className="my-1 h-px bg-border" />
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
-                >
-                  <LogOut className="h-5 w-5" />
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
+              {open && (
+                <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
+                  <button
+                    type="button"
+                    onClick={goToProfile}
+                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                  >
+                    <User className="h-5 w-5" />
+                    My Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToSearch}
+                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                  >
+                    <Search className="h-5 w-5" />
+                    Search Players
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToRecordMatch}
+                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                  >
+                    <Plus className="h-5 w-5" />
+                    Add Match
+                  </button>
+                  <div className="my-1 h-px bg-border" />
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <NavigationProgress />

@@ -23,6 +23,8 @@ interface HeaderContextType {
   setAvatarUrl: (url: string | null) => void;
   playerName?: string | null;
   setPlayerName: (name: string | null) => void;
+  showHamburgerMenu: boolean;
+  setShowHamburgerMenu: (show: boolean) => void;
 }
 
 const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
@@ -40,6 +42,7 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
   >(undefined);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
+  const [showHamburgerMenu, setShowHamburgerMenu] = useState<boolean>(true);
 
   return (
     <HeaderContext.Provider
@@ -56,6 +59,8 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
         setAvatarUrl,
         playerName,
         setPlayerName,
+        showHamburgerMenu,
+        setShowHamburgerMenu,
       }}
     >
       {children}
