@@ -36,7 +36,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setTitle(entry.isIntersecting ? null : player.fullName);
+        setTitle(entry.isIntersecting ? "" : player.fullName);
       },
       { rootMargin: "-80px 0px 0px 0px" }
     );

@@ -64,11 +64,13 @@ const AppHeader: React.FC = () => {
           )}
         </button>
 
-        {title && (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-          </div>
-        )}
+        <div
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${
+            title ? "opacity-100" : "opacity-0 -translate-y-6"
+          }`}
+        >
+          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+        </div>
 
         <div className="relative" ref={menuRef}>
           <Button
