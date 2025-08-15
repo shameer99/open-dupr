@@ -269,10 +269,19 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseInt(e.target.value) || 0;
+    const inputValue = e.target.value;
+    // Only allow numeric input
+    if (!/^\d*$/.test(inputValue)) return;
+
+    const newValue = parseInt(inputValue) || 0;
     if (newValue >= 0 && newValue <= max) {
       onChange(newValue);
     }
+  };
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Select all text when input is focused for easy overwriting
+    e.target.select();
   };
 
   return (
@@ -289,12 +298,13 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
       </Button>
 
       <input
-        type="number"
+        type="text"
         value={value}
         onChange={handleInputChange}
-        className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all"
-        min="0"
-        max={max}
+        onFocus={handleInputFocus}
+        className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        inputMode="numeric"
+        pattern="[0-9]*"
       />
 
       <Button
