@@ -5,9 +5,10 @@ import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
+import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 const AppHeader: React.FC = () => {
-  const { title, showBackButton, onBackClick, actionButton, avatarUrl } =
+  const { title, showBackButton, onBackClick, actionButton, avatarUrl, playerName } =
     useHeader();
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
@@ -82,16 +83,24 @@ const AppHeader: React.FC = () => {
             title ? "opacity-100" : "opacity-0 -translate-y-6"
           }`}
         >
-          <div className="flex items-center gap-3">
-            {avatarUrl && (
-              <img
-                src={avatarUrl}
-                alt=""
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            )}
-            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
-          </div>
+                      <div className="flex items-center gap-3">
+              {(avatarUrl || playerName) && (
+                <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(playerName || "")}`}>
+                      {getInitials(playerName || "")}
+                    </div>
+                  )}
+                </div>
+              )}
+              <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+            </div>
         </div>
 
         <div className="flex items-center gap-2">

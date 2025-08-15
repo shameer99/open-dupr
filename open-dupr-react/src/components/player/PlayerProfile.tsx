@@ -25,7 +25,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   player,
   isSelf = false,
 }) => {
-  const { setTitle, setAvatarUrl } = useHeader();
+  const { setTitle, setAvatarUrl, setPlayerName } = useHeader();
   const navigate = useNavigate();
   const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
@@ -38,6 +38,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
       ([entry]) => {
         setTitle(entry.isIntersecting ? "" : player.fullName);
         setAvatarUrl(entry.isIntersecting ? null : player.imageUrl || null);
+        setPlayerName(entry.isIntersecting ? null : player.fullName);
       },
       { rootMargin: "-80px 0px 0px 0px" }
     );
@@ -54,8 +55,9 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
       }
       setTitle(null);
       setAvatarUrl(null);
+      setPlayerName(null);
     };
-  }, [player.fullName, player.imageUrl, setTitle, setAvatarUrl]);
+  }, [player.fullName, player.imageUrl, setTitle, setAvatarUrl, setPlayerName]);
 
   useEffect(() => {
     const fetchFollowInfo = async () => {

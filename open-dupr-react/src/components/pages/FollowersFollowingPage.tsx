@@ -23,8 +23,13 @@ const FollowersFollowingPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
-  const { setTitle, setShowBackButton, setOnBackClick, setAvatarUrl } =
-    useHeader();
+  const {
+    setTitle,
+    setShowBackButton,
+    setOnBackClick,
+    setAvatarUrl,
+    setPlayerName,
+  } = useHeader();
 
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [followers, setFollowers] = useState<FollowUser[]>([]);
@@ -128,8 +133,10 @@ const FollowersFollowingPage: React.FC = () => {
 
         const name = playerDetail?.result?.fullName as string | undefined;
         const image = playerDetail?.result?.imageUrl as string | undefined;
-        console.log("Setting avatar:", image);
-        if (name) setTargetName(name);
+        if (name) {
+          setTargetName(name);
+          setPlayerName(name);
+        }
         if (image) setAvatarUrl(image);
 
         completeLoadingStep("Loading social data");
@@ -248,6 +255,7 @@ const FollowersFollowingPage: React.FC = () => {
       setShowBackButton(false);
       setOnBackClick(undefined);
       setAvatarUrl(null);
+      setPlayerName(null);
     };
   }, [
     activeTab,
@@ -256,6 +264,7 @@ const FollowersFollowingPage: React.FC = () => {
     setShowBackButton,
     setOnBackClick,
     setAvatarUrl,
+    setPlayerName,
     handleBackClick,
   ]);
 
