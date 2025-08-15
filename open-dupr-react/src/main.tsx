@@ -23,8 +23,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <AuthProvider>
       <LoadingProvider>
         <Router>
+          <App />
           <Routes>
-            <Route path="/" element={<App />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
               path="/profile"
