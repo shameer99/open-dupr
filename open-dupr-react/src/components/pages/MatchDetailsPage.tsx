@@ -465,19 +465,21 @@ const MatchDetailsPage: React.FC = () => {
                   [team.player1, team.player2]
                     .filter((p) => p && p.validatedMatch === false)
                     .map((p) => (
-                      <div
+                      <button
                         key={p!.id}
-                        className="flex items-center gap-3 p-3 rounded-md border"
+                        type="button"
+                        onClick={() => handleClickPlayer(p!.id)}
+                        className="flex items-center gap-3 p-3 rounded-md border w-full text-left hover:bg-accent transition-colors"
                       >
                         <Avatar
                           name={p!.fullName}
                           src={p!.imageUrl}
                           size="sm"
                         />
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium hover:underline">
                           {p!.fullName}
                         </span>
-                      </div>
+                      </button>
                     ))
                 )}
               </div>

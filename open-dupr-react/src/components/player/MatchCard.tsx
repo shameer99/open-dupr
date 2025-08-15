@@ -22,33 +22,65 @@ interface MatchCardProps {
 }
 
 function TeamStack({ team }: { team: MatchTeam }) {
+  const navigate = useNavigate();
   const isDoubles = Boolean(team.player2);
+
+  const handlePlayerClick = (e: React.MouseEvent, playerId?: number) => {
+    e.stopPropagation();
+    if (playerId) {
+      navigate(`/player/${playerId}`);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2 min-w-0">
       <div className="flex -space-x-2">
-        <Avatar
-          name={team.player1.fullName}
-          src={team.player1.imageUrl}
-          size="sm"
-          className="ring-2 ring-background"
-        />
-        {isDoubles && (
+        <button
+          type="button"
+          onClick={(e) => handlePlayerClick(e, team.player1.id)}
+          className="hover:ring-2 hover:ring-primary/20 transition-all"
+        >
           <Avatar
-            name={team.player2!.fullName}
-            src={team.player2!.imageUrl}
+            name={team.player1.fullName}
+            src={team.player1.imageUrl}
             size="sm"
             className="ring-2 ring-background"
           />
+        </button>
+        {isDoubles && (
+          <button
+            type="button"
+            onClick={(e) => handlePlayerClick(e, team.player2!.id)}
+            className="hover:ring-2 hover:ring-primary/20 transition-all"
+          >
+            <Avatar
+              name={team.player2!.fullName}
+              src={team.player2!.imageUrl}
+              size="sm"
+              className="ring-2 ring-background"
+            />
+          </button>
         )}
       </div>
       <div className="min-w-0">
-        <span className="font-medium truncate">
-          {isDoubles
-            ? `${getDisplayName(team.player1.fullName)} & ${getDisplayName(
-                team.player2!.fullName
-              )}`
-            : getDisplayName(team.player1.fullName)}
-        </span>
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={(e) => handlePlayerClick(e, team.player1.id)}
+            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors"
+          >
+            {getDisplayName(team.player1.fullName)}
+          </button>
+          {isDoubles && (
+            <button
+              type="button"
+              onClick={(e) => handlePlayerClick(e, team.player2!.id)}
+              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors"
+            >
+              {getDisplayName(team.player2!.fullName)}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
