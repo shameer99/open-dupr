@@ -7,7 +7,8 @@ import { NavigationProgress } from "@/components/ui/navigation-progress";
 import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
 
 const AppHeader: React.FC = () => {
-  const { title, showBackButton, onBackClick, actionButton } = useHeader();
+  const { title, showBackButton, onBackClick, actionButton, avatarUrl } =
+    useHeader();
   const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
   const [open, setOpen] = useState(false);
@@ -81,7 +82,16 @@ const AppHeader: React.FC = () => {
             title ? "opacity-100" : "opacity-0 -translate-y-6"
           }`}
         >
-          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          <div className="flex items-center gap-3">
+            {avatarUrl && (
+              <img
+                src={avatarUrl}
+                alt=""
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            )}
+            <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

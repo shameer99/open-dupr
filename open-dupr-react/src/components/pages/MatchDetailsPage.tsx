@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import {
 } from "../player/shared/match-utils";
 import { MatchDetailsSkeleton } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
+import { useHeader } from "@/lib/header-context";
 
 function extractImpactDelta(
   team: MatchTeam,
@@ -222,6 +223,7 @@ const MatchDetailsPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
+  const { setTitle, setShowBackButton, setOnBackClick } = useHeader();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -332,14 +334,26 @@ const MatchDetailsPage: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     navigate(-1);
-  };
+  }, [navigate]);
 
   const handleClickPlayer = (id?: number) => {
     if (!id) return;
     navigate(`/player/${id}`);
   };
+
+  useEffect(() => {
+    setTitle("Match Details");
+    setShowBackButton(true);
+    setOnBackClick(() => handleBack);
+
+    return () => {
+      setTitle(null);
+      setShowBackButton(false);
+      setOnBackClick(undefined);
+    };
+  }, [setTitle, setShowBackButton, setOnBackClick, handleBack]);
 
   if (loading) {
     return <MatchDetailsSkeleton />;
@@ -385,13 +399,6 @@ const MatchDetailsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <div className="mb-4">
-        <Button variant="outline" onClick={handleBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-      </div>
-
       <Card className="rounded-xl">
         <CardHeader className="px-6 pt-6 pb-4">
           <div className="space-y-2">

@@ -8,6 +8,7 @@ import {
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
 import { apiFetch } from "@/lib/api";
+import { useHeader } from "@/lib/header-context";
 
 interface SearchHit {
   id: number;
@@ -21,6 +22,7 @@ const DEFAULT_LIMIT = 25;
 
 const SearchPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setTitle, setShowBackButton, setOnBackClick } = useHeader();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,6 +71,22 @@ const SearchPage: React.FC = () => {
     [query, offset]
   );
 
+  const handleBackClick = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  useEffect(() => {
+    setTitle("Search Players");
+    setShowBackButton(true);
+    setOnBackClick(() => handleBackClick);
+
+    return () => {
+      setTitle(null);
+      setShowBackButton(false);
+      setOnBackClick(undefined);
+    };
+  }, [setTitle, setShowBackButton, setOnBackClick]);
+
   useEffect(() => {
     if (!loaderRef.current) return;
     const observer = new IntersectionObserver(
@@ -91,21 +109,19 @@ const SearchPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex items-center mb-4">
-        <Button variant="outline" onClick={() => navigate(-1)} className="mr-3">
-          ← Back
-        </Button>
-        <h1 className="text-xl font-semibold">Search Players</h1>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <Input
-          placeholder="Search by name..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="bg-white"
-        />
-        <Button type="submit">Search</Button>
+      <form onSubmit={handleSubmit} className="mb-6">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Search for players..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit" disabled={loading || !query.trim()}>
+            Search
+          </Button>
+        </div>
       </form>
       {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
 

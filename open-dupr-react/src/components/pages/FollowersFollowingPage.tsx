@@ -6,13 +6,13 @@ import {
   getOtherUserFollowInfo,
   getPlayerById,
 } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import Avatar from "@/components/ui/avatar";
 import {
   FollowUserListSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
+import { useHeader } from "@/lib/header-context";
 import type { FollowUser } from "@/lib/types";
 import FollowButton from "@/components/player/FollowButton";
 
@@ -23,6 +23,8 @@ const FollowersFollowingPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
+  const { setTitle, setShowBackButton, setOnBackClick, setAvatarUrl } =
+    useHeader();
 
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [followers, setFollowers] = useState<FollowUser[]>([]);
@@ -33,7 +35,6 @@ const FollowersFollowingPage: React.FC = () => {
   const [listLoading, setListLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [targetName, setTargetName] = useState<string>("");
-  const [targetImage, setTargetImage] = useState<string>("");
   const [followersCount, setFollowersCount] = useState<number | null>(null);
   const [followingCount, setFollowingCount] = useState<number | null>(null);
   const [followersOffset, setFollowersOffset] = useState<number>(0);
@@ -127,8 +128,9 @@ const FollowersFollowingPage: React.FC = () => {
 
         const name = playerDetail?.result?.fullName as string | undefined;
         const image = playerDetail?.result?.imageUrl as string | undefined;
+        console.log("Setting avatar:", image);
         if (name) setTargetName(name);
-        if (image) setTargetImage(image);
+        if (image) setAvatarUrl(image);
 
         completeLoadingStep("Loading social data");
 
@@ -230,18 +232,32 @@ const FollowersFollowingPage: React.FC = () => {
     setFollowing(updateUser);
   };
 
-  const handleBackClick = () => {
-    const canGoBack =
-      window.history.state &&
-      (window.history.state as { idx?: number }).idx! > 0;
-    if (canGoBack) {
-      navigate(-1);
-    } else if (id) {
-      navigate(`/player/${id}`);
-    } else {
-      navigate("/profile");
-    }
-  };
+  const handleBackClick = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  useEffect(() => {
+    const title =
+      targetName || (activeTab === "followers" ? "Followers" : "Following");
+    setTitle(title);
+    setShowBackButton(true);
+    setOnBackClick(() => handleBackClick);
+
+    return () => {
+      setTitle(null);
+      setShowBackButton(false);
+      setOnBackClick(undefined);
+      setAvatarUrl(null);
+    };
+  }, [
+    activeTab,
+    targetName,
+    setTitle,
+    setShowBackButton,
+    setOnBackClick,
+    setAvatarUrl,
+    handleBackClick,
+  ]);
 
   if (pageLoading) {
     return (
@@ -265,24 +281,6 @@ const FollowersFollowingPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex items-center mb-6">
-        <div className="flex items-center gap-3 flex-1">
-          <Button
-            variant="outline"
-            onClick={handleBackClick}
-            aria-label="Go back"
-          >
-            ← Back
-          </Button>
-          <Avatar src={targetImage} name={targetName} size="md" />
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold">
-              {targetName ? `${targetName}` : "User"}
-            </h1>
-          </div>
-        </div>
-      </div>
-
       <div className="flex border-b border-gray-200 mb-6">
         <button
           onClick={() => handleTabChange("followers")}

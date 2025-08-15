@@ -25,7 +25,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   player,
   isSelf = false,
 }) => {
-  const { setTitle } = useHeader();
+  const { setTitle, setAvatarUrl } = useHeader();
   const navigate = useNavigate();
   const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
@@ -37,6 +37,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         setTitle(entry.isIntersecting ? "" : player.fullName);
+        setAvatarUrl(entry.isIntersecting ? null : player.imageUrl || null);
       },
       { rootMargin: "-80px 0px 0px 0px" }
     );
@@ -52,8 +53,9 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         observer.unobserve(currentHeader);
       }
       setTitle(null);
+      setAvatarUrl(null);
     };
-  }, [player.fullName, setTitle]);
+  }, [player.fullName, player.imageUrl, setTitle, setAvatarUrl]);
 
   useEffect(() => {
     const fetchFollowInfo = async () => {
@@ -189,18 +191,18 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         <PlayerHeader
           name={player.fullName}
           imageUrl={player.imageUrl}
-        location={
-          player.location ||
-          player.addresses?.[0]?.formattedAddress ||
-          "Unknown location"
-        }
-        playerId={player.id}
-        birthdate={player.birthdate}
-        gender={player.gender}
-        age={player.age}
-        followInfo={followInfo}
-        action={actionNode}
-      />
+          location={
+            player.location ||
+            player.addresses?.[0]?.formattedAddress ||
+            "Unknown location"
+          }
+          playerId={player.id}
+          birthdate={player.birthdate}
+          gender={player.gender}
+          age={player.age}
+          followInfo={followInfo}
+          action={actionNode}
+        />
       </div>
       <div className="mt-8">
         <PlayerRatings

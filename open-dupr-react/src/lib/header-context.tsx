@@ -19,6 +19,8 @@ interface HeaderContextType {
     onClick: () => void;
     disabled?: boolean;
   }) => void;
+  avatarUrl?: string | null;
+  setAvatarUrl: (url: string | null) => void;
 }
 
 const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
@@ -34,6 +36,7 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
   const [actionButton, setActionButton] = useState<
     { text: string; onClick: () => void; disabled?: boolean } | undefined
   >(undefined);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   return (
     <HeaderContext.Provider
@@ -46,6 +49,8 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
         setOnBackClick,
         actionButton,
         setActionButton,
+        avatarUrl,
+        setAvatarUrl,
       }}
     >
       {children}
