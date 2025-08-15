@@ -210,9 +210,16 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
     onPlayerSelect(null);
   };
 
+  // Get contextual title based on label
+  const getModalTitle = () => {
+    if (label.includes("Teammate")) return "Add Teammate";
+    if (label.includes("Opponent")) return "Add Opponent";
+    return "Add Player";
+  };
+
   if (player) {
     return (
-      <div className="flex flex-col items-center space-y-3 relative">
+      <div className="flex flex-col items-center space-y-2 relative">
         <div className="relative">
           <Avatar src={player.imageUrl} name={player.fullName} size="lg" />
           {canRemove && (
@@ -224,9 +231,31 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
             </button>
           )}
         </div>
-        <span className="text-sm font-bold text-gray-900 text-center leading-tight">
-          {player.fullName}
-        </span>
+        <div className="min-h-[2.5rem] flex items-center justify-center">
+          <span className="text-sm font-bold text-gray-900 text-center leading-tight hyphens-auto whitespace-pre-line">
+            {(() => {
+              const words = player.fullName.split(" ");
+              if (words.length === 1) {
+                // Single word: split in middle if long enough
+                if (player.fullName.length > 4) {
+                  const mid = Math.ceil(player.fullName.length / 2);
+                  return (
+                    player.fullName.slice(0, mid) +
+                    "\n" +
+                    player.fullName.slice(mid)
+                  );
+                }
+                return player.fullName + "\n ";
+              } else if (words.length === 2) {
+                // Two words: put each on separate line
+                return words[0] + "\n" + words[1];
+              } else {
+                // Multiple words: put first word on first line, rest on second
+                return words[0] + "\n" + words.slice(1).join(" ");
+              }
+            })()}
+          </span>
+        </div>
       </div>
     );
   }
@@ -247,189 +276,251 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
       {/* Player Selection Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
-            {/* Header */}
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Select Player
-                </h3>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <span className="text-gray-600 text-lg">×</span>
-                </button>
-              </div>
+        <div className="fixed inset-0 bg-white z-50">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {getModalTitle()}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <span className="text-gray-600 text-lg">×</span>
+              </button>
             </div>
+          </div>
 
-            {/* Search Box */}
-            <div className="p-6 border-b border-gray-100">
+          {/* Search Box with Icon */}
+          <div className="p-6 border-b border-gray-100">
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
               <Input
                 placeholder="Search for player..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="text-base h-12"
+                className="pl-10 text-base h-12"
                 autoFocus
               />
             </div>
+          </div>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto max-h-[60vh]">
-              {/* Search Results */}
-              {searchQuery.trim() && (
-                <div className="p-6 border-b border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-700 mb-4">
-                    Search Results
-                  </h4>
-                  {isSearching ? (
-                    <div className="text-center py-8 text-gray-500">
-                      Searching...
-                    </div>
-                  ) : searchResults.length > 0 ? (
-                    <div className="space-y-3">
-                      {searchResults.map((playerData) => (
-                        <button
-                          key={playerData.id}
-                          type="button"
-                          className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left"
-                          onClick={() => handlePlayerClick(playerData)}
-                        >
-                          <Avatar
-                            src={playerData.imageUrl}
-                            name={playerData.fullName}
-                            size="md"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate text-sm">
-                              {playerData.fullName}
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Search Results */}
+            {searchQuery.trim() && (
+              <div className="p-6 border-b border-gray-100">
+                {isSearching ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Searching...
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="space-y-3">
+                    {searchResults.map((playerData) => (
+                      <button
+                        key={playerData.id}
+                        type="button"
+                        className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                        onClick={() => handlePlayerClick(playerData)}
+                      >
+                        <Avatar
+                          src={playerData.imageUrl}
+                          name={playerData.fullName}
+                          size="md"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate text-sm">
+                            {playerData.fullName}
+                          </p>
+                          {playerData.location && (
+                            <p className="text-xs text-gray-500 truncate">
+                              {playerData.location}
                             </p>
-                            {playerData.location && (
-                              <p className="text-xs text-gray-500 truncate">
-                                {playerData.location}
-                              </p>
-                            )}
-                          </div>
-                        </button>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    No players found
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Recent Opponents */}
+            {!searchQuery.trim() && recentOpponents.length > 0 && (
+              <div className="p-6 border-b border-gray-100">
+                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                  Recent Opponents
+                </h4>
+                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                  {isLoadingRecent ? (
+                    <div className="flex space-x-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex-shrink-0 text-center">
+                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
+                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      No players found
-                    </div>
+                    recentOpponents.map((playerData) => (
+                      <button
+                        key={playerData.id}
+                        type="button"
+                        className="flex-shrink-0 text-center group"
+                        onClick={() => handlePlayerClick(playerData)}
+                      >
+                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                          <Avatar
+                            src={playerData.imageUrl}
+                            name={playerData.fullName}
+                            size="lg"
+                          />
+                        </div>
+                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
+                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                            {(() => {
+                              const words = playerData.fullName.split(" ");
+                              if (words.length === 1) {
+                                // Single word: split in middle if long enough
+                                if (playerData.fullName.length > 4) {
+                                  const mid = Math.ceil(
+                                    playerData.fullName.length / 2
+                                  );
+                                  return (
+                                    playerData.fullName.slice(0, mid) +
+                                    "\n" +
+                                    playerData.fullName.slice(mid)
+                                  );
+                                }
+                                return playerData.fullName + "\n ";
+                              } else if (words.length === 2) {
+                                // Two words: put each on separate line
+                                return words[0] + "\n" + words[1];
+                              } else {
+                                // Multiple words: put first word on first line, rest on second
+                                return (
+                                  words[0] + "\n" + words.slice(1).join(" ")
+                                );
+                              }
+                            })()}
+                          </p>
+                        </div>
+                      </button>
+                    ))
                   )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Recent Opponents */}
-              {!searchQuery.trim() && recentOpponents.length > 0 && (
-                <div className="p-6 border-b border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-700 mb-4">
-                    Recent Opponents
-                  </h4>
-                  <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
-                    {isLoadingRecent ? (
-                      <div className="flex space-x-4">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="flex-shrink-0 text-center">
-                            <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
-                            <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      recentOpponents.map((playerData) => (
-                        <button
-                          key={playerData.id}
-                          type="button"
-                          className="flex-shrink-0 text-center group"
-                          onClick={() => handlePlayerClick(playerData)}
-                        >
-                          <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
-                            <Avatar
-                              src={playerData.imageUrl}
-                              name={playerData.fullName}
-                              size="lg"
-                            />
-                          </div>
-                          <p className="text-xs font-medium text-gray-900 truncate w-16">
-                            {playerData.fullName}
+            {/* Friends - Horizontal scrolling for mobile space efficiency */}
+            {!searchQuery.trim() && friends.length > 0 && (
+              <div className="p-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                  Friends
+                </h4>
+                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                  {isLoadingFriends ? (
+                    <div className="flex space-x-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="flex-shrink-0 text-center">
+                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
+                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    friends.map((playerData) => (
+                      <button
+                        key={playerData.id}
+                        type="button"
+                        className="flex-shrink-0 text-center group"
+                        onClick={() => handlePlayerClick(playerData)}
+                      >
+                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                          <Avatar
+                            src={playerData.imageUrl}
+                            name={playerData.fullName}
+                            size="lg"
+                          />
+                        </div>
+                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
+                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                            {(() => {
+                              const words = playerData.fullName.split(" ");
+                              if (words.length === 1) {
+                                // Single word: split in middle if long enough
+                                if (playerData.fullName.length > 4) {
+                                  const mid = Math.ceil(
+                                    playerData.fullName.length / 2
+                                  );
+                                  return (
+                                    playerData.fullName.slice(0, mid) +
+                                    "\n" +
+                                    playerData.fullName.slice(mid)
+                                  );
+                                }
+                                return playerData.fullName + "\n ";
+                              } else if (words.length === 2) {
+                                // Two words: put each on separate line
+                                return words[0] + "\n" + words[1];
+                              } else {
+                                // Multiple words: put first word on first line, rest on second
+                                return (
+                                  words[0] + "\n" + words.slice(1).join(" ")
+                                );
+                              }
+                            })()}
                           </p>
-                        </button>
-                      ))
-                    )}
-                  </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!searchQuery.trim() &&
+              friends.length === 0 &&
+              recentOpponents.length === 0 &&
+              !isLoadingFriends &&
+              !isLoadingRecent && (
+                <div className="p-6 text-center text-gray-500">
+                  <p>No recent players or friends found</p>
+                  <p className="text-sm mt-1">
+                    Try searching for a player above
+                  </p>
                 </div>
               )}
+          </div>
 
-              {/* Friends */}
-              {!searchQuery.trim() && friends.length > 0 && (
-                <div className="p-6">
-                  <h4 className="text-sm font-medium text-gray-700 mb-4">
-                    Friends
-                  </h4>
-                  <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
-                    {isLoadingFriends ? (
-                      <div className="flex space-x-4">
-                        {[...Array(3)].map((_, i) => (
-                          <div key={i} className="flex-shrink-0 text-center">
-                            <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
-                            <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      friends.map((playerData) => (
-                        <button
-                          key={playerData.id}
-                          type="button"
-                          className="flex-shrink-0 text-center group"
-                          onClick={() => handlePlayerClick(playerData)}
-                        >
-                          <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
-                            <Avatar
-                              src={playerData.imageUrl}
-                              name={playerData.fullName}
-                              size="lg"
-                            />
-                          </div>
-                          <p className="text-xs font-medium text-gray-900 truncate w-16">
-                            {playerData.fullName}
-                          </p>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Empty State */}
-              {!searchQuery.trim() &&
-                friends.length === 0 &&
-                recentOpponents.length === 0 &&
-                !isLoadingFriends &&
-                !isLoadingRecent && (
-                  <div className="p-6 text-center text-gray-500">
-                    <p>No recent players or friends found</p>
-                    <p className="text-sm mt-1">
-                      Try searching for a player above
-                    </p>
-                  </div>
-                )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-100">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowModal(false)}
-                className="w-full"
-              >
-                Cancel
-              </Button>
-            </div>
+          {/* Footer */}
+          <div className="p-6 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowModal(false)}
+              className="w-full"
+            >
+              Cancel
+            </Button>
           </div>
         </div>
       )}
