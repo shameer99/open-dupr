@@ -16,7 +16,7 @@ const EnlargedAvatar: React.FC<EnlargedAvatarProps> = ({ src, name }) => {
   if (shouldShowInitials) {
     return (
       <div
-        className={`w-96 h-96 ${bgColor} rounded-lg flex items-center justify-center text-white font-bold text-9xl`}
+        className={`w-[80vw] h-[80vw] max-w-[24rem] max-h-[24rem] ${bgColor} rounded-lg flex items-center justify-center text-white font-bold text-8xl sm:text-9xl`}
       >
         {initials}
       </div>
