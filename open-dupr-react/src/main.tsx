@@ -25,8 +25,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <LoadingProvider>
         <HeaderProvider>
           <Router>
-            <App />
             <Routes>
+              <Route path="/" element={<App />} />
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/profile"
