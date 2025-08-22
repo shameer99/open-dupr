@@ -669,35 +669,44 @@ const RecordMatchPage: React.FC = () => {
     }
   }, [canSubmit]);
 
+  // Effect for setting up and tearing down header elements on mount/unmount
   useEffect(() => {
     setTitle("New Match");
     setShowBackButton(true);
-    setOnBackClick(() => handleBackClick);
     setShowHamburgerMenu(false);
 
+    // Cleanup on unmount
     return () => {
       setTitle(null);
       setShowBackButton(false);
+      setShowHamburgerMenu(true);
       setOnBackClick(undefined);
       setActionButton(undefined);
-      setShowHamburgerMenu(true);
     };
   }, [
     setTitle,
     setShowBackButton,
+    setShowHamburgerMenu,
     setOnBackClick,
     setActionButton,
-    setShowHamburgerMenu,
-    handleBackClick,
   ]);
 
+  // Effect for updating the handlers/button when their dependencies change
   useEffect(() => {
+    setOnBackClick(() => handleBackClick);
     setActionButton({
       text: "Save",
       onClick: handleSave,
       disabled: !canSubmit || isSubmitting,
     });
-  }, [setActionButton, canSubmit, isSubmitting, handleSave]);
+  }, [
+    setOnBackClick,
+    handleBackClick,
+    setActionButton,
+    handleSave,
+    canSubmit,
+    isSubmitting,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
