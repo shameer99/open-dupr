@@ -559,7 +559,6 @@ const useContinuousChange = (
 
   const start = React.useCallback(() => {
     stop();
-    savedCallback.current(); // immediate change
 
     const loop = () => {
       savedCallback.current();
@@ -631,6 +630,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         onMouseLeave={stopDecrement}
         onTouchStart={startDecrement}
         onTouchEnd={stopDecrement}
+        onClick={handleDecrement}
         disabled={value <= 0}
       >
         −
@@ -656,6 +656,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         onMouseLeave={stopIncrement}
         onTouchStart={startIncrement}
         onTouchEnd={stopIncrement}
+        onClick={handleIncrement}
         disabled={value >= max}
       >
         +
