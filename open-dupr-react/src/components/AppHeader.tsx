@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft, Rss } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 const AppHeader: React.FC = () => {
@@ -34,6 +34,11 @@ const AppHeader: React.FC = () => {
   const goToProfile = () => {
     setOpen(false);
     navigate("/profile");
+  };
+
+  const goToFeed = () => {
+    setOpen(false);
+    navigate("/feed");
   };
 
   const goToSearch = () => {
@@ -146,6 +151,14 @@ const AppHeader: React.FC = () => {
                   >
                     <User className="h-5 w-5" />
                     My Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goToFeed}
+                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                  >
+                    <Rss className="h-5 w-5" />
+                    Feed
                   </button>
                   <button
                     type="button"

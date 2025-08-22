@@ -7,56 +7,19 @@ import {
   MatchCardSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
+import type { Match } from "@/lib/types";
 
 interface MatchHistoryProps {
   playerId?: number;
   isSelf?: boolean;
 }
 
-type PlayerRef = {
-  id?: number;
-  fullName: string;
-  imageUrl?: string;
-  rating?: string;
-  preRating?: string;
-  postRating?: string;
-  validatedMatch?: boolean;
-};
-
-type MatchTeam = {
-  id?: number;
-  serial?: number;
-  player1: PlayerRef;
-  player2?: PlayerRef | null;
-  winner?: boolean;
-  delta?: string;
-  teamRating?: string;
-  game1?: number;
-  game2?: number;
-  game3?: number;
-  game4?: number;
-  game5?: number;
-  preMatchRatingAndImpact?: Record<string, string | number | null | undefined>;
-};
-
-type MatchData = {
-  id: number;
-  venue?: string;
-  location?: string;
-  tournament?: string;
-  eventDate?: string;
-  eventFormat?: string;
-  teams: MatchTeam[];
-  noOfGames?: number;
-  confirmed?: boolean;
-};
-
 const MatchHistory: React.FC<MatchHistoryProps> = ({
   playerId,
   isSelf = false,
 }) => {
   const navigate = useNavigate();
-  const [matches, setMatches] = useState<MatchData[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
@@ -75,7 +38,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         PAGE_SIZE
       );
       const result = data?.result ?? {};
-      const newItems: MatchData[] = result?.hits ?? [];
+      const newItems: Match[] = result?.hits ?? [];
       setMatches((prev) =>
         startOffset === 0 ? newItems : [...prev, ...newItems]
       );
