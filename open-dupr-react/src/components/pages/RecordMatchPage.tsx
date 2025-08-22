@@ -541,14 +541,8 @@ const useContinuousChange = (
   }, [changeFn]);
 
   const getDelay = React.useCallback(() => {
-    const isApproachingSlowdown = isIncrement
-      ? value === 10 || value === 20
-      : value === 11 || value === 21;
-    if (isApproachingSlowdown) return 500;
-    if (value >= 21) return 80;
-    if (value >= 11) return 150;
-    return 200;
-  }, [value, isIncrement]);
+    return 150;
+  }, []);
 
   const stop = React.useCallback(() => {
     if (intervalRef.current) {
