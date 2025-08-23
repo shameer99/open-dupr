@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getOtherUserMatchHistory } from "@/lib/api";
+import { getOtherUserMatchHistory, getMyProfile } from "@/lib/api";
 import MatchCard from "@/components/player/MatchCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,7 +64,23 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | undefined>(
+    undefined
+  );
   const PAGE_SIZE = 25;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const profile = await getMyProfile();
+        setCurrentUserId(profile?.result?.id);
+      } catch (error) {
+        console.error("Failed to fetch user profile", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const loadPage = useCallback(async (userId: number, startOffset: number) => {
     try {
@@ -173,7 +189,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
             <MatchCard
               key={match.id}
               match={match}
-              currentUserId={playerId}
+              currentUserId={currentUserId}
               onMatchUpdate={() => {
                 if (playerId) {
                   loadPage(playerId, 0);
