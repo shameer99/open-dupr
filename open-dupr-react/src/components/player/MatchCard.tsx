@@ -17,7 +17,8 @@ import {
 
 interface MatchCardProps {
   match: Match;
-  currentUserId?: number;
+  perspectiveUserId?: number;
+  loggedInUserId?: number;
   onMatchUpdate?: () => void;
 }
 
@@ -88,34 +89,35 @@ function TeamStack({ team }: { team: MatchTeam }) {
 
 const MatchCard: React.FC<MatchCardProps> = ({
   match,
-  currentUserId,
+  perspectiveUserId,
+  loggedInUserId,
   onMatchUpdate,
 }) => {
   const navigate = useNavigate();
-  const { teamA, teamB } = arrangeTeamsForUser(match.teams, currentUserId);
+  const { teamA, teamB } = arrangeTeamsForUser(match.teams, perspectiveUserId);
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
   const gamePairs = getGamePairs(teamA, teamB);
-  const userDelta = computeUserDeltaForTeam(teamA, currentUserId);
+  const userDelta = computeUserDeltaForTeam(teamA, perspectiveUserId);
 
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Check if current user needs to validate this match
   const needsValidation =
-    currentUserId &&
+    loggedInUserId &&
     !match.confirmed &&
     match.teams.some((team) =>
       [team.player1, team.player2].some(
         (player) =>
           player &&
-          player.id === currentUserId &&
+          player.id === loggedInUserId &&
           player.validatedMatch === false
       )
     );
 
   const handleConfirm = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!currentUserId || isProcessing) return;
+    if (!loggedInUserId || isProcessing) return;
 
     try {
       setIsProcessing(true);
@@ -130,7 +132,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   const handleReject = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!currentUserId || isProcessing) return;
+    if (!loggedInUserId || isProcessing) return;
 
     try {
       setIsProcessing(true);
@@ -147,13 +149,13 @@ const MatchCard: React.FC<MatchCardProps> = ({
     <Card
       className="p-4 cursor-pointer transition hover:bg-accent/40"
       onClick={() => {
-        const path = currentUserId
-          ? `/match/${match.id}/player/${currentUserId}`
+        const path = perspectiveUserId
+          ? `/match/${match.id}/player/${perspectiveUserId}`
           : `/match/${match.id}`;
         navigate(path, {
           state: {
             match,
-            perspectiveUserId: currentUserId,
+            perspectiveUserId: perspectiveUserId,
           },
         });
       }}
@@ -162,13 +164,13 @@ const MatchCard: React.FC<MatchCardProps> = ({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          const path = currentUserId
-            ? `/match/${match.id}/player/${currentUserId}`
+          const path = perspectiveUserId
+            ? `/match/${match.id}/player/${perspectiveUserId}`
             : `/match/${match.id}`;
           navigate(path, {
             state: {
               match,
-              perspectiveUserId: currentUserId,
+              perspectiveUserId: perspectiveUserId,
             },
           });
         }
@@ -215,7 +217,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
             <div className="flex flex-col items-center justify-center gap-1">
               <MatchScoreDisplay
                 games={gamePairs}
-                currentUserId={currentUserId}
+                currentUserId={perspectiveUserId}
                 size="small"
               />
             </div>

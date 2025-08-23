@@ -151,7 +151,8 @@ const ValidationQueuePage: React.FC = () => {
               <MatchCard
                 key={match.id}
                 match={match}
-                currentUserId={currentUserId || undefined}
+                perspectiveUserId={currentUserId || undefined}
+                loggedInUserId={currentUserId || undefined}
                 onMatchUpdate={() => {
                   // Reload pending matches when a match is updated
                   loadPendingMatches();
