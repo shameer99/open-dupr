@@ -328,3 +328,11 @@ export const getPendingMatches = async () => {
 
 export const getMatchDetails = (matchId: number) =>
   apiFetch(`/match/${matchId}`);
+
+// Activity feed: followed users' matches for a given user
+export const getUserFeed = (userId: number, limit = 10, offset = 0) =>
+  apiFetch(
+    `/activity/v1.1/user/${userId}?limit=${limit}${
+      offset ? `&offset=${offset}` : ""
+    }`
+  );

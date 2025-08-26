@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft, Rss } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 const AppHeader: React.FC = () => {
@@ -44,6 +44,11 @@ const AppHeader: React.FC = () => {
   const goToRecordMatch = () => {
     setOpen(false);
     navigate("/record-match");
+  };
+
+  const goToFeed = () => {
+    setOpen(false);
+    navigate("/feed");
   };
 
   const logout = () => {
@@ -139,6 +144,14 @@ const AppHeader: React.FC = () => {
 
               {open && (
                 <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
+                  <button
+                    type="button"
+                    onClick={goToFeed}
+                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                  >
+                    <Rss className="h-5 w-5" />
+                    Feed
+                  </button>
                   <button
                     type="button"
                     onClick={goToProfile}

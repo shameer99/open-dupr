@@ -820,6 +820,60 @@ Content-Type: application/json
 }
 ```
 
+### Get User Activity Feed
+
+**Endpoint:** `GET /activity/{version}/user/{id}?limit={limit}&offset={offset}`
+
+**Purpose:** Retrieve a feed of recent matches from users the specified user follows.
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**Query Parameters:**
+
+- `limit` (optional): Max number of items to return; defaults to 10.
+- `offset` (optional): Starting position for pagination; defaults to 0.
+
+**Response:** Returns the standard paginated wrapper with `hits` being match objects in the same shape as match history responses.
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "offset": 0,
+    "limit": 10,
+    "hasMore": true,
+    "hits": [
+      {
+        "id": 7737603024,
+        "eventDate": "2024-01-15",
+        "eventFormat": "DOUBLES",
+        "teams": [
+          {
+            "player1": { "id": 1, "fullName": "..." },
+            "player2": { "id": 2, "fullName": "..." },
+            "game1": 11,
+            "game2": 9,
+            "game3": 11
+          },
+          {
+            "player1": { "id": 3, "fullName": "..." },
+            "player2": { "id": 4, "fullName": "..." },
+            "game1": 9,
+            "game2": 11,
+            "game3": 9
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 ## Updated Player Search
 
 ### Search Players (Corrected Format)
