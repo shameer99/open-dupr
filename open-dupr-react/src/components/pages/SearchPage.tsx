@@ -19,6 +19,7 @@ interface SearchHit {
 }
 
 const DEFAULT_LIMIT = 25;
+const MIN_QUERY_CHARS = 2;
 
 const SearchPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,14 @@ const SearchPage: React.FC = () => {
     lat: number;
     lng: number;
   } | null>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    setIsStandalone(
+      window.matchMedia &&
+        window.matchMedia("(display-mode: standalone)").matches
+    );
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -55,9 +64,11 @@ const SearchPage: React.FC = () => {
     };
   }, []);
 
+  const hasSufficientQuery = query.trim().length >= MIN_QUERY_CHARS;
+
   const performSearch = useCallback(
     async (reset = false) => {
-      if (!query.trim()) {
+      if (!hasSufficientQuery) {
         setHits([]);
         setHasMore(false);
         setOffset(0);
@@ -92,15 +103,15 @@ const SearchPage: React.FC = () => {
         setLoading(false);
       }
     },
-    [query, offset, userLatLng]
+    [query, offset, userLatLng, hasSufficientQuery]
   );
 
   const handleRefresh = useCallback(async () => {
-    if (query.trim()) {
+    if (hasSufficientQuery) {
       setOffset(0);
       await performSearch(true);
     }
-  }, [query, performSearch]);
+  }, [hasSufficientQuery, performSearch]);
 
   const handleBackClick = useCallback(() => {
     navigate(-1);
@@ -135,8 +146,7 @@ const SearchPage: React.FC = () => {
   // Debounce live search on typing
   useEffect(() => {
     const trimmed = query.trim();
-    // If cleared, reset results immediately
-    if (!trimmed) {
+    if (trimmed.length < MIN_QUERY_CHARS) {
       setHits([]);
       setHasMore(false);
       setOffset(0);
@@ -146,35 +156,37 @@ const SearchPage: React.FC = () => {
     setOffset(0);
     const handle = setTimeout(() => {
       void performSearch(true);
-    }, 350);
+    }, 300);
     return () => clearTimeout(handle);
   }, [query, performSearch]);
 
   return (
     <PullToRefresh
       onRefresh={handleRefresh}
-      disabled={loading || !query.trim()}
+      disabled={loading || !hasSufficientQuery}
     >
       <div className="container mx-auto p-4 max-w-2xl">
         <div className="mb-6">
           <Input
             type="text"
-            placeholder="Search for players..."
+            placeholder={`Search for players${
+              MIN_QUERY_CHARS > 1 ? ` (min ${MIN_QUERY_CHARS} chars)` : ""
+            }...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            autoFocus
+            autoFocus={!isStandalone}
             className="flex-1"
           />
         </div>
         {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
 
-        {hits.length === 0 && !loading && query.trim() ? (
+        {hits.length === 0 && !loading && hasSufficientQuery ? (
           <p className="text-muted-foreground">
             No players found for "{query}".
           </p>
         ) : hits.length === 0 && !loading ? (
           <p className="text-muted-foreground">
-            Enter a query to find players.
+            Enter at least {MIN_QUERY_CHARS} characters to search players.
           </p>
         ) : loading && hits.length === 0 ? (
           <SearchResultSkeleton />
