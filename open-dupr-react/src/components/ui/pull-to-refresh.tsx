@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { RefreshCw } from "lucide-react";
 
 interface PullToRefreshProps {
   children: React.ReactNode;
@@ -20,6 +19,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
+  const [showSuccessPulse, setShowSuccessPulse] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number>(0);
   const startScrollTop = useRef<number>(0);
@@ -43,6 +43,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
       currentY.current = startY.current;
       isDragging.current = true;
       hasPreventedDefault.current = false;
+      setShowSuccessPulse(false); // Reset success state
     },
     [disabled, isRefreshing]
   );
@@ -88,6 +89,9 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
       setIsRefreshing(true);
       try {
         await onRefresh();
+        // Show success pulse after refresh completes
+        setShowSuccessPulse(true);
+        setTimeout(() => setShowSuccessPulse(false), 1000);
       } finally {
         setIsRefreshing(false);
       }
@@ -119,7 +123,8 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
   }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   const progress = Math.min(pullDistance / threshold, 1);
-  const rotation = progress * 360;
+  const leftWidth = isRefreshing || showSuccessPulse ? 50 : 50 - progress * 50;
+  const rightWidth = isRefreshing || showSuccessPulse ? 50 : 50 - progress * 50;
 
   return (
     <div
@@ -130,40 +135,39 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
         WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
       }}
     >
-      {/* Pull indicator - fixed position above content */}
-      <div
-        className={cn(
-          "absolute top-0 left-0 right-0 z-10 flex items-center justify-center transition-all duration-200 ease-out pointer-events-none",
-          isPulling || isRefreshing ? "opacity-100" : "opacity-0"
-        )}
-        style={{
-          transform: `translateY(${Math.min(pullDistance - threshold, 0)}px)`,
-          height: threshold,
-          marginTop: `-${threshold}px`,
-        }}
-      >
-        <div className="flex flex-col items-center gap-2 text-gray-600 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-gray-200">
-          <RefreshCw
+      {/* Progress bar - similar to navigation progress */}
+      {(isPulling || isRefreshing || showSuccessPulse) && (
+        <div
+          className="absolute top-0 left-0 right-0 h-1 bg-gray-200 overflow-hidden z-50"
+          style={{
+            borderBottom: "1px solid #e5e7eb",
+          }}
+        >
+          {/* Left side of progress bar */}
+          <div
             className={cn(
-              "w-7 h-7 transition-all duration-200",
-              isRefreshing && "animate-spin"
+              "absolute top-0 right-1/2 h-full bg-blue-600 transition-all duration-300 ease-out",
+              showSuccessPulse && "animate-pulse bg-green-500"
             )}
             style={{
-              transform: isRefreshing
-                ? undefined
-                : `rotate(${rotation}deg) scale(${0.8 + progress * 0.2})`,
-              color: progress > 0.5 ? "#2563eb" : "#6b7280", // Blue when ready, gray when not
+              width: `${leftWidth}%`,
+              transformOrigin: "right center",
             }}
           />
-          <span className="text-sm font-medium text-center leading-tight">
-            {isRefreshing
-              ? "Refreshing..."
-              : progress > 0.8
-              ? "Release to refresh"
-              : "Pull to refresh"}
-          </span>
+
+          {/* Right side of progress bar */}
+          <div
+            className={cn(
+              "absolute top-0 left-1/2 h-full bg-blue-600 transition-all duration-300 ease-out",
+              showSuccessPulse && "animate-pulse bg-green-500"
+            )}
+            style={{
+              width: `${rightWidth}%`,
+              transformOrigin: "left center",
+            }}
+          />
         </div>
-      </div>
+      )}
 
       {/* Content - no transforms to avoid scroll interference */}
       <div className="relative">{children}</div>
