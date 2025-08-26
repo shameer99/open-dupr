@@ -532,12 +532,14 @@ interface ScoreInputProps {
   value: number;
   onChange: (value: number) => void;
   max?: number;
+  layout?: "horizontal" | "vertical";
 }
 
 const ScoreInput: React.FC<ScoreInputProps> = ({
   value,
   onChange,
   max = 999,
+  layout = "horizontal",
 }) => {
   const handleIncrement = () => {
     if (value < max) onChange(value + 1);
@@ -563,6 +565,45 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
     e.target.select();
   };
 
+  if (layout === "vertical") {
+    return (
+      <div className="flex flex-col items-center space-y-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          onClick={handleIncrement}
+          disabled={value >= max}
+        >
+          +
+        </Button>
+
+        <input
+          type="text"
+          value={value}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          inputMode="numeric"
+          pattern="[0-9]*"
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          onClick={handleDecrement}
+          disabled={value <= 0}
+        >
+          −
+        </Button>
+      </div>
+    );
+  }
+
+  // Default horizontal layout (mobile)
   return (
     <div className="flex items-center space-x-3">
       <Button
@@ -818,9 +859,17 @@ const RecordMatchPage: React.FC = () => {
 
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="flex flex-col space-y-3 justify-center items-center">
-                <ScoreInput value={myScore} onChange={setMyScore} />
+                <ScoreInput
+                  value={myScore}
+                  onChange={setMyScore}
+                  layout="horizontal"
+                />
                 <div className="text-xl font-bold text-gray-400">VS</div>
-                <ScoreInput value={opponentScore} onChange={setOpponentScore} />
+                <ScoreInput
+                  value={opponentScore}
+                  onChange={setOpponentScore}
+                  layout="horizontal"
+                />
               </div>
             </div>
 
@@ -874,12 +923,17 @@ const RecordMatchPage: React.FC = () => {
                 </h3>
               </div>
               <div className="bg-gray-50 rounded-lg p-6">
-                <div className="flex flex-col space-y-6 items-center">
-                  <ScoreInput value={myScore} onChange={setMyScore} />
+                <div className="flex items-center space-x-8">
+                  <ScoreInput
+                    value={myScore}
+                    onChange={setMyScore}
+                    layout="vertical"
+                  />
                   <div className="text-3xl font-bold text-gray-400">VS</div>
                   <ScoreInput
                     value={opponentScore}
                     onChange={setOpponentScore}
+                    layout="vertical"
                   />
                 </div>
               </div>
