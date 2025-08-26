@@ -49,6 +49,19 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [showConfidenceModal, setShowConfidenceModal] = useState(false);
+  const [currentConfidenceScore, setCurrentConfidenceScore] = useState<
+    number | undefined
+  >(undefined);
+
+  const openConfidenceModal = (confidenceScore: number | undefined) => {
+    setCurrentConfidenceScore(confidenceScore);
+    setShowConfidenceModal(true);
+  };
+
+  const closeConfidenceModal = () => {
+    setShowConfidenceModal(false);
+    setCurrentConfidenceScore(undefined);
+  };
 
   useEffect(() => {
     if (!playerId) return;
@@ -131,7 +144,8 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
     <>
       <ConfidenceModal
         open={showConfidenceModal}
-        onClose={() => setShowConfidenceModal(false)}
+        onClose={closeConfidenceModal}
+        confidencePercentage={currentConfidenceScore}
       />
 
       <Card>
@@ -149,7 +163,9 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowConfidenceModal(true)}
+                      onClick={() =>
+                        openConfidenceModal(singlesReliabilityScore)
+                      }
                       className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
                     >
                       <Info className="h-3 w-3" />
@@ -168,7 +184,9 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowConfidenceModal(true)}
+                      onClick={() =>
+                        openConfidenceModal(doublesReliabilityScore)
+                      }
                       className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
                     >
                       <Info className="h-3 w-3" />

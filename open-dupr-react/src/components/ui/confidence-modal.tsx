@@ -5,9 +5,14 @@ import Modal from "@/components/ui/modal";
 interface ConfidenceModalProps {
   open: boolean;
   onClose: () => void;
+  confidencePercentage?: number;
 }
 
-const ConfidenceModal: React.FC<ConfidenceModalProps> = ({ open, onClose }) => {
+const ConfidenceModal: React.FC<ConfidenceModalProps> = ({
+  open,
+  onClose,
+  confidencePercentage,
+}) => {
   return (
     <Modal
       open={open}
@@ -16,7 +21,7 @@ const ConfidenceModal: React.FC<ConfidenceModalProps> = ({ open, onClose }) => {
       className="max-w-sm"
     >
       <div className="p-5">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Confidence %</h3>
           <Button
             variant="ghost"
@@ -27,6 +32,44 @@ const ConfidenceModal: React.FC<ConfidenceModalProps> = ({ open, onClose }) => {
             ×
           </Button>
         </div>
+
+        {/* Progress Bar */}
+        {confidencePercentage !== undefined && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Current Score</span>
+              <span className="text-sm font-bold">{confidencePercentage}%</span>
+            </div>
+            <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(confidencePercentage, 100)}%` }}
+              />
+              {/* 60% Threshold Indicator */}
+              <div
+                className="absolute top-0 h-full w-0.5 bg-white border-x border-gray-300"
+                style={{ left: "60%" }}
+              />
+            </div>
+            <div className="relative text-xs text-gray-500 mt-2">
+              {/* 0% and 100% labels */}
+              <div className="flex justify-between">
+                <span>0%</span>
+                <span>100%</span>
+              </div>
+              {/* 60% and "reliable" labels aligned with threshold */}
+              <div className="absolute top-0 w-full">
+                <div
+                  className="flex flex-col items-center absolute"
+                  style={{ left: "60%", transform: "translateX(-50%)" }}
+                >
+                  <span className="font-medium">60%</span>
+                  <span className="font-medium text-xs mt-0.5">reliable</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3 text-sm">
           <p>
