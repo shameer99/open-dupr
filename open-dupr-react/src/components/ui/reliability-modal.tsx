@@ -70,7 +70,7 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
           </div>
         )}
 
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3 text-sm mt-6">
           <p>
             The DUPR <strong>Reliability Score</strong> measures how accurately
             your DUPR rating reflects your current skill level (1-100%).
