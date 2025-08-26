@@ -210,6 +210,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         <PlayerRatings
           singles={player.stats?.singles ?? null}
           doubles={player.stats?.doubles ?? null}
+          singlesReliabilityScore={player.stats?.singlesReliabilityScore}
+          doublesReliabilityScore={player.stats?.doublesReliabilityScore}
         />
       </div>
       <div className="mt-8">

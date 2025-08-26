@@ -9,6 +9,8 @@ export interface Player {
   stats: {
     singles: string;
     doubles: string;
+    singlesReliabilityScore?: number;
+    doublesReliabilityScore?: number;
   };
   addresses?: {
     formattedAddress: string;
@@ -56,6 +58,8 @@ export interface OtherUserProfile {
   stats?: {
     singles: string;
     doubles: string;
+    singlesReliabilityScore?: number;
+    doublesReliabilityScore?: number;
   };
   followInfo?: FollowInfo;
   calculatedStats?: UserStats;
