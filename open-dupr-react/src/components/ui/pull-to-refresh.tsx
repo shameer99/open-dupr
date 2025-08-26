@@ -22,19 +22,27 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
   const [isPulling, setIsPulling] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number>(0);
+  const startScrollTop = useRef<number>(0);
   const currentY = useRef<number>(0);
   const isDragging = useRef(false);
+  const hasPreventedDefault = useRef(false);
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
       if (disabled || isRefreshing) return;
 
-      const scrollTop = containerRef.current?.scrollTop || 0;
-      if (scrollTop > 0) return; // Only allow pull when at top
+      const container = containerRef.current;
+      if (!container) return;
+
+      const scrollTop = container.scrollTop;
+      // Allow pull-to-refresh from the top with more tolerance for padding/margins
+      if (scrollTop > 20) return;
 
       startY.current = e.touches[0].clientY;
+      startScrollTop.current = scrollTop;
       currentY.current = startY.current;
       isDragging.current = true;
+      hasPreventedDefault.current = false;
     },
     [disabled, isRefreshing]
   );
@@ -43,15 +51,29 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     (e: TouchEvent) => {
       if (!isDragging.current || disabled || isRefreshing) return;
 
+      const container = containerRef.current;
+      if (!container) return;
+
       currentY.current = e.touches[0].clientY;
       const deltaY = currentY.current - startY.current;
 
-      if (deltaY > 0) {
+      // Only handle pull-to-refresh for downward gestures
+      if (deltaY <= 0) return;
+
+      // Check if we should prevent default behavior
+      // Only prevent if we're actually pulling down from the top
+      const currentScrollTop = container.scrollTop;
+      const shouldPreventDefault = currentScrollTop <= 20 && deltaY > 5;
+
+      if (shouldPreventDefault && !hasPreventedDefault.current) {
         e.preventDefault();
-        const distance = Math.min(deltaY * 0.6, threshold * 2);
-        setPullDistance(distance);
-        setIsPulling(distance > 10);
+        hasPreventedDefault.current = true;
       }
+
+      // Calculate pull distance with less damping for better responsiveness
+      const distance = Math.min(deltaY * 0.7, threshold * 2.5);
+      setPullDistance(distance);
+      setIsPulling(distance > 10); // Lower threshold to trigger pull state
     },
     [disabled, isRefreshing, threshold]
   );
@@ -60,6 +82,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     if (!isDragging.current || disabled || isRefreshing) return;
 
     isDragging.current = false;
+    hasPreventedDefault.current = false;
 
     if (pullDistance >= threshold) {
       setIsRefreshing(true);
@@ -70,6 +93,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
       }
     }
 
+    // Smoothly animate back to original position
     setPullDistance(0);
     setIsPulling(false);
   }, [disabled, isRefreshing, pullDistance, threshold, onRefresh]);
@@ -78,13 +102,14 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
+    // Use passive listeners for better performance, but prevent default when needed
     container.addEventListener("touchstart", handleTouchStart, {
-      passive: false,
+      passive: true,
     });
     container.addEventListener("touchmove", handleTouchMove, {
       passive: false,
     });
-    container.addEventListener("touchend", handleTouchEnd, { passive: false });
+    container.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener("touchstart", handleTouchStart);
@@ -95,66 +120,53 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
   const progress = Math.min(pullDistance / threshold, 1);
   const rotation = progress * 360;
-  const scale = 0.8 + progress * 0.2;
 
   return (
     <div
       ref={containerRef}
-      className={cn("relative", className)}
-      style={{ touchAction: "pan-y" }}
+      className={cn("relative overflow-auto", className)}
+      style={{
+        touchAction: "pan-y", // Allow vertical scrolling
+        WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
+      }}
     >
-      {/* Pull indicator - positioned absolutely above content */}
+      {/* Pull indicator - fixed position above content */}
       <div
         className={cn(
-          "absolute top-0 left-0 right-0 z-10 flex items-center justify-center transition-all duration-300 ease-out pointer-events-none",
-          isPulling ? "opacity-100" : "opacity-0"
+          "absolute top-0 left-0 right-0 z-10 flex items-center justify-center transition-all duration-200 ease-out pointer-events-none",
+          isPulling || isRefreshing ? "opacity-100" : "opacity-0"
         )}
         style={{
-          transform: `translateY(${Math.min(pullDistance, threshold)}px)`,
+          transform: `translateY(${Math.min(pullDistance - threshold, 0)}px)`,
           height: threshold,
           marginTop: `-${threshold}px`,
         }}
       >
-        <div className="flex flex-col items-center gap-3 text-gray-500 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-3 shadow-sm">
-          <div
+        <div className="flex flex-col items-center gap-2 text-gray-600 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-gray-200">
+          <RefreshCw
             className={cn(
-              "transition-all duration-300 ease-out",
-              isRefreshing && "animate-pulse"
+              "w-7 h-7 transition-all duration-200",
+              isRefreshing && "animate-spin"
             )}
             style={{
-              transform: isRefreshing ? undefined : `scale(${scale})`,
+              transform: isRefreshing
+                ? undefined
+                : `rotate(${rotation}deg) scale(${0.8 + progress * 0.2})`,
+              color: progress > 0.5 ? "#2563eb" : "#6b7280", // Blue when ready, gray when not
             }}
-          >
-            <RefreshCw
-              className={cn(
-                "w-8 h-8 transition-transform duration-300",
-                isRefreshing && "animate-spin"
-              )}
-              style={{
-                transform: isRefreshing ? undefined : `rotate(${rotation}deg)`,
-              }}
-            />
-          </div>
-          <span className="text-sm font-medium text-center">
-            {isRefreshing ? "Refreshing..." : "Pull to refresh"}
+          />
+          <span className="text-sm font-medium text-center leading-tight">
+            {isRefreshing
+              ? "Refreshing..."
+              : progress > 0.8
+              ? "Release to refresh"
+              : "Pull to refresh"}
           </span>
         </div>
       </div>
 
-      {/* Content */}
-      <div
-        className={cn(
-          "transition-transform duration-300 ease-out",
-          isPulling && "transform"
-        )}
-        style={{
-          transform: isPulling
-            ? `translateY(${Math.min(pullDistance * 0.3, threshold * 0.3)}px)`
-            : undefined,
-        }}
-      >
-        {children}
-      </div>
+      {/* Content - no transforms to avoid scroll interference */}
+      <div className="relative">{children}</div>
     </div>
   );
 };
