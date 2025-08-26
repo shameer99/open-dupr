@@ -5,6 +5,7 @@ import {
   getFollowing,
   getOtherUserFollowInfo,
   getPlayerById,
+  getMyProfile,
 } from "@/lib/api";
 import Avatar from "@/components/ui/avatar";
 import {
@@ -13,13 +14,14 @@ import {
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
-import type { FollowUser } from "@/lib/types";
+import type { FollowUser, Player } from "@/lib/types";
 import FollowButton from "@/components/player/FollowButton";
 
 type TabType = "followers" | "following";
 
 const FollowersFollowingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [selfProfile, setSelfProfile] = useState<Player | null>(null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
@@ -123,6 +125,12 @@ const FollowersFollowingPage: React.FC = () => {
           getOtherUserFollowInfo(userId).catch(() => null),
           getPlayerById(userId).catch(() => null),
         ]);
+
+        // Also fetch current user's profile to get their ID
+        const selfProfileData = await getMyProfile().catch(() => null);
+        if (selfProfileData?.result) {
+          setSelfProfile(selfProfileData.result);
+        }
 
         const followersTotal = followInfoData?.result?.followers;
         const followingTotal = followInfoData?.result?.followings;
@@ -363,10 +371,12 @@ const FollowersFollowingPage: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <FollowButton
-                user={user}
-                onFollowStateChange={handleFollowStateChange}
-              />
+              {selfProfile && user.id !== selfProfile.id && (
+                <FollowButton
+                  user={user}
+                  onFollowStateChange={handleFollowStateChange}
+                />
+              )}
             </div>
           ))}
           <div ref={loaderRef} />
