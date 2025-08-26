@@ -162,6 +162,7 @@ const SearchPage: React.FC = () => {
             placeholder="Search for players..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            autoFocus
             className="flex-1"
           />
         </div>
