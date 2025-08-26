@@ -3,7 +3,7 @@ import { ChevronDown, Info } from "lucide-react";
 import { getOtherUserStats } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ConfidenceModal from "@/components/ui/confidence-modal";
+import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
 import type { UserStats } from "@/lib/types";
 
@@ -24,7 +24,7 @@ const formatRating = (value: unknown): string => {
   return text.length > 0 ? text : "-";
 };
 
-const formatConfidence = (score?: number): string => {
+const formatReliability = (score?: number): string => {
   if (score == null) return "";
   return `${score}%`;
 };
@@ -48,19 +48,19 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const [showConfidenceModal, setShowConfidenceModal] = useState(false);
-  const [currentConfidenceScore, setCurrentConfidenceScore] = useState<
+  const [showReliabilityModal, setShowReliabilityModal] = useState(false);
+  const [currentReliabilityScore, setCurrentReliabilityScore] = useState<
     number | undefined
   >(undefined);
 
-  const openConfidenceModal = (confidenceScore: number | undefined) => {
-    setCurrentConfidenceScore(confidenceScore);
-    setShowConfidenceModal(true);
+  const openReliabilityModal = (reliabilityScore: number | undefined) => {
+    setCurrentReliabilityScore(reliabilityScore);
+    setShowReliabilityModal(true);
   };
 
-  const closeConfidenceModal = () => {
-    setShowConfidenceModal(false);
-    setCurrentConfidenceScore(undefined);
+  const closeReliabilityModal = () => {
+    setShowReliabilityModal(false);
+    setCurrentReliabilityScore(undefined);
   };
 
   useEffect(() => {
@@ -117,7 +117,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
                   <p className="text-xs text-green-600 font-medium">
-                    {formatConfidence(singlesReliabilityScore)}
+                    {formatReliability(singlesReliabilityScore)}
                   </p>
                 )}
               </div>
@@ -126,7 +126,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
                   <p className="text-xs text-green-600 font-medium">
-                    {formatConfidence(doublesReliabilityScore)}
+                    {formatReliability(doublesReliabilityScore)}
                   </p>
                 )}
               </div>
@@ -142,10 +142,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
   return (
     <>
-      <ConfidenceModal
-        open={showConfidenceModal}
-        onClose={closeConfidenceModal}
-        confidencePercentage={currentConfidenceScore}
+      <ReliabilityModal
+        open={showReliabilityModal}
+        onClose={closeReliabilityModal}
+        reliabilityPercentage={currentReliabilityScore}
       />
 
       <Card>
@@ -158,13 +158,13 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 {singlesReliabilityScore != null && (
                   <div className="flex items-center justify-center gap-1">
                     <p className="text-xs text-green-600 font-medium">
-                      {formatConfidence(singlesReliabilityScore)}
+                      {formatReliability(singlesReliabilityScore)}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() =>
-                        openConfidenceModal(singlesReliabilityScore)
+                        openReliabilityModal(singlesReliabilityScore)
                       }
                       className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
                     >
@@ -179,13 +179,13 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 {doublesReliabilityScore != null && (
                   <div className="flex items-center justify-center gap-1">
                     <p className="text-xs text-green-600 font-medium">
-                      {formatConfidence(doublesReliabilityScore)}
+                      {formatReliability(doublesReliabilityScore)}
                     </p>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() =>
-                        openConfidenceModal(doublesReliabilityScore)
+                        openReliabilityModal(doublesReliabilityScore)
                       }
                       className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
                     >

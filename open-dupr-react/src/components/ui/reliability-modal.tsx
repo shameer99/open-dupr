@@ -24,8 +24,7 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">
             Reliability Score{" "}
-            {reliabilityPercentage !== undefined &&
-              `(${reliabilityPercentage}%)`}
+            {reliabilityPercentage !== undefined && `(${reliabilityPercentage}%)`}
           </h3>
           <Button
             variant="ghost"
