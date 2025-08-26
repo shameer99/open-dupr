@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHeader } from "@/lib/header-context";
 import PlayerHeader from "./PlayerHeader";
-import PlayerRatings from "./PlayerRatings";
 import MatchHistory from "./MatchHistory";
-import PlayerStats from "./PlayerStats";
+import PlayerStatsRatings from "./PlayerStatsRatings";
 import {
   followUser,
   getFollowInfo,
@@ -207,15 +206,13 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         />
       </div>
       <div className="mt-8">
-        <PlayerRatings
+        <PlayerStatsRatings
+          playerId={player.id}
           singles={player.stats?.singles ?? null}
           doubles={player.stats?.doubles ?? null}
           singlesReliabilityScore={player.stats?.singlesReliabilityScore}
           doublesReliabilityScore={player.stats?.doublesReliabilityScore}
         />
-      </div>
-      <div className="mt-8">
-        <PlayerStats playerId={player.id} />
       </div>
       <div className="mt-8">
         <MatchHistory playerId={player.id} isSelf={isSelf} />
