@@ -150,13 +150,13 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
       <Card>
         <CardHeader className="pb-4">
-          <div className="text-center">
-            <div className="grid grid-cols-2 gap-4 mt-3">
+          <div className="text-center lg:text-left">
+            <div className="grid grid-cols-2 gap-4 mt-3 lg:mt-0 lg:max-w-xs">
               <div>
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-center lg:justify-start gap-1">
                     <p className="text-xs text-green-600 font-medium">
                       {formatReliability(singlesReliabilityScore)}
                     </p>
@@ -173,11 +173,11 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   </div>
                 )}
               </div>
-              <div>
+              <div className="lg:justify-self-end">
                 <p className="text-2xl font-bold">{formatRating(doubles)}</p>
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-center lg:justify-start gap-1">
                     <p className="text-xs text-green-600 font-medium">
                       {formatReliability(doublesReliabilityScore)}
                     </p>
