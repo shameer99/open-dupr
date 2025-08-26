@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -212,6 +218,16 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
     return () => clearTimeout(timeoutId);
   }, [searchQuery, performSearch]);
 
+  // Filter friends based on search query
+  const filteredFriends = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return friends;
+    }
+    return friends.filter((friend) =>
+      friend.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [friends, searchQuery]);
+
   const handlePlayerClick = (playerData: PlayerSearchHit) => {
     onPlayerSelect({
       id: playerData.id,
@@ -235,7 +251,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
   if (player) {
     return (
-      <div className="flex flex-col items-center space-y-2 relative">
+      <div className="flex flex-col items-center space-y-3 relative">
         <div className="relative">
           <Avatar src={player.imageUrl} name={player.fullName} size="lg" />
           {canRemove && (
@@ -247,8 +263,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
             </button>
           )}
         </div>
-        <div className="min-h-[2.5rem] flex items-center justify-center">
-          <span className="text-sm font-bold text-gray-900 text-center leading-tight hyphens-auto whitespace-pre-line">
+        <div className="min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
+          <span className="text-sm sm:text-base font-bold text-gray-900 text-center leading-tight hyphens-auto whitespace-pre-line">
             {(() => {
               const words = player.fullName.split(" ");
               if (words.length === 1) {
@@ -281,11 +297,11 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
       <div className="flex flex-col items-center space-y-3 relative">
         <button
           onClick={() => setShowModal(true)}
-          className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
         >
-          <span className="text-gray-400 text-xl">+</span>
+          <span className="text-gray-400 text-xl sm:text-2xl">+</span>
         </button>
-        <span className="text-xs text-gray-500 text-center leading-tight">
+        <span className="text-xs sm:text-sm text-gray-500 text-center leading-tight">
           {label}
         </span>
       </div>
@@ -296,14 +312,14 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
           {/* Header */}
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-2xl font-semibold text-gray-900">
                 {getModalTitle()}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
               >
-                <span className="text-gray-600 text-lg">×</span>
+                <span className="text-gray-600 text-xl">×</span>
               </button>
             </div>
           </div>
@@ -312,7 +328,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
           <div className="p-6 border-b border-gray-100">
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -328,17 +344,108 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                 placeholder="Search for player..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 text-base h-12"
+                className={`pl-11 text-base sm:text-lg h-12 sm:h-14 ${
+                  searchQuery.trim() ? "pr-10" : ""
+                }`}
                 autoFocus
               />
+              {searchQuery.trim() && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors"
+                  type="button"
+                  aria-label="Clear search"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
+            {/* Friends - Show when there are filtered friends or when search is empty */}
+            {filteredFriends.length > 0 && (
+              <div className="p-6 border-b border-gray-100">
+                <h4 className="text-base font-medium text-gray-700 mb-4">
+                  {searchQuery.trim()
+                    ? `Friends matching "${searchQuery}"`
+                    : "Friends"}
+                </h4>
+                <div className="flex space-x-4 sm:space-x-5 overflow-x-auto pb-2 -mx-6 px-6">
+                  {isLoadingFriends ? (
+                    <div className="flex space-x-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="flex-shrink-0 text-center">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-full animate-pulse mb-2" />
+                          <div className="w-16 sm:w-20 h-3 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    filteredFriends.map((playerData) => (
+                      <button
+                        key={playerData.id}
+                        type="button"
+                        className="flex-shrink-0 text-center group"
+                        onClick={() => handlePlayerClick(playerData)}
+                      >
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 mb-2 group-hover:scale-105 transition-transform">
+                          <Avatar
+                            src={playerData.imageUrl}
+                            name={playerData.fullName}
+                            size="lg"
+                          />
+                        </div>
+                        <div className="w-16 sm:w-20 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
+                          <p className="text-xs sm:text-sm font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                            {(() => {
+                              const words = playerData.fullName.split(" ");
+                              if (words.length === 1) {
+                                // Single word: split in middle if long enough
+                                if (playerData.fullName.length > 4) {
+                                  const mid = Math.ceil(
+                                    playerData.fullName.length / 2
+                                  );
+                                  return (
+                                    playerData.fullName.slice(0, mid) +
+                                    "\n" +
+                                    playerData.fullName.slice(mid)
+                                  );
+                                }
+                                return playerData.fullName + "\n ";
+                              } else if (words.length === 2) {
+                                // Two words: put each on separate line
+                                return words[0] + "\n" + words[1];
+                              } else {
+                                // Multiple words: put first word on first line, rest on second
+                                return (
+                                  words[0] + "\n" + words.slice(1).join(" ")
+                                );
+                              }
+                            })()}
+                          </p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Search Results */}
             {searchQuery.trim() && (
               <div className="p-6 border-b border-gray-100">
+                <h4 className="text-base font-medium text-gray-700 mb-4">
+                  Search Results
+                </h4>
                 {isSearching ? (
                   <div className="text-center py-8 text-gray-500">
                     Searching...
@@ -349,20 +456,20 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                       <button
                         key={playerData.id}
                         type="button"
-                        className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                        className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
                         onClick={() => handlePlayerClick(playerData)}
                       >
                         <Avatar
                           src={playerData.imageUrl}
                           name={playerData.fullName}
-                          size="md"
+                          size="lg"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-sm">
+                          <p className="font-medium truncate text-base">
                             {playerData.fullName}
                           </p>
                           {playerData.location && (
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-sm text-gray-500 truncate">
                               {playerData.location}
                             </p>
                           )}
@@ -378,19 +485,19 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </div>
             )}
 
-            {/* Recent Opponents */}
+            {/* Recent Opponents - Only show when no search query */}
             {!searchQuery.trim() && recentOpponents.length > 0 && (
               <div className="p-6 border-b border-gray-100">
-                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                <h4 className="text-base font-medium text-gray-700 mb-4">
                   Recent Opponents
                 </h4>
-                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                <div className="flex space-x-4 sm:space-x-5 overflow-x-auto pb-2 -mx-6 px-6">
                   {isLoadingRecent ? (
                     <div className="flex space-x-4">
                       {[...Array(3)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-full animate-pulse mb-2" />
+                          <div className="w-16 sm:w-20 h-3 bg-gray-200 rounded animate-pulse" />
                         </div>
                       ))}
                     </div>
@@ -402,15 +509,15 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                         className="flex-shrink-0 text-center group"
                         onClick={() => handlePlayerClick(playerData)}
                       >
-                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 mb-2 group-hover:scale-105 transition-transform">
                           <Avatar
                             src={playerData.imageUrl}
                             name={playerData.fullName}
                             size="lg"
                           />
                         </div>
-                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
-                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                        <div className="w-16 sm:w-20 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
+                          <p className="text-xs sm:text-sm font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
                             {(() => {
                               const words = playerData.fullName.split(" ");
                               if (words.length === 1) {
@@ -445,76 +552,9 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </div>
             )}
 
-            {/* Friends - Horizontal scrolling for mobile space efficiency */}
-            {!searchQuery.trim() && friends.length > 0 && (
-              <div className="p-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-4">
-                  Friends
-                </h4>
-                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
-                  {isLoadingFriends ? (
-                    <div className="flex space-x-4">
-                      {[...Array(6)].map((_, i) => (
-                        <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    friends.map((playerData) => (
-                      <button
-                        key={playerData.id}
-                        type="button"
-                        className="flex-shrink-0 text-center group"
-                        onClick={() => handlePlayerClick(playerData)}
-                      >
-                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
-                          <Avatar
-                            src={playerData.imageUrl}
-                            name={playerData.fullName}
-                            size="lg"
-                          />
-                        </div>
-                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
-                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
-                            {(() => {
-                              const words = playerData.fullName.split(" ");
-                              if (words.length === 1) {
-                                // Single word: split in middle if long enough
-                                if (playerData.fullName.length > 4) {
-                                  const mid = Math.ceil(
-                                    playerData.fullName.length / 2
-                                  );
-                                  return (
-                                    playerData.fullName.slice(0, mid) +
-                                    "\n" +
-                                    playerData.fullName.slice(mid)
-                                  );
-                                }
-                                return playerData.fullName + "\n ";
-                              } else if (words.length === 2) {
-                                // Two words: put each on separate line
-                                return words[0] + "\n" + words[1];
-                              } else {
-                                // Multiple words: put first word on first line, rest on second
-                                return (
-                                  words[0] + "\n" + words.slice(1).join(" ")
-                                );
-                              }
-                            })()}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Empty State */}
+            {/* Empty State - Show when no search query and no content */}
             {!searchQuery.trim() &&
-              friends.length === 0 &&
+              filteredFriends.length === 0 &&
               recentOpponents.length === 0 &&
               !isLoadingFriends &&
               !isLoadingRecent && (
@@ -525,6 +565,17 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                   </p>
                 </div>
               )}
+
+            {/* No friends match search */}
+            {searchQuery.trim() &&
+              filteredFriends.length === 0 &&
+              searchResults.length === 0 &&
+              !isSearching && (
+                <div className="p-6 text-center text-gray-500">
+                  <p>No friends or players found matching "{searchQuery}"</p>
+                  <p className="text-sm mt-1">Try a different search term</p>
+                </div>
+              )}
           </div>
 
           {/* Footer */}
@@ -533,7 +584,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               type="button"
               variant="outline"
               onClick={() => setShowModal(false)}
-              className="w-full"
+              className="w-full h-12 text-base"
             >
               Cancel
             </Button>
@@ -546,7 +597,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
 interface ScoreInputProps {
   value: number;
-  onChange: (value: number) => void;
+  onChange: React.Dispatch<React.SetStateAction<number>>;
   max?: number;
   layout?: "horizontal" | "vertical";
 }
@@ -557,23 +608,49 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   max = 999,
   layout = "horizontal",
 }) => {
+  const holdIntervalRef = useRef<number | null>(null);
+  const holdTimeoutRef = useRef<number | null>(null);
+  const currentActionRef = useRef<(() => void) | null>(null);
+
   const handleIncrement = () => {
-    if (value < max) onChange(value + 1);
+    onChange((prev) => (prev < max ? prev + 1 : prev));
   };
 
   const handleDecrement = () => {
-    if (value > 0) onChange(value - 1);
+    onChange((prev) => (prev > 0 ? prev - 1 : prev));
+  };
+
+  const stopHold = () => {
+    if (holdTimeoutRef.current !== null) {
+      window.clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
+    }
+    if (holdIntervalRef.current !== null) {
+      window.clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+    currentActionRef.current = null;
+  };
+
+  const startHold = (action: () => void) => {
+    currentActionRef.current = action;
+    // Start repeating after a short delay to avoid double-firing with onClick
+    holdTimeoutRef.current = window.setTimeout(() => {
+      // Run once when hold engages, then repeat
+      currentActionRef.current?.();
+      holdIntervalRef.current = window.setInterval(() => {
+        currentActionRef.current?.();
+      }, 120);
+    }, 300);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // Only allow numeric input
     if (!/^\d*$/.test(inputValue)) return;
-
-    const newValue = parseInt(inputValue) || 0;
-    if (newValue >= 0 && newValue <= max) {
-      onChange(newValue);
-    }
+    const parsed = parseInt(inputValue);
+    const newValue = Number.isNaN(parsed) ? 0 : parsed;
+    if (newValue < 0) return;
+    onChange(() => (newValue > max ? max : newValue));
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -588,8 +665,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
           onClick={handleIncrement}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            startHold(handleIncrement);
+          }}
+          onMouseUp={stopHold}
+          onMouseLeave={stopHold}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            startHold(handleIncrement);
+          }}
+          onTouchEnd={stopHold}
+          onTouchCancel={stopHold}
           disabled={value >= max}
         >
           +
@@ -609,8 +698,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
           onClick={handleDecrement}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            startHold(handleDecrement);
+          }}
+          onMouseUp={stopHold}
+          onMouseLeave={stopHold}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            startHold(handleDecrement);
+          }}
+          onTouchEnd={stopHold}
+          onTouchCancel={stopHold}
           disabled={value <= 0}
         >
           −
@@ -621,13 +722,25 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
 
   // Default horizontal layout (mobile)
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-4">
       <Button
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold text-gray-600 hover:bg-gray-100 select-none"
         onClick={handleDecrement}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          startHold(handleDecrement);
+        }}
+        onMouseUp={stopHold}
+        onMouseLeave={stopHold}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          startHold(handleDecrement);
+        }}
+        onTouchEnd={stopHold}
+        onTouchCancel={stopHold}
         disabled={value <= 0}
       >
         −
@@ -638,7 +751,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         value={value}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
-        className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="w-20 h-20 text-4xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         inputMode="numeric"
         pattern="[0-9]*"
       />
@@ -647,8 +760,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold text-gray-600 hover:bg-gray-100 select-none"
         onClick={handleIncrement}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          startHold(handleIncrement);
+        }}
+        onMouseUp={stopHold}
+        onMouseLeave={stopHold}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          startHold(handleIncrement);
+        }}
+        onTouchEnd={stopHold}
+        onTouchCancel={stopHold}
         disabled={value >= max}
       >
         +
@@ -837,12 +962,12 @@ const RecordMatchPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-sm mx-auto lg:max-w-4xl space-y-6">
+      <div className="max-w-sm mx-auto lg:max-w-4xl space-y-6 sm:space-y-7">
         <div className="space-y-6">
-          <div className="flex items-center space-x-3 md:flex-col md:items-start md:space-x-0 md:space-y-1">
+          <div className="flex items-center space-x-4 md:flex-col md:items-start md:space-x-0 md:space-y-2">
             <Label
               htmlFor="eventDate"
-              className="text-sm font-medium text-gray-700 shrink-0 md:mb-0"
+              className="text-base font-medium text-gray-700 shrink-0 md:mb-0"
             >
               Date
             </Label>
@@ -851,13 +976,13 @@ const RecordMatchPage: React.FC = () => {
               type="date"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
-              className="flex-1 md:w-full"
+              className="flex-1 md:w-full h-12 text-base"
             />
           </div>
 
           {/* Mobile Layout - Stacked */}
           <div className="lg:hidden space-y-4">
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-4 sm:space-x-5">
               {myProfile && (
                 <PlayerSlot
                   player={myProfile}
@@ -873,14 +998,16 @@ const RecordMatchPage: React.FC = () => {
               />
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3">
-              <div className="flex flex-col space-y-3 justify-center items-center">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex flex-col space-y-4 justify-center items-center">
                 <ScoreInput
                   value={myScore}
                   onChange={setMyScore}
                   layout="horizontal"
                 />
-                <div className="text-xl font-bold text-gray-400">VS</div>
+                <div className="text-xl sm:text-2xl font-bold text-gray-400">
+                  VS
+                </div>
                 <ScoreInput
                   value={opponentScore}
                   onChange={setOpponentScore}
@@ -889,7 +1016,7 @@ const RecordMatchPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-4 sm:space-x-5">
               <PlayerSlot
                 player={opponent1}
                 onPlayerSelect={setOpponent1}
@@ -910,7 +1037,7 @@ const RecordMatchPage: React.FC = () => {
             {/* Team 1 - Left Side */}
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   My Team
                 </h3>
               </div>
@@ -934,18 +1061,18 @@ const RecordMatchPage: React.FC = () => {
             {/* Scores - Center */}
             <div className="flex flex-col items-center justify-center space-y-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   Score
                 </h3>
               </div>
-              <div className="bg-gray-50 rounded-lg p-6">
-                <div className="flex items-center space-x-8">
+              <div className="bg-gray-50 rounded-lg p-7">
+                <div className="flex items-center space-x-10">
                   <ScoreInput
                     value={myScore}
                     onChange={setMyScore}
                     layout="vertical"
                   />
-                  <div className="text-3xl font-bold text-gray-400">VS</div>
+                  <div className="text-4xl font-bold text-gray-400">VS</div>
                   <ScoreInput
                     value={opponentScore}
                     onChange={setOpponentScore}
@@ -958,7 +1085,7 @@ const RecordMatchPage: React.FC = () => {
             {/* Team 2 - Right Side */}
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   Opponents
                 </h3>
               </div>
@@ -982,22 +1109,22 @@ const RecordMatchPage: React.FC = () => {
 
         {showConfirmation && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+            <div className="bg-white rounded-xl p-7 max-w-md w-full">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
                 Confirm Match
               </h3>
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600 mb-4">
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-base text-red-600 mb-4">
                   {error}
                 </div>
               )}
 
               {/* Match Card Style Display */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="bg-gray-50 rounded-lg p-5 mb-6">
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between text-xs font-medium text-gray-500">
-                    <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
+                  <div className="flex items-center justify-between text-sm font-medium text-gray-500">
+                    <span className="rounded-full bg-yellow-100 text-yellow-800 px-2.5 py-0.5 font-medium">
                       Pending
                     </span>
                     <span>{eventDate}</span>
@@ -1032,7 +1159,7 @@ const RecordMatchPage: React.FC = () => {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <span className="font-medium truncate">
+                          <span className="font-medium truncate text-base">
                             {myTeammate
                               ? `${getDisplayName(
                                   myProfile?.fullName || ""
@@ -1061,7 +1188,7 @@ const RecordMatchPage: React.FC = () => {
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="min-w-0">
-                          <span className="font-medium truncate">
+                          <span className="font-medium truncate text-base">
                             {opponent2
                               ? `${getDisplayName(
                                   opponent1?.fullName || ""
@@ -1101,7 +1228,7 @@ const RecordMatchPage: React.FC = () => {
                     setShowConfirmation(false);
                     setError(null);
                   }}
-                  className="flex-1"
+                  className="flex-1 h-12 text-base"
                   disabled={isSubmitting}
                 >
                   Edit
@@ -1109,7 +1236,7 @@ const RecordMatchPage: React.FC = () => {
                 <Button
                   type="button"
                   onClick={onSubmit}
-                  className="flex-1"
+                  className="flex-1 h-12 text-base"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Saving..." : "Confirm"}
