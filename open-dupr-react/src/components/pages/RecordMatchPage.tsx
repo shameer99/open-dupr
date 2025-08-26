@@ -162,13 +162,29 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
       setIsSearching(true);
       try {
+        let userLat: number | undefined;
+        let userLng: number | undefined;
+        try {
+          const profile = await getMyProfile();
+          const addr = profile?.result?.addresses?.[0];
+          if (
+            typeof addr?.latitude === "number" &&
+            typeof addr?.longitude === "number"
+          ) {
+            userLat = addr.latitude;
+            userLng = addr.longitude;
+          }
+        } catch {
+          // ignore, will use fallback coordinates
+        }
+
         const response = await searchPlayers({
           offset: 0,
           limit: 10,
           query: query.trim(),
           filter: {
-            lat: 30.2672,
-            lng: -97.7431,
+            lat: userLat ?? 30.2672,
+            lng: userLng ?? -97.7431,
             radiusInMeters: 5_000_000,
             rating: { min: 1.0, max: 8.0 },
           },

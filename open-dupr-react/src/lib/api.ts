@@ -202,7 +202,7 @@ export async function apiFetch(
   return response.json();
 }
 
-export const getMyProfile = () => apiFetch("/user/v1/profile");
+export const getMyProfile = () => apiFetch("/user/v1.0/profile");
 
 export const getFollowInfo = (feedId: number) =>
   apiFetch(`/activity/v1/user/${feedId}/followingInfo`);

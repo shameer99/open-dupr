@@ -8,7 +8,7 @@ import {
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
 import PullToRefresh from "@/components/ui/pull-to-refresh";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, getMyProfile } from "@/lib/api";
 import { useHeader } from "@/lib/header-context";
 
 interface SearchHit {
@@ -31,6 +31,30 @@ const SearchPage: React.FC = () => {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const [userLatLng, setUserLatLng] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getMyProfile();
+        const addr = data?.result?.addresses?.[0];
+        const lat = addr?.latitude;
+        const lng = addr?.longitude;
+        if (mounted && typeof lat === "number" && typeof lng === "number") {
+          setUserLatLng({ lat, lng });
+        }
+      } catch {
+        // ignore, fallback will be used
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const performSearch = useCallback(
     async (reset = false) => {
@@ -47,8 +71,8 @@ const SearchPage: React.FC = () => {
           limit: DEFAULT_LIMIT,
           query,
           filter: {
-            lat: 30.2672,
-            lng: -97.7431,
+            lat: userLatLng?.lat ?? 30.2672,
+            lng: userLatLng?.lng ?? -97.7431,
             radiusInMeters: 5_000_000,
             rating: { min: 1.0, max: 8.0 },
           },
@@ -69,7 +93,7 @@ const SearchPage: React.FC = () => {
         setLoading(false);
       }
     },
-    [query, offset]
+    [query, offset, userLatLng]
   );
 
   const handleRefresh = useCallback(async () => {
