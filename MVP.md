@@ -1,23 +1,23 @@
 Features for MVP:
 
-- Login
-  - Create account just links to official DUPR website
-- Logout
-- View profile (self or other users)
-  - Defer to official site for editing own profile for now.
-  - Follow/unfollow other users
-  - Name
-  - Profile picture
-    - Fallback to monogram if no picture
-  - Location
-  - Gender
-  - Age
-  - Ratings
-    - Singles and Doubles
-    - With confidence percentage
-  - Match history
-  - Followers and following counts/lists
-    - Link to other users' profiles
-- Search for players
-- Record a match
-- Verify matches
+- [x] Login
+  - [x] Create account just links to official DUPR website
+- [x] Logout
+- [x] View profile (self or other users)
+  - [x] Defer to official site for editing own profile for now.
+- [x] Follow/unfollow other users
+- [x] Name
+- [x] Profile picture
+  - [x] Fallback to monogram if no picture
+- [x] Location
+- [x] Gender
+- [x] Age
+- [x] Ratings
+  - [x] Singles and Doubles
+  - [x] With confidence percentage
+- [x] Match history
+- [x] Followers and following counts/lists
+  - [x] Link to other users' profiles
+- [x] Search for players
+- [x] Record a match
+- [x] Verify matches

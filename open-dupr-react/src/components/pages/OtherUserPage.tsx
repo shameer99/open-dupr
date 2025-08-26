@@ -70,6 +70,8 @@ const OtherUserPage: React.FC = () => {
                 stats: {
                   singles: "NR",
                   doubles: "NR",
+                  singlesReliabilityScore: undefined,
+                  doublesReliabilityScore: undefined,
                 },
               };
               break;
@@ -82,6 +84,8 @@ const OtherUserPage: React.FC = () => {
                 stats: {
                   singles: "NR",
                   doubles: "NR",
+                  singlesReliabilityScore: undefined,
+                  doublesReliabilityScore: undefined,
                 },
               };
               break;
@@ -98,6 +102,8 @@ const OtherUserPage: React.FC = () => {
             stats: {
               singles: "0.0",
               doubles: "0.0",
+              singlesReliabilityScore: undefined,
+              doublesReliabilityScore: undefined,
             },
           };
         }
@@ -119,6 +125,12 @@ const OtherUserPage: React.FC = () => {
             stats: {
               singles: ratings?.singles ?? userProfile.stats.singles,
               doubles: ratings?.doubles ?? userProfile.stats.doubles,
+              singlesReliabilityScore:
+                ratings?.singlesReliabilityScore ??
+                userProfile.stats.singlesReliabilityScore,
+              doublesReliabilityScore:
+                ratings?.doublesReliabilityScore ??
+                userProfile.stats.doublesReliabilityScore,
             },
           };
         }

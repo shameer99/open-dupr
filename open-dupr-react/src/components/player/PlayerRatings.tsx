@@ -3,6 +3,8 @@ import React from "react";
 interface PlayerRatingsProps {
   singles?: string | number | null;
   doubles?: string | number | null;
+  singlesReliabilityScore?: number;
+  doublesReliabilityScore?: number;
 }
 
 const formatRating = (value: unknown): string => {
@@ -14,17 +16,37 @@ const formatRating = (value: unknown): string => {
   return text.length > 0 ? text : "-";
 };
 
-const PlayerRatings: React.FC<PlayerRatingsProps> = ({ singles, doubles }) => {
+const formatConfidence = (score?: number): string => {
+  if (score == null) return "";
+  return `${score}% confidence`;
+};
+
+const PlayerRatings: React.FC<PlayerRatingsProps> = ({
+  singles,
+  doubles,
+  singlesReliabilityScore,
+  doublesReliabilityScore,
+}) => {
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 mt-2">
         <div>
           <p className="text-lg font-semibold">{formatRating(singles)}</p>
           <p className="text-muted-foreground">Singles</p>
+          {singlesReliabilityScore != null && (
+            <p className="text-xs text-green-600 font-medium">
+              {formatConfidence(singlesReliabilityScore)}
+            </p>
+          )}
         </div>
         <div>
           <p className="text-lg font-semibold">{formatRating(doubles)}</p>
           <p className="text-muted-foreground">Doubles</p>
+          {doublesReliabilityScore != null && (
+            <p className="text-xs text-green-600 font-medium">
+              {formatConfidence(doublesReliabilityScore)}
+            </p>
+          )}
         </div>
       </div>
     </div>
