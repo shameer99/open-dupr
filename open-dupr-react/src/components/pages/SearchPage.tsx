@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Avatar from "@/components/ui/avatar";
 import {
@@ -133,11 +132,23 @@ const SearchPage: React.FC = () => {
     return () => observer.disconnect();
   }, [hasMore, loading, offset, query, performSearch]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Debounce live search on typing
+  useEffect(() => {
+    const trimmed = query.trim();
+    // If cleared, reset results immediately
+    if (!trimmed) {
+      setHits([]);
+      setHasMore(false);
+      setOffset(0);
+      return;
+    }
+    setError(null);
     setOffset(0);
-    void performSearch(true);
-  };
+    const handle = setTimeout(() => {
+      void performSearch(true);
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [query, performSearch]);
 
   return (
     <PullToRefresh
@@ -145,20 +156,15 @@ const SearchPage: React.FC = () => {
       disabled={loading || !query.trim()}
     >
       <div className="container mx-auto p-4 max-w-2xl">
-        <form onSubmit={handleSubmit} className="mb-6">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="Search for players..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="flex-1"
-            />
-            <Button type="submit" disabled={loading || !query.trim()}>
-              Search
-            </Button>
-          </div>
-        </form>
+        <div className="mb-6">
+          <Input
+            type="text"
+            placeholder="Search for players..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1"
+          />
+        </div>
         {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
 
         {hits.length === 0 && !loading && query.trim() ? (
