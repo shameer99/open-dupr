@@ -209,12 +209,16 @@ const MatchDetailsPage: React.FC = () => {
   const navigationState = location.state as {
     match?: Match;
     perspectiveUserId?: number;
+    currentUserId?: number;
   } | null;
   const passedMatch = navigationState?.match;
   const passedPerspectiveUserId = navigationState?.perspectiveUserId;
+  const passedCurrentUserId = navigationState?.currentUserId;
 
   const [match, setMatch] = useState<Match | null>(passedMatch || null);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(
+    passedCurrentUserId || null
+  );
   const [perspectiveUserId] = useState<number | null>(
     passedPerspectiveUserId || (playerId ? parseInt(playerId) : null)
   );
@@ -390,6 +394,7 @@ const MatchDetailsPage: React.FC = () => {
     );
 
   // Use perspective user for team arrangement and colors, fallback to logged-in user
+  // This ensures matches are shown from the perspective of the profile being viewed
   const effectiveUserId = perspectiveUserId || currentUserId;
   const { teamA, teamB } = arrangeTeamsForUser(
     match.teams,

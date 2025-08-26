@@ -18,6 +18,7 @@ import {
 interface MatchCardProps {
   match: Match;
   currentUserId?: number;
+  profileUserId?: number;
   onMatchUpdate?: () => void;
 }
 
@@ -89,18 +90,27 @@ function TeamStack({ team }: { team: MatchTeam }) {
 const MatchCard: React.FC<MatchCardProps> = ({
   match,
   currentUserId,
+  profileUserId,
   onMatchUpdate,
 }) => {
   const navigate = useNavigate();
-  const { teamA, teamB } = arrangeTeamsForUser(match.teams, currentUserId);
+
+  // For display purposes, use profileUserId to arrange teams from the profile's perspective
+  // This ensures matches are shown from the profile being viewed
+  const { teamA, teamB } = arrangeTeamsForUser(match.teams, profileUserId);
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
   const gamePairs = getGamePairs(teamA, teamB);
-  const userDelta = computeUserDeltaForTeam(teamA, currentUserId);
+  const userDelta = computeUserDeltaForTeam(teamA, profileUserId);
 
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Check if current user needs to validate this match
+  // Only show validation buttons if:
+  // 1. Current user is logged in
+  // 2. Current user is part of the match
+  // 3. Match is not confirmed
+  // 4. Current user hasn't already validated the match
   const needsValidation =
     currentUserId &&
     !match.confirmed &&
@@ -147,13 +157,14 @@ const MatchCard: React.FC<MatchCardProps> = ({
     <Card
       className="p-4 cursor-pointer transition hover:bg-accent/40"
       onClick={() => {
-        const path = currentUserId
-          ? `/match/${match.id}/player/${currentUserId}`
+        const path = profileUserId
+          ? `/match/${match.id}/player/${profileUserId}`
           : `/match/${match.id}`;
         navigate(path, {
           state: {
             match,
-            perspectiveUserId: currentUserId,
+            perspectiveUserId: profileUserId,
+            currentUserId: currentUserId,
           },
         });
       }}
@@ -162,13 +173,14 @@ const MatchCard: React.FC<MatchCardProps> = ({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          const path = currentUserId
-            ? `/match/${match.id}/player/${currentUserId}`
+          const path = profileUserId
+            ? `/match/${match.id}/player/${profileUserId}`
             : `/match/${match.id}`;
           navigate(path, {
             state: {
               match,
-              perspectiveUserId: currentUserId,
+              perspectiveUserId: profileUserId,
+              currentUserId: currentUserId,
             },
           });
         }
