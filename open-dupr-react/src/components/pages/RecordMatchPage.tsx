@@ -196,6 +196,16 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
     return () => clearTimeout(timeoutId);
   }, [searchQuery, performSearch]);
 
+  // Filter friends based on search query
+  const filteredFriends = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return friends;
+    }
+    return friends.filter((friend) =>
+      friend.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [friends, searchQuery]);
+
   const handlePlayerClick = (playerData: PlayerSearchHit) => {
     onPlayerSelect({
       id: playerData.id,
@@ -320,9 +330,81 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
+            {/* Friends - Show when there are filtered friends or when search is empty */}
+            {filteredFriends.length > 0 && (
+              <div className="p-6 border-b border-gray-100">
+                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                  {searchQuery.trim()
+                    ? `Friends matching "${searchQuery}"`
+                    : "Friends"}
+                </h4>
+                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
+                  {isLoadingFriends ? (
+                    <div className="flex space-x-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="flex-shrink-0 text-center">
+                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
+                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    filteredFriends.map((playerData) => (
+                      <button
+                        key={playerData.id}
+                        type="button"
+                        className="flex-shrink-0 text-center group"
+                        onClick={() => handlePlayerClick(playerData)}
+                      >
+                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
+                          <Avatar
+                            src={playerData.imageUrl}
+                            name={playerData.fullName}
+                            size="lg"
+                          />
+                        </div>
+                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
+                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                            {(() => {
+                              const words = playerData.fullName.split(" ");
+                              if (words.length === 1) {
+                                // Single word: split in middle if long enough
+                                if (playerData.fullName.length > 4) {
+                                  const mid = Math.ceil(
+                                    playerData.fullName.length / 2
+                                  );
+                                  return (
+                                    playerData.fullName.slice(0, mid) +
+                                    "\n" +
+                                    playerData.fullName.slice(mid)
+                                  );
+                                }
+                                return playerData.fullName + "\n ";
+                              } else if (words.length === 2) {
+                                // Two words: put each on separate line
+                                return words[0] + "\n" + words[1];
+                              } else {
+                                // Multiple words: put first word on first line, rest on second
+                                return (
+                                  words[0] + "\n" + words.slice(1).join(" ")
+                                );
+                              }
+                            })()}
+                          </p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Search Results */}
             {searchQuery.trim() && (
               <div className="p-6 border-b border-gray-100">
+                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                  Search Results
+                </h4>
                 {isSearching ? (
                   <div className="text-center py-8 text-gray-500">
                     Searching...
@@ -362,7 +444,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </div>
             )}
 
-            {/* Recent Opponents */}
+            {/* Recent Opponents - Only show when no search query */}
             {!searchQuery.trim() && recentOpponents.length > 0 && (
               <div className="p-6 border-b border-gray-100">
                 <h4 className="text-sm font-medium text-gray-700 mb-4">
@@ -429,76 +511,9 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </div>
             )}
 
-            {/* Friends - Horizontal scrolling for mobile space efficiency */}
-            {!searchQuery.trim() && friends.length > 0 && (
-              <div className="p-6">
-                <h4 className="text-sm font-medium text-gray-700 mb-4">
-                  Friends
-                </h4>
-                <div className="flex space-x-4 overflow-x-auto pb-2 -mx-6 px-6">
-                  {isLoadingFriends ? (
-                    <div className="flex space-x-4">
-                      {[...Array(6)].map((_, i) => (
-                        <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    friends.map((playerData) => (
-                      <button
-                        key={playerData.id}
-                        type="button"
-                        className="flex-shrink-0 text-center group"
-                        onClick={() => handlePlayerClick(playerData)}
-                      >
-                        <div className="w-16 h-16 mb-2 group-hover:scale-105 transition-transform">
-                          <Avatar
-                            src={playerData.imageUrl}
-                            name={playerData.fullName}
-                            size="lg"
-                          />
-                        </div>
-                        <div className="w-16 min-h-[2.5rem] flex items-center justify-center">
-                          <p className="text-xs font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
-                            {(() => {
-                              const words = playerData.fullName.split(" ");
-                              if (words.length === 1) {
-                                // Single word: split in middle if long enough
-                                if (playerData.fullName.length > 4) {
-                                  const mid = Math.ceil(
-                                    playerData.fullName.length / 2
-                                  );
-                                  return (
-                                    playerData.fullName.slice(0, mid) +
-                                    "\n" +
-                                    playerData.fullName.slice(mid)
-                                  );
-                                }
-                                return playerData.fullName + "\n ";
-                              } else if (words.length === 2) {
-                                // Two words: put each on separate line
-                                return words[0] + "\n" + words[1];
-                              } else {
-                                // Multiple words: put first word on first line, rest on second
-                                return (
-                                  words[0] + "\n" + words.slice(1).join(" ")
-                                );
-                              }
-                            })()}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Empty State */}
+            {/* Empty State - Show when no search query and no content */}
             {!searchQuery.trim() &&
-              friends.length === 0 &&
+              filteredFriends.length === 0 &&
               recentOpponents.length === 0 &&
               !isLoadingFriends &&
               !isLoadingRecent && (
@@ -507,6 +522,17 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                   <p className="text-sm mt-1">
                     Try searching for a player above
                   </p>
+                </div>
+              )}
+
+            {/* No friends match search */}
+            {searchQuery.trim() &&
+              filteredFriends.length === 0 &&
+              searchResults.length === 0 &&
+              !isSearching && (
+                <div className="p-6 text-center text-gray-500">
+                  <p>No friends or players found matching "{searchQuery}"</p>
+                  <p className="text-sm mt-1">Try a different search term</p>
                 </div>
               )}
           </div>
