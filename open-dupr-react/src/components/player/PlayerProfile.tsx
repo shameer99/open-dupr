@@ -2,9 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHeader } from "@/lib/header-context";
 import PlayerHeader from "./PlayerHeader";
-import PlayerRatings from "./PlayerRatings";
 import MatchHistory from "./MatchHistory";
-import PlayerStats from "./PlayerStats";
+import PlayerStatsRatings from "./PlayerStatsRatings";
 import {
   followUser,
   getFollowInfo,
@@ -110,13 +109,13 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   }, [player.id, isSelf]);
 
   const actionNode = (
-    <div className="flex items-stretch gap-2 w-full sm:w-auto">
+    <div className="flex items-stretch gap-2 w-full">
       {isSelf ? (
         <>
           <Button
             variant="outline"
             onClick={() => setShowEditInfo(true)}
-            className="w-full sm:w-auto"
+            className="w-full"
             data-testid="edit-profile-button"
           >
             Edit profile
@@ -126,7 +125,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         <Button
           variant="outline"
           disabled={isProcessingFollow}
-          className="w-full sm:w-auto"
+          className="w-full"
           onClick={async () => {
             try {
               setIsProcessingFollow(true);
@@ -189,35 +188,35 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         </div>
       )}
 
-      <div ref={headerRef}>
-        <PlayerHeader
-          name={player.fullName}
-          imageUrl={player.imageUrl}
-          location={
-            player.location ||
-            player.addresses?.[0]?.formattedAddress ||
-            "Unknown location"
-          }
-          playerId={player.id}
-          birthdate={player.birthdate}
-          gender={player.gender}
-          age={player.age}
-          followInfo={followInfo}
-          action={actionNode}
-        />
+      <div className="lg:grid lg:grid-cols-2 lg:gap-6">
+        <div ref={headerRef}>
+          <PlayerHeader
+            name={player.fullName}
+            imageUrl={player.imageUrl}
+            location={
+              player.location ||
+              player.addresses?.[0]?.formattedAddress ||
+              "Unknown location"
+            }
+            playerId={player.id}
+            birthdate={player.birthdate}
+            gender={player.gender}
+            age={player.age}
+            followInfo={followInfo}
+            action={actionNode}
+          />
+        </div>
+        <div className="mt-6 lg:mt-0">
+          <PlayerStatsRatings
+            playerId={player.id}
+            singles={player.stats?.singles ?? null}
+            doubles={player.stats?.doubles ?? null}
+            singlesReliabilityScore={player.stats?.singlesReliabilityScore}
+            doublesReliabilityScore={player.stats?.doublesReliabilityScore}
+          />
+        </div>
       </div>
-      <div className="mt-8">
-        <PlayerRatings
-          singles={player.stats?.singles ?? null}
-          doubles={player.stats?.doubles ?? null}
-          singlesReliabilityScore={player.stats?.singlesReliabilityScore}
-          doublesReliabilityScore={player.stats?.doublesReliabilityScore}
-        />
-      </div>
-      <div className="mt-8">
-        <PlayerStats playerId={player.id} />
-      </div>
-      <div className="mt-8">
+      <div className="mt-6">
         <MatchHistory playerId={player.id} isSelf={isSelf} />
       </div>
 

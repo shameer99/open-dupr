@@ -69,7 +69,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-2">
         <div className="flex items-start space-x-4">
           <Avatar
             src={imageUrl}
@@ -78,33 +78,35 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
             onClick={() => setIsModalOpen(true)}
           />
           <div className="flex-1">
-            <h1 className="text-2xl font-bold mb-1">
+            <h1 className="text-2xl font-bold mb-0.5">
               {name?.trim().replace(/\s+/g, " ")}
-          </h1>
-          <p className="text-muted-foreground mb-3">{metaParts.join(" · ")}</p>
+            </h1>
+            <p className="text-muted-foreground mb-2">
+              {metaParts.join(" · ")}
+            </p>
 
-          {followInfo && (
-            <div className="flex space-x-6 text-sm">
-              <button
-                onClick={handleFollowersClick}
-                className="hover:text-gray-600 transition-colors"
-              >
-                <span className="font-semibold">{followInfo.followers}</span>{" "}
-                <span className="text-muted-foreground">followers</span>
-              </button>
-              <button
-                onClick={handleFollowingClick}
-                className="hover:text-gray-600 transition-colors"
-              >
-                <span className="font-semibold">{followInfo.followings}</span>{" "}
-                <span className="text-muted-foreground">following</span>
-              </button>
-            </div>
-          )}
+            {followInfo && (
+              <div className="flex space-x-6 text-sm">
+                <button
+                  onClick={handleFollowersClick}
+                  className="hover:text-gray-600 transition-colors"
+                >
+                  <span className="font-semibold">{followInfo.followers}</span>{" "}
+                  <span className="text-muted-foreground">followers</span>
+                </button>
+                <button
+                  onClick={handleFollowingClick}
+                  className="hover:text-gray-600 transition-colors"
+                >
+                  <span className="font-semibold">{followInfo.followings}</span>{" "}
+                  <span className="text-muted-foreground">following</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+        {action ? <div className="w-full">{action}</div> : null}
       </div>
-      {action ? <div className="sm:ml-4 w-full sm:w-auto">{action}</div> : null}
-    </div>
       <Modal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
