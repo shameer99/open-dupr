@@ -581,7 +581,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
 interface ScoreInputProps {
   value: number;
-  onChange: (value: number) => void;
+  onChange: React.Dispatch<React.SetStateAction<number>>;
   max?: number;
   layout?: "horizontal" | "vertical";
 }
@@ -597,11 +597,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   const currentActionRef = useRef<(() => void) | null>(null);
 
   const handleIncrement = () => {
-    if (value < max) onChange(value + 1);
+    onChange((prev) => (prev < max ? prev + 1 : prev));
   };
 
   const handleDecrement = () => {
-    if (value > 0) onChange(value - 1);
+    onChange((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
   const stopHold = () => {
@@ -630,13 +630,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // Only allow numeric input
     if (!/^\d*$/.test(inputValue)) return;
-
-    const newValue = parseInt(inputValue) || 0;
-    if (newValue >= 0 && newValue <= max) {
-      onChange(newValue);
-    }
+    const parsed = parseInt(inputValue);
+    const newValue = Number.isNaN(parsed) ? 0 : parsed;
+    if (newValue < 0) return;
+    onChange(() => (newValue > max ? max : newValue));
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
