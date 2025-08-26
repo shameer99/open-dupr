@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -586,12 +592,40 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
   max = 999,
   layout = "horizontal",
 }) => {
+  const holdIntervalRef = useRef<number | null>(null);
+  const holdTimeoutRef = useRef<number | null>(null);
+  const currentActionRef = useRef<(() => void) | null>(null);
+
   const handleIncrement = () => {
     if (value < max) onChange(value + 1);
   };
 
   const handleDecrement = () => {
     if (value > 0) onChange(value - 1);
+  };
+
+  const stopHold = () => {
+    if (holdTimeoutRef.current !== null) {
+      window.clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
+    }
+    if (holdIntervalRef.current !== null) {
+      window.clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+    currentActionRef.current = null;
+  };
+
+  const startHold = (action: () => void) => {
+    currentActionRef.current = action;
+    // Start repeating after a short delay to avoid double-firing with onClick
+    holdTimeoutRef.current = window.setTimeout(() => {
+      // Run once when hold engages, then repeat
+      currentActionRef.current?.();
+      holdIntervalRef.current = window.setInterval(() => {
+        currentActionRef.current?.();
+      }, 120);
+    }, 300);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -617,8 +651,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
           onClick={handleIncrement}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            startHold(handleIncrement);
+          }}
+          onMouseUp={stopHold}
+          onMouseLeave={stopHold}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            startHold(handleIncrement);
+          }}
+          onTouchEnd={stopHold}
+          onTouchCancel={stopHold}
           disabled={value >= max}
         >
           +
@@ -638,8 +684,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
           onClick={handleDecrement}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            startHold(handleDecrement);
+          }}
+          onMouseUp={stopHold}
+          onMouseLeave={stopHold}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            startHold(handleDecrement);
+          }}
+          onTouchEnd={stopHold}
+          onTouchCancel={stopHold}
           disabled={value <= 0}
         >
           −
@@ -655,8 +713,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
         onClick={handleDecrement}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          startHold(handleDecrement);
+        }}
+        onMouseUp={stopHold}
+        onMouseLeave={stopHold}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          startHold(handleDecrement);
+        }}
+        onTouchEnd={stopHold}
+        onTouchCancel={stopHold}
         disabled={value <= 0}
       >
         −
@@ -676,8 +746,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100"
+        className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
         onClick={handleIncrement}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          startHold(handleIncrement);
+        }}
+        onMouseUp={stopHold}
+        onMouseLeave={stopHold}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          startHold(handleIncrement);
+        }}
+        onTouchEnd={stopHold}
+        onTouchCancel={stopHold}
         disabled={value >= max}
       >
         +
