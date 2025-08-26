@@ -83,10 +83,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
   if (!playerId) {
     return (
-      <Card>
-        <CardHeader className="pb-4">
+      <Card className="py-4">
+        <CardHeader className="pb-1 px-4">
           <div className="text-center">
-            <div className="grid grid-cols-2 gap-4 mt-3">
+            <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <p className="text-2xl font-bold">-</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -108,10 +108,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
   if (error) {
     return (
-      <Card>
-        <CardHeader className="pb-4">
+      <Card className="py-4">
+        <CardHeader className="pb-1 px-4">
           <div className="text-center">
-            <div className="grid grid-cols-2 gap-4 mt-3">
+            <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -133,7 +133,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 px-4">
           <p className="text-red-500 text-sm text-center">{error}</p>
         </CardContent>
       </Card>
@@ -148,10 +148,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         reliabilityPercentage={currentReliabilityScore}
       />
 
-      <Card>
-        <CardHeader className="pb-4">
+      <Card className="py-4">
+        <CardHeader className="pb-1 px-4">
           <div className="text-center lg:text-left">
-            <div className="grid grid-cols-2 gap-4 mt-3 lg:mt-0 lg:max-w-xs">
+            <div className="grid grid-cols-2 gap-4 mt-2 lg:mt-0 lg:max-w-xs">
               <div>
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -199,11 +199,11 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         </CardHeader>
 
         {stats && (
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 px-4">
             <button
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
-              className="w-full flex items-center justify-between py-2 hover:bg-gray-50 rounded px-2 -mx-2 transition-colors"
+              className="w-full flex items-center justify-between py-1.5 hover:bg-gray-50 rounded px-2 -mx-2 -mt-1 transition-colors"
               aria-expanded={expanded}
             >
               <div className="flex items-center gap-2">
@@ -225,33 +225,33 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
             </button>
 
             {expanded && (
-              <div className="mt-4 space-y-4 border-t pt-4">
+              <div className="mt-3 space-y-3 border-t pt-3">
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <div className="text-xl font-bold text-green-600">
+                  <div className="bg-green-50 p-2.5 rounded-lg">
+                    <div className="text-lg font-bold text-green-600">
                       {stats.resulOverview.wins}
                     </div>
                     <div className="text-xs text-muted-foreground">Wins</div>
                   </div>
-                  <div className="bg-red-50 p-3 rounded-lg">
-                    <div className="text-xl font-bold text-red-600">
+                  <div className="bg-red-50 p-2.5 rounded-lg">
+                    <div className="text-lg font-bold text-red-600">
                       {stats.resulOverview.losses}
                     </div>
                     <div className="text-xs text-muted-foreground">Losses</div>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <div className="text-xl font-bold text-gray-600">
+                  <div className="bg-gray-50 p-2.5 rounded-lg">
+                    <div className="text-lg font-bold text-gray-600">
                       {stats.resulOverview.pending}
                     </div>
                     <div className="text-xs text-muted-foreground">Pending</div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Singles</h4>
+                    <h4 className="text-sm font-medium mb-1.5">Singles</h4>
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-gray-50 p-2 rounded">
+                      <div className="bg-gray-50 p-1.5 rounded">
                         <div className="text-muted-foreground">Avg Partner</div>
                         <div className="font-mono font-medium">
                           {toDecimalString(
@@ -260,7 +260,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                           )}
                         </div>
                       </div>
-                      <div className="bg-gray-50 p-2 rounded">
+                      <div className="bg-gray-50 p-1.5 rounded">
                         <div className="text-muted-foreground">
                           Avg Opponent
                         </div>
@@ -275,9 +275,9 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Doubles</h4>
+                    <h4 className="text-sm font-medium mb-1.5">Doubles</h4>
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-gray-50 p-2 rounded">
+                      <div className="bg-gray-50 p-1.5 rounded">
                         <div className="text-muted-foreground">Avg Partner</div>
                         <div className="font-mono font-medium">
                           {toDecimalString(
@@ -286,7 +286,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                           )}
                         </div>
                       </div>
-                      <div className="bg-gray-50 p-2 rounded">
+                      <div className="bg-gray-50 p-1.5 rounded">
                         <div className="text-muted-foreground">
                           Avg Opponent
                         </div>

@@ -206,7 +206,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
             action={actionNode}
           />
         </div>
-        <div className="mt-8 lg:mt-0">
+        <div className="mt-6 lg:mt-0">
           <PlayerStatsRatings
             playerId={player.id}
             singles={player.stats?.singles ?? null}
@@ -216,7 +216,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
           />
         </div>
       </div>
-      <div className="mt-8">
+      <div className="mt-6">
         <MatchHistory playerId={player.id} isSelf={isSelf} />
       </div>
 

@@ -69,7 +69,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
 
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <div className="flex items-start space-x-4">
           <Avatar
             src={imageUrl}
@@ -78,10 +78,10 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
             onClick={() => setIsModalOpen(true)}
           />
           <div className="flex-1">
-            <h1 className="text-2xl font-bold mb-1">
+            <h1 className="text-2xl font-bold mb-0.5">
               {name?.trim().replace(/\s+/g, " ")}
             </h1>
-            <p className="text-muted-foreground mb-3">
+            <p className="text-muted-foreground mb-2">
               {metaParts.join(" · ")}
             </p>
 
