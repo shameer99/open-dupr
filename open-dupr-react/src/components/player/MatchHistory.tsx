@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { getOtherUserMatchHistory, getMyProfile } from "@/lib/api";
 import MatchCard from "@/components/player/MatchCard";
 import { Button } from "@/components/ui/button";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import {
   MatchCardSkeleton,
   LoadingSpinner,
@@ -113,19 +112,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     }
   }, []);
 
-  const handleRefresh = useCallback(async () => {
-    if (!playerId) return;
-    try {
-      setLoading(true);
-      setMatches([]);
-      setOffset(0);
-      setHasMore(true);
-      setTotalCount(null);
-      await loadPage(playerId, 0);
-    } finally {
-      setLoading(false);
-    }
-  }, [playerId, loadPage]);
+  // Refresh is controlled by the parent profile container
 
   useEffect(() => {
     if (!playerId) return;
@@ -173,61 +160,59 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const count = typeof totalCount === "number" ? totalCount : matches.length;
 
   return (
-    <PullToRefresh onRefresh={handleRefresh} disabled={loading}>
-      <div>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-bold">Match History</h2>
-            <p className="text-sm text-muted-foreground">
-              {count} {count === 1 ? "match" : "matches"}
-            </p>
-          </div>
-          {isSelf && (
-            <Button variant="default" onClick={() => navigate("/record-match")}>
-              Add Match
-            </Button>
-          )}
+    <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold">Match History</h2>
+          <p className="text-sm text-muted-foreground">
+            {count} {count === 1 ? "match" : "matches"}
+          </p>
         </div>
-
-        {loading && (
-          <div className="mt-4 space-y-3">
-            {[1, 2, 3].map((i) => (
-              <MatchCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-        {!loading && !error && matches.length === 0 && (
-          <p className="text-muted-foreground mt-2">No matches found.</p>
-        )}
-        {!error && matches.length > 0 && (
-          <div className="mt-4 space-y-3">
-            {matches.map((match) => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                currentUserId={currentUserId || undefined}
-                profileUserId={playerId}
-                onMatchUpdate={() => {
-                  if (playerId) {
-                    loadPage(playerId, 0);
-                  }
-                }}
-              />
-            ))}
-            <div ref={loaderRef} />
-            {isLoadingMore && (
-              <div className="py-4 text-center">
-                <LoadingSpinner size="sm" />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Loading more...
-                </p>
-              </div>
-            )}
-          </div>
+        {isSelf && (
+          <Button variant="default" onClick={() => navigate("/record-match")}>
+            Add Match
+          </Button>
         )}
       </div>
-    </PullToRefresh>
+
+      {loading && (
+        <div className="mt-4 space-y-3">
+          {[1, 2, 3].map((i) => (
+            <MatchCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {!loading && !error && matches.length === 0 && (
+        <p className="text-muted-foreground mt-2">No matches found.</p>
+      )}
+      {!error && matches.length > 0 && (
+        <div className="mt-4 space-y-3">
+          {matches.map((match) => (
+            <MatchCard
+              key={match.id}
+              match={match}
+              currentUserId={currentUserId || undefined}
+              profileUserId={playerId}
+              onMatchUpdate={() => {
+                if (playerId) {
+                  loadPage(playerId, 0);
+                }
+              }}
+            />
+          ))}
+          <div ref={loaderRef} />
+          {isLoadingMore && (
+            <div className="py-4 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading more...
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
