@@ -7,6 +7,7 @@ import {
   SearchResultSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
+import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { apiFetch } from "@/lib/api";
 import { useHeader } from "@/lib/header-context";
 
@@ -71,6 +72,13 @@ const SearchPage: React.FC = () => {
     [query, offset]
   );
 
+  const handleRefresh = useCallback(async () => {
+    if (query.trim()) {
+      setOffset(0);
+      await performSearch(true);
+    }
+  }, [query, performSearch]);
+
   const handleBackClick = useCallback(() => {
     navigate(-1);
   }, [navigate]);
@@ -85,7 +93,7 @@ const SearchPage: React.FC = () => {
       setShowBackButton(false);
       setOnBackClick(undefined);
     };
-  }, [setTitle, setShowBackButton, setOnBackClick]);
+  }, [setTitle, setShowBackButton, setOnBackClick, handleBackClick]);
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -108,65 +116,74 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <form onSubmit={handleSubmit} className="mb-6">
-        <div className="flex gap-2">
-          <Input
-            type="text"
-            placeholder="Search for players..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1"
-          />
-          <Button type="submit" disabled={loading || !query.trim()}>
-            Search
-          </Button>
-        </div>
-      </form>
-      {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
+    <PullToRefresh
+      onRefresh={handleRefresh}
+      disabled={loading || !query.trim()}
+    >
+      <div className="container mx-auto p-4 max-w-2xl">
+        <form onSubmit={handleSubmit} className="mb-6">
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              placeholder="Search for players..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit" disabled={loading || !query.trim()}>
+              Search
+            </Button>
+          </div>
+        </form>
+        {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
 
-      {hits.length === 0 && !loading && query.trim() ? (
-        <p className="text-muted-foreground">No players found for "{query}".</p>
-      ) : hits.length === 0 && !loading ? (
-        <p className="text-muted-foreground">Enter a query to find players.</p>
-      ) : loading && hits.length === 0 ? (
-        <SearchResultSkeleton />
-      ) : (
-        <div className="space-y-2">
-          {hits.map((h) => (
-            <button
-              key={h.id}
-              className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border"
-              onClick={() => navigate(`/player/${h.id}`)}
-              type="button"
-            >
-              <Avatar src={h.imageUrl} name={h.fullName} size="md" />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">
-                  {h.fullName?.trim().replace(/\s+/g, " ")}
-                </p>
-                <p className="text-sm text-muted-foreground truncate">
-                  {h.location || ""}
+        {hits.length === 0 && !loading && query.trim() ? (
+          <p className="text-muted-foreground">
+            No players found for "{query}".
+          </p>
+        ) : hits.length === 0 && !loading ? (
+          <p className="text-muted-foreground">
+            Enter a query to find players.
+          </p>
+        ) : loading && hits.length === 0 ? (
+          <SearchResultSkeleton />
+        ) : (
+          <div className="space-y-2">
+            {hits.map((h) => (
+              <button
+                key={h.id}
+                className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border"
+                onClick={() => navigate(`/player/${h.id}`)}
+                type="button"
+              >
+                <Avatar src={h.imageUrl} name={h.fullName} size="md" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">
+                    {h.fullName?.trim().replace(/\s+/g, " ")}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {h.location || ""}
+                  </p>
+                </div>
+                <div className="text-right text-sm text-muted-foreground">
+                  <div>{h.stats?.singles ? `S: ${h.stats.singles}` : ""}</div>
+                  <div>{h.stats?.doubles ? `D: ${h.stats.doubles}` : ""}</div>
+                </div>
+              </button>
+            ))}
+            <div ref={loaderRef} />
+            {loading && hits.length > 0 && (
+              <div className="py-3 text-center">
+                <LoadingSpinner size="sm" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Loading more...
                 </p>
               </div>
-              <div className="text-right text-sm text-muted-foreground">
-                <div>{h.stats?.singles ? `S: ${h.stats.singles}` : ""}</div>
-                <div>{h.stats?.doubles ? `D: ${h.stats.doubles}` : ""}</div>
-              </div>
-            </button>
-          ))}
-          <div ref={loaderRef} />
-          {loading && hits.length > 0 && (
-            <div className="py-3 text-center">
-              <LoadingSpinner size="sm" />
-              <p className="text-sm text-muted-foreground mt-2">
-                Loading more...
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </PullToRefresh>
   );
 };
 

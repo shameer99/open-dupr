@@ -12,6 +12,7 @@ import {
   FollowUserListSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
+import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
 import type { FollowUser, Player } from "@/lib/types";
@@ -276,6 +277,33 @@ const FollowersFollowingPage: React.FC = () => {
     handleBackClick,
   ]);
 
+  const handleRefresh = useCallback(async () => {
+    if (!id) return;
+
+    try {
+      setListLoading(true);
+      setError(null);
+
+      if (activeTab === "followers") {
+        setFollowers([]);
+        setFollowersOffset(0);
+        setFollowersHasMore(true);
+        await loadFollowersPage(parseInt(id), 0);
+      } else {
+        setFollowing([]);
+        setFollowingOffset(0);
+        setFollowingHasMore(true);
+        await loadFollowingPage(parseInt(id), 0);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : `Failed to load ${activeTab}`
+      );
+    } finally {
+      setListLoading(false);
+    }
+  }, [id, activeTab, loadFollowersPage, loadFollowingPage]);
+
   if (pageLoading) {
     return (
       <div className="container mx-auto p-4 max-w-2xl">
@@ -297,100 +325,102 @@ const FollowersFollowingPage: React.FC = () => {
     activeTab === "followers" ? followersHasMore : followingHasMore;
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex border-b border-gray-200 mb-6">
-        <button
-          onClick={() => handleTabChange("followers")}
-          className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
-            activeTab === "followers"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Followers
-          {typeof followersCount === "number" && (
-            <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {followersCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => handleTabChange("following")}
-          className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
-            activeTab === "following"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Following
-          {typeof followingCount === "number" && (
-            <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {followingCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {listLoading && currentList.length === 0 ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
-            >
-              <div className="h-12 w-12 rounded-full bg-gray-200" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-32 bg-gray-200 rounded" />
-                <div className="h-3 w-24 bg-gray-200 rounded" />
-              </div>
-            </div>
-          ))}
+    <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
+      <div className="container mx-auto p-4 max-w-2xl">
+        <div className="flex border-b border-gray-200 mb-6">
+          <button
+            onClick={() => handleTabChange("followers")}
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+              activeTab === "followers"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Followers
+            {typeof followersCount === "number" && (
+              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                {followersCount}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleTabChange("following")}
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+              activeTab === "following"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Following
+            {typeof followingCount === "number" && (
+              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                {followingCount}
+              </span>
+            )}
+          </button>
         </div>
-      ) : currentList.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">
-          No {activeTab} to display.
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {currentList.map((user) => (
-            <div
-              key={user.id}
-              className="flex items-center gap-3 p-3 rounded-lg border"
-            >
+
+        {listLoading && currentList.length === 0 ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
-                className="flex items-center gap-3 flex-1 cursor-pointer"
-                onClick={() => handleUserClick(user.id)}
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
               >
-                <Avatar src={user.profileImage} name={user.name} size="md" />
-                <div className="flex-1">
-                  <p className="font-medium">
-                    {user.name?.trim().replace(/\s+/g, " ")}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Click to view profile
-                  </p>
+                <div className="h-12 w-12 rounded-full bg-gray-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded" />
+                  <div className="h-3 w-24 bg-gray-200 rounded" />
                 </div>
               </div>
-              {selfProfile && user.id !== selfProfile.id && (
-                <FollowButton
-                  user={user}
-                  onFollowStateChange={handleFollowStateChange}
-                />
-              )}
-            </div>
-          ))}
-          <div ref={loaderRef} />
-          {(isLoadingMore || listLoading) && hasMore && (
-            <div className="py-4 text-center">
-              <LoadingSpinner size="sm" />
-              <p className="text-sm text-muted-foreground mt-2">
-                Loading more...
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        ) : currentList.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">
+            No {activeTab} to display.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {currentList.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-3 p-3 rounded-lg border"
+              >
+                <div
+                  className="flex items-center gap-3 flex-1 cursor-pointer"
+                  onClick={() => handleUserClick(user.id)}
+                >
+                  <Avatar src={user.profileImage} name={user.name} size="md" />
+                  <div className="flex-1">
+                    <p className="font-medium">
+                      {user.name?.trim().replace(/\s+/g, " ")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Click to view profile
+                    </p>
+                  </div>
+                </div>
+                {selfProfile && user.id !== selfProfile.id && (
+                  <FollowButton
+                    user={user}
+                    onFollowStateChange={handleFollowStateChange}
+                  />
+                )}
+              </div>
+            ))}
+            <div ref={loaderRef} />
+            {(isLoadingMore || listLoading) && hasMore && (
+              <div className="py-4 text-center">
+                <LoadingSpinner size="sm" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Loading more...
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </PullToRefresh>
   );
 };
 
