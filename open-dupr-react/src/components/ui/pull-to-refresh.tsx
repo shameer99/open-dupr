@@ -34,6 +34,10 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
       const container = containerRef.current;
       if (!container) return;
 
+      // Only enable pull-to-refresh when this container is the scroller
+      const canScroll = container.scrollHeight > container.clientHeight + 1;
+      if (!canScroll) return;
+
       const scrollTop = container.scrollTop;
       // Allow pull-to-refresh from the top with more tolerance for padding/margins
       if (scrollTop > 20) return;
@@ -54,6 +58,10 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
       const container = containerRef.current;
       if (!container) return;
+
+      // If container isn't scrollable, do nothing so the page can scroll normally
+      const canScroll = container.scrollHeight > container.clientHeight + 1;
+      if (!canScroll) return;
 
       currentY.current = e.touches[0].clientY;
       const deltaY = currentY.current - startY.current;
@@ -133,6 +141,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
       style={{
         touchAction: "pan-y", // Allow vertical scrolling
         WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
+        overscrollBehaviorY: "contain", // Avoid scroll chaining to body
       }}
     >
       {/* Progress bar - similar to navigation progress */}
