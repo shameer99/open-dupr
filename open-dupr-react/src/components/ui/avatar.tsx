@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 import { cn } from "@/lib/utils";
@@ -26,16 +26,33 @@ const Avatar: React.FC<AvatarProps> = ({
   onClick,
 }) => {
   const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Reset state when src changes
+    setIsLoading(true);
+    setImageError(false);
+  }, [src]);
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setImageError(true);
+  };
+
+  const showMonogram = !src || imageError || isLoading;
+
   const initials = getInitials(name);
   const bgColor = getAvatarColor(name);
-
-  const shouldShowInitials = !src || imageError;
 
   return (
     <div
       className={cn(
         sizeClasses[size],
-        "rounded-full flex items-center justify-center",
+        "rounded-full flex items-center justify-center relative overflow-hidden",
         className,
         {
           "cursor-pointer": !!onClick,
@@ -43,18 +60,30 @@ const Avatar: React.FC<AvatarProps> = ({
       )}
       onClick={onClick}
     >
-      {shouldShowInitials ? (
-        <div
-          className={`${sizeClasses[size]} ${bgColor} rounded-full flex items-center justify-center text-white font-semibold`}
-        >
-          {initials}
-        </div>
-      ) : (
+      {/* Monogram */}
+      <div
+        className={cn(
+          "w-full h-full flex items-center justify-center text-white font-semibold",
+          "transition-opacity duration-300",
+          bgColor,
+          { "opacity-100": showMonogram, "opacity-0": !showMonogram }
+        )}
+      >
+        {initials}
+      </div>
+
+      {/* Image */}
+      {src && (
         <img
           src={src}
           alt={name}
-          className={`${sizeClasses[size]} rounded-full object-cover`}
-          onError={() => setImageError(true)}
+          className={cn(
+            "absolute top-0 left-0 w-full h-full object-cover",
+            "transition-opacity duration-300",
+            { "opacity-100": !showMonogram, "opacity-0": showMonogram }
+          )}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
         />
       )}
     </div>
