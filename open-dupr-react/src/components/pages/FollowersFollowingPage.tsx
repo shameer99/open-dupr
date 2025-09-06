@@ -61,8 +61,28 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(true);
         const response = await getFollowers(userId, startOffset, PAGE_SIZE);
         const newItems: FollowUser[] = response?.results ?? [];
+
+        const newItemsWithRatings = await Promise.all(
+          newItems.map(async (user) => {
+            try {
+              const playerDetails = await getPlayerById(user.id);
+              return {
+                ...user,
+                singlesRating: playerDetails?.result?.stats?.singles,
+                doublesRating: playerDetails?.result?.stats?.doubles,
+              };
+            } catch (error) {
+              // Gracefully handle cases where a single user's rating fails to load
+              console.error(`Failed to load rating for user ${user.id}`, error);
+              return user; // Return the user without ratings
+            }
+          })
+        );
+
         setFollowers((prev) =>
-          startOffset === 0 ? newItems : [...prev, ...newItems]
+          startOffset === 0
+            ? newItemsWithRatings
+            : [...prev, ...newItemsWithRatings]
         );
         setFollowersHasMore(newItems.length === PAGE_SIZE);
         setFollowersOffset(startOffset + newItems.length);
@@ -83,8 +103,27 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(true);
         const response = await getFollowing(userId, startOffset, PAGE_SIZE);
         const newItems: FollowUser[] = response?.results ?? [];
+
+        const newItemsWithRatings = await Promise.all(
+          newItems.map(async (user) => {
+            try {
+              const playerDetails = await getPlayerById(user.id);
+              return {
+                ...user,
+                singlesRating: playerDetails?.result?.stats?.singles,
+                doublesRating: playerDetails?.result?.stats?.doubles,
+              };
+            } catch (error) {
+              console.error(`Failed to load rating for user ${user.id}`, error);
+              return user; // Return the user without ratings
+            }
+          })
+        );
+
         setFollowing((prev) =>
-          startOffset === 0 ? newItems : [...prev, ...newItems]
+          startOffset === 0
+            ? newItemsWithRatings
+            : [...prev, ...newItemsWithRatings]
         );
         setFollowingHasMore(newItems.length === PAGE_SIZE);
         setFollowingOffset(startOffset + newItems.length);
@@ -395,9 +434,24 @@ const FollowersFollowingPage: React.FC = () => {
                     <p className="font-medium">
                       {user.name?.trim().replace(/\s+/g, " ")}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      Click to view profile
-                    </p>
+                    <div className="flex items-center gap-4 text-sm">
+                      {user.singlesRating && (
+                        <p className="text-muted-foreground">
+                          S:{" "}
+                          <span className="font-semibold text-foreground">
+                            {parseFloat(user.singlesRating).toFixed(2)}
+                          </span>
+                        </p>
+                      )}
+                      {user.doublesRating && (
+                        <p className="text-muted-foreground">
+                          D:{" "}
+                          <span className="font-semibold text-foreground">
+                            {parseFloat(user.doublesRating).toFixed(2)}
+                          </span>
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {selfProfile && user.id !== selfProfile.id && (
