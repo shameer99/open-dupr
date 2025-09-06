@@ -93,22 +93,24 @@ export default function LoginPage() {
                 Create one on DUPR
               </a>
             </p>
-            <p className="mt-2">
-              Open DUPR is a custom frontend for DUPR. All data is handled by
-              the official DUPR backend. Learn more on{" "}
-              <a
-                href="https://github.com/shameer99/open-dupr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                GitHub
-              </a>
-              .
-            </p>
           </div>
         </div>
       </form>
+      <div className="absolute bottom-4 w-full max-w-sm text-center text-xs text-muted-foreground">
+        <p>
+          Open DUPR is a custom frontend for DUPR. All data is handled by the
+          official DUPR backend. Learn more on{" "}
+          <a
+            href="https://github.com/shameer99/open-dupr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            GitHub
+          </a>
+          .
+        </p>
+      </div>
     </div>
   );
 }
