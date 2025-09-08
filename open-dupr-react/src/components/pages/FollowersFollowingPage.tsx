@@ -37,9 +37,7 @@ const FollowersFollowingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [followers, setFollowers] = useState<FollowUser[]>([]);
   const [following, setFollowing] = useState<FollowUser[]>([]);
-  // Page-level loading: header info (name, image, counts)
   const [pageLoading, setPageLoading] = useState(true);
-  // List-level loading when switching tabs or first page fetch
   const [listLoading, setListLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [targetName, setTargetName] = useState<string>("");
@@ -99,7 +97,6 @@ const FollowersFollowingPage: React.FC = () => {
     []
   );
 
-  // Initial load and when visiting a different player id
   useEffect(() => {
     const fetchPage = async () => {
       if (!id) return;
@@ -111,7 +108,6 @@ const FollowersFollowingPage: React.FC = () => {
           "Rendering content",
         ]);
 
-        // Reset lists/state when navigating to a different user
         setFollowers([]);
         setFollowing([]);
         setFollowersOffset(0);
@@ -150,7 +146,6 @@ const FollowersFollowingPage: React.FC = () => {
 
         completeLoadingStep("Loading social data");
 
-        // Load the first page for the currently active tab without triggering a full-page skeleton
         setListLoading(true);
         if (activeTab === "followers") {
           await loadFollowersPage(userId, 0);
@@ -176,7 +171,6 @@ const FollowersFollowingPage: React.FC = () => {
     };
 
     fetchPage();
-    // Only when id changes; avoid re-running on tab switches
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -223,7 +217,6 @@ const FollowersFollowingPage: React.FC = () => {
     if (!id) return;
     const userId = parseInt(id);
 
-    // If the target tab has not been loaded yet, fetch its first page and show a list-only loading state
     if (newTab === "followers" && followers.length === 0) {
       setListLoading(true);
       await loadFollowersPage(userId, 0);

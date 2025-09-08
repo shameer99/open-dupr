@@ -66,7 +66,6 @@ export async function apiFetch(
     });
 
     if (!response.ok) {
-      // Try to get the actual error message from the response
       let errorMessage = `API request failed with status ${response.status}`;
       let errorData = null;
 
@@ -79,7 +78,7 @@ export async function apiFetch(
           }
         }
       } catch {
-        // If we can't parse the error response, use the generic message
+        void 0;
       }
 
       const error = new Error(errorMessage);
@@ -173,7 +172,6 @@ export async function apiFetch(
   }
 
   if (!response.ok) {
-    // Try to get the actual error message from the response
     let errorMessage = `API request failed with status ${response.status}`;
     let errorData = null;
 
@@ -186,7 +184,7 @@ export async function apiFetch(
         }
       }
     } catch {
-      // If we can't parse the error response, use the generic message
+      void 0;
     }
 
     const error = new Error(errorMessage);

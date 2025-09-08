@@ -67,7 +67,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const PAGE_SIZE = 25;
 
-  // Get current logged-in user's ID
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -111,9 +110,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       setIsLoadingMore(false);
     }
   }, []);
-
-  // Refresh is controlled by the parent profile container
-
   useEffect(() => {
     if (!playerId) return;
     const run = async () => {
