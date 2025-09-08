@@ -36,8 +36,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4">
-      <div className="w-full max-w-sm text-center">
+    <div className="flex min-h-screen flex-col bg-background px-4">
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="w-full max-w-sm text-center">
         <div className="flex justify-center items-center mb-4">
           <img src="/logo.png" alt="Open DUPR Logo" className="w-24 h-24" />
         </div>
@@ -45,70 +46,75 @@ export default function LoginPage() {
         <p className="text-muted-foreground mt-2">
           A faster, cleaner, and more open way to access your DUPR data.
         </p>
+        </div>
+        <form onSubmit={handleSubmit} className="w-full max-w-sm mt-8">
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email" className="text-left">
+                DUPR Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password" className="text-left">
+                DUPR Password
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          </div>
+          <div className="flex flex-col gap-4 mt-6">
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Sign in"}
+            </Button>
+            <div className="text-xs text-center text-muted-foreground">
+              <p>
+                Don't have an account?{" "}
+                <a
+                  href="https://dashboard.dupr.com/signup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  Create one on DUPR
+                </a>
+              </p>
+            </div>
+          </div>
+        </form>
       </div>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm mt-8">
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email" className="text-left">
-              DUPR Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-white"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password" className="text-left">
-              DUPR Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-white"
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      <footer className="w-full py-4">
+        <div className="text-xs text-center text-muted-foreground max-w-xl mx-auto px-4">
+          <p>
+            Open DUPR is a custom frontend for DUPR. All data is handled by the
+            official DUPR backend. Learn more on{" "}
+            <a
+              href="https://github.com/shameer99/open-dupr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              GitHub
+            </a>
+            .
+          </p>
         </div>
-        <div className="flex flex-col gap-4 mt-6">
-          <Button className="w-full" type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
-          </Button>
-          <div className="text-xs text-center text-muted-foreground">
-            <p>
-              Don't have an account?{" "}
-              <a
-                href="https://dashboard.dupr.com/signup"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                Create one on DUPR
-              </a>
-            </p>
-            <p className="mt-2">
-              Open DUPR is a custom frontend for DUPR. All data is handled by
-              the official DUPR backend. Learn more on{" "}
-              <a
-                href="https://github.com/shameer99/open-dupr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                GitHub
-              </a>
-              .
-            </p>
-          </div>
-        </div>
-      </form>
+      </footer>
     </div>
   );
 }
