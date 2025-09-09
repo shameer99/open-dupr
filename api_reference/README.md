@@ -73,5 +73,3 @@ This folder contains all the API documentation and analysis files for the Open D
 - **Analysis Date**: August 2025
 
 ---
-
-This documentation provides everything needed to implement the Open DUPR web client as outlined in the [implementation plan](../implementation_plan.md).
