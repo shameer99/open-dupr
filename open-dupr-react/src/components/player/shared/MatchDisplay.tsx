@@ -101,9 +101,12 @@ export function MatchScoreDisplay({
 
         return (
           <div key={i} className="text-center">
-            <span className={aGameClass}>{g.a}</span>
-            <span className={`${spacingClass} text-foreground`}>–</span>
-            <span className={bGameClass}>{g.b}</span>
+            <div className="text-xs text-muted-foreground mb-1">Game {i + 1}:</div>
+            <div>
+              <span className={aGameClass}>{g.a}</span>
+              <span className={`${spacingClass} text-foreground`}>–</span>
+              <span className={bGameClass}>{g.b}</span>
+            </div>
           </div>
         );
       })}
