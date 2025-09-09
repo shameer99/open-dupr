@@ -408,9 +408,9 @@ const MatchDetailsPage: React.FC = () => {
         <CardHeader className="px-6 pt-6 pb-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              {(match.eventName || match.venue) && (
+              {match.eventName && (
                 <CardTitle className="text-xl">
-                  {match.eventName || match.venue}
+                  {match.eventName}
                 </CardTitle>
               )}
               <div className="text-sm text-muted-foreground font-mono">
