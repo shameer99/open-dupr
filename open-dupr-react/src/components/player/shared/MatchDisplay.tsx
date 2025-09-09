@@ -100,10 +100,13 @@ export function MatchScoreDisplay({
           : "text-muted-foreground";
 
         return (
-          <div key={i} className="text-center">
-            <span className={aGameClass}>{g.a}</span>
-            <span className={`${spacingClass} text-foreground`}>–</span>
-            <span className={bGameClass}>{g.b}</span>
+          <div key={i} className="flex items-center gap-2">
+            <div className="text-xs text-muted-foreground whitespace-nowrap">Game {i + 1}:</div>
+            <div className="flex-1 text-center">
+              <span className={aGameClass}>{g.a}</span>
+              <span className={`${spacingClass} text-foreground`}>–</span>
+              <span className={bGameClass}>{g.b}</span>
+            </div>
           </div>
         );
       })}
