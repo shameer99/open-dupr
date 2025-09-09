@@ -7,6 +7,7 @@ import { AuthProvider } from "./lib/AuthProvider.tsx";
 import { LoadingProvider } from "./lib/loading-context.tsx";
 import { HeaderProvider } from "./lib/header-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
+import AboutPage from "./components/pages/AboutPage.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
 
 import FollowersFollowingPage from "./components/pages/FollowersFollowingPage.tsx";
@@ -28,6 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Routes>
               <Route path="/" element={<App />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route
                 path="/profile"
                 element={

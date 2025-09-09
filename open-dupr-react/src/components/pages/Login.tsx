@@ -104,15 +104,13 @@ export default function LoginPage() {
         <div className="text-xs text-center text-muted-foreground max-w-xl mx-auto px-4">
           <p>
             Open DUPR is a custom frontend for DUPR. All data is handled by the
-            official DUPR backend. Learn more on{" "}
-            <a
-              href="https://github.com/shameer99/open-dupr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
+            official DUPR backend.{" "}
+            <button
+              onClick={() => navigate("/about")}
+              className="underline hover:text-foreground transition-colors"
             >
-              GitHub
-            </a>
+              Learn more about Open DUPR
+            </button>
             .
           </p>
         </div>

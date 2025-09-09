@@ -4,7 +4,15 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft } from "lucide-react";
+import {
+  Menu,
+  User,
+  Search,
+  Plus,
+  LogOut,
+  ArrowLeft,
+  Info,
+} from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 const AppHeader: React.FC = () => {
@@ -18,7 +26,7 @@ const AppHeader: React.FC = () => {
     showHamburgerMenu,
   } = useHeader();
   const navigate = useNavigate();
-  const { logout: authLogout } = useAuth();
+  const { logout: authLogout, token } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,9 +54,18 @@ const AppHeader: React.FC = () => {
     navigate("/record-match");
   };
 
+  const goToAbout = () => {
+    setOpen(false);
+    navigate("/about");
+  };
+
   const logout = () => {
     setOpen(false);
     authLogout();
+    navigate("/login");
+  };
+
+  const goToLogin = () => {
     navigate("/login");
   };
 
@@ -127,54 +144,73 @@ const AppHeader: React.FC = () => {
             </Button>
           )}
 
-          {showHamburgerMenu && (
-            <div className="relative" ref={menuRef}>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setOpen((v) => !v)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
+          {token ? (
+            showHamburgerMenu && (
+              <div className="relative" ref={menuRef}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setOpen((v) => !v)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
 
-              {open && (
-                <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
-                  <button
-                    type="button"
-                    onClick={goToProfile}
-                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                  >
-                    <User className="h-5 w-5" />
-                    My Profile
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goToSearch}
-                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                  >
-                    <Search className="h-5 w-5" />
-                    Search Players
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goToRecordMatch}
-                    className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
-                  >
-                    <Plus className="h-5 w-5" />
-                    Add Match
-                  </button>
-                  <div className="my-1 h-px bg-border" />
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Log out
-                  </button>
-                </div>
-              )}
-            </div>
+                {open && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
+                    <button
+                      type="button"
+                      onClick={goToProfile}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <User className="h-5 w-5" />
+                      My Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToSearch}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <Search className="h-5 w-5" />
+                      Search Players
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToRecordMatch}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <Plus className="h-5 w-5" />
+                      Add Match
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToAbout}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <Info className="h-5 w-5" />
+                      About Open DUPR
+                    </button>
+                    <div className="my-1 h-px bg-border" />
+                    <button
+                      type="button"
+                      onClick={logout}
+                      className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
+                    >
+                      <LogOut className="h-5 w-5" />
+                      Log out
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToLogin}
+              className="text-sm"
+            >
+              Sign In
+            </Button>
           )}
         </div>
       </div>
