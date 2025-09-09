@@ -407,19 +407,14 @@ const MatchDetailsPage: React.FC = () => {
       <Card className="rounded-xl">
         <CardHeader className="px-6 pt-6 pb-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              {(match.eventName || match.venue) && (
-                <CardTitle className="text-xl">
-                  {match.eventName || match.venue}
-                </CardTitle>
-              )}
-              <div className="text-sm text-muted-foreground font-mono">
-                ID: {match.id}
-              </div>
-            </div>
+            {match.eventName && (
+              <CardTitle className="text-xl">
+                {match.eventName}
+              </CardTitle>
+            )}
             {match.venue && (
               <div className="text-sm text-muted-foreground">
-                {match.location
+                {match.location && match.location.trim() !== match.venue.trim()
                   ? `${match.venue} • ${match.location}`
                   : match.venue}
               </div>
@@ -520,6 +515,12 @@ const MatchDetailsPage: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div className="mt-6 pt-4 border-t">
+            <div className="text-xs text-muted-foreground font-mono text-center">
+              Match ID: {match.id}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
