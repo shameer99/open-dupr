@@ -20,6 +20,15 @@ import FollowButton from "@/components/player/FollowButton";
 
 type TabType = "followers" | "following";
 
+const formatRating = (value: unknown): string => {
+  if (value == null) return "-";
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value.toFixed(3) : "-";
+  }
+  const text = String(value).trim();
+  return text.length > 0 ? text : "-";
+};
+
 const FollowersFollowingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selfProfile, setSelfProfile] = useState<Player | null>(null);
@@ -50,10 +59,43 @@ const FollowersFollowingPage: React.FC = () => {
   const [followersHasMore, setFollowersHasMore] = useState<boolean>(true);
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [userRatings, setUserRatings] = useState<Record<number, { singles: string; doubles: string }>>({});
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
   const PAGE_SIZE = 50;
+
+  const fetchUserRatings = useCallback(async (userIds: number[]) => {
+    const ratingPromises = userIds.map(async (userId) => {
+      try {
+        const playerData = await getPlayerById(userId);
+        const ratings = playerData?.result?.stats;
+        if (ratings) {
+          return {
+            userId,
+            ratings: {
+              singles: formatRating(ratings.singles),
+              doubles: formatRating(ratings.doubles),
+            },
+          };
+        }
+      } catch (err) {
+        console.warn(`Failed to fetch ratings for user ${userId}:`, err);
+      }
+      return null;
+    });
+
+    const results = await Promise.all(ratingPromises);
+    const newRatings: Record<number, { singles: string; doubles: string }> = {};
+    
+    results.forEach((result) => {
+      if (result) {
+        newRatings[result.userId] = result.ratings;
+      }
+    });
+
+    setUserRatings((prev) => ({ ...prev, ...newRatings }));
+  }, []);
 
   const loadFollowersPage = useCallback(
     async (userId: number, startOffset: number) => {
@@ -66,6 +108,10 @@ const FollowersFollowingPage: React.FC = () => {
         );
         setFollowersHasMore(newItems.length === PAGE_SIZE);
         setFollowersOffset(startOffset + newItems.length);
+        
+        // Fetch ratings for new users
+        const newUserIds = newItems.map((user) => user.id);
+        await fetchUserRatings(newUserIds);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load followers"
@@ -74,7 +120,7 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(false);
       }
     },
-    []
+    [fetchUserRatings]
   );
 
   const loadFollowingPage = useCallback(
@@ -88,6 +134,10 @@ const FollowersFollowingPage: React.FC = () => {
         );
         setFollowingHasMore(newItems.length === PAGE_SIZE);
         setFollowingOffset(startOffset + newItems.length);
+        
+        // Fetch ratings for new users
+        const newUserIds = newItems.map((user) => user.id);
+        await fetchUserRatings(newUserIds);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load following"
@@ -96,7 +146,7 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(false);
       }
     },
-    []
+    [fetchUserRatings]
   );
 
   // Initial load and when visiting a different player id
@@ -118,6 +168,7 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowingOffset(0);
         setFollowersHasMore(true);
         setFollowingHasMore(true);
+        setUserRatings({});
 
         const userId = parseInt(id);
 
@@ -395,9 +446,20 @@ const FollowersFollowingPage: React.FC = () => {
                     <p className="font-medium">
                       {user.name?.trim().replace(/\s+/g, " ")}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      Click to view profile
-                    </p>
+                    <div className="flex gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">S:</span>
+                        <span className="font-mono font-medium">
+                          {userRatings[user.id]?.singles || "-"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">D:</span>
+                        <span className="font-mono font-medium">
+                          {userRatings[user.id]?.doubles || "-"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 {selfProfile && user.id !== selfProfile.id && (
