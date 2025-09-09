@@ -86,7 +86,7 @@ const AppHeader: React.FC = () => {
           <button
             type="button"
             onClick={goToProfile}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1"
             aria-label="Go to profile"
           >
             <img
