@@ -71,6 +71,8 @@ bun run build
 Coming Soon™️
 
 - Friends feed
+- Add multiple games in a match
+- More game formats e.g. Round Robin
 - Player ratings on follower/following page
 - Player ratings on the add teammate/opponent view
 - Recent players in additon to following/followers on add teammate/opponent view

@@ -28,64 +28,83 @@ export default function AboutPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold tracking-tight">
-          About Open DUPR
-        </h1>
+        <h1 className="text-lg font-semibold tracking-tight">About</h1>
         <div className="w-10" />
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
-        <div className="w-full max-w-2xl text-center space-y-6">
-          <div className="flex justify-center items-center mb-6">
-            <img src="/logo.png" alt="Open DUPR Logo" className="w-24 h-24" />
+        <div className="w-full max-w-2xl text-center space-y-4">
+          <div className="flex justify-center items-center">
+            <img src="/logo.png" alt="Open DUPR Logo" className="w-20 h-20" />
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold">Open DUPR</h1>
-            <p className="text-xl text-muted-foreground">
-              A faster, cleaner, and more open way to access your DUPR data.
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold">Open DUPR</h1>
+            <p className="text-lg text-muted-foreground">
+              A faster, cleaner way to access your DUPR data.
             </p>
           </div>
 
-          <Card className="p-6 text-left space-y-4">
-            <h2 className="text-2xl font-semibold">About Open DUPR</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Open DUPR is a custom frontend for DUPR (Dynamic Universal
-              Pickleball Rating) that provides a faster, cleaner, and more
-              intuitive interface for accessing your pickleball data. Built with
-              modern web technologies, it offers an enhanced user experience
-              while maintaining full compatibility with the official DUPR
-              backend.
-            </p>
+          <Card className="p-4 text-left space-y-4">
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  What is Open DUPR?
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Open DUPR is a custom frontend for DUPR that provides a
+                  faster, cleaner interface for accessing your pickleball data.
+                  Built with modern web technologies, it offers an enhanced user
+                  experience while maintaining full compatibility with the
+                  official DUPR backend.
+                </p>
+              </div>
 
-            <h3 className="text-xl font-semibold mt-6">Key Features</h3>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              <li>Fast and responsive interface</li>
-              <li>Clean, modern design</li>
-              <li>Mobile-optimized experience</li>
-              <li>Real-time match validation</li>
-              <li>Comprehensive player statistics</li>
-              <li>Social features and player discovery</li>
-            </ul>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Why use Open DUPR over the official app?
+                </h3>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground text-sm">
+                  <li>Faster and more responsive interface</li>
+                  <li>Cleaner, modern design without clutter</li>
+                  <li>Streamlined match creation and validation process</li>
+                </ul>
+              </div>
 
-            <h3 className="text-xl font-semibold mt-6">Data & Privacy</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              All data is handled by the official DUPR backend. Open DUPR does
-              not store any personal information or match data. Your credentials
-              are used only to authenticate with DUPR's official API, ensuring
-              your data remains secure and under your control.
-            </p>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">Is my data safe?</h3>
+                <p className="text-muted-foreground text-sm">
+                  Yes! All data is handled by the official DUPR backend. Open
+                  DUPR does not store any personal information or match data.
+                  Your credentials are used only to authenticate with DUPR's
+                  official API.
+                </p>
+              </div>
 
-            <h3 className="text-xl font-semibold mt-6">Open Source</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Open DUPR is an open-source project, meaning the code is freely
-              available for anyone to view, modify, and contribute to. This
-              transparency ensures the project remains trustworthy and
-              community-driven.
-            </p>
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Is Open DUPR open source?
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Yes, Open DUPR is an open-source project. The code is freely
+                  available for anyone to view, modify, and contribute to on
+                  GitHub.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Is Open DUPR affiliated with DUPR?
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  No, Open DUPR is not affiliated with DUPR. All trademarks and
+                  data belong to their respective owners.
+                </p>
+              </div>
+            </div>
           </Card>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               variant="outline"
               onClick={() =>
@@ -108,15 +127,6 @@ export default function AboutPage() {
             </Button>
           </div>
         </div>
-
-        <footer className="w-full py-4">
-          <div className="text-xs text-center text-muted-foreground max-w-xl mx-auto px-4">
-            <p>
-              Open DUPR is not affiliated with DUPR. All trademarks and data
-              belong to their respective owners.
-            </p>
-          </div>
-        </footer>
       </div>
     </div>
   );
