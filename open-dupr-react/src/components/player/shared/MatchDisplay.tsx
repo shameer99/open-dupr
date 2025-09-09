@@ -5,33 +5,73 @@ import {
   getScoreClasses,
 } from "./match-utils";
 
-export function TeamHeader({ team }: { team: MatchTeam }) {
+interface TeamHeaderProps {
+  team: MatchTeam;
+  onClickPlayer?: (id?: number) => void;
+}
+
+export function TeamHeader({ team, onClickPlayer }: TeamHeaderProps) {
   const isDoubles = Boolean(team.player2);
+
+  const handlePlayerClick = (e: React.MouseEvent, playerId?: number) => {
+    e.stopPropagation();
+    if (onClickPlayer && playerId) {
+      onClickPlayer(playerId);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2 min-w-0">
       <div className="flex -space-x-2">
-        <Avatar
-          name={team.player1.fullName}
-          src={team.player1.imageUrl}
-          size="sm"
-          className="ring-2 ring-background"
-        />
-        {isDoubles && (
+        <button
+          type="button"
+          onClick={(e) => handlePlayerClick(e, team.player1.id)}
+          className="hover:ring-2 hover:ring-primary/20 transition-all"
+          disabled={!onClickPlayer}
+        >
           <Avatar
-            name={team.player2!.fullName}
-            src={team.player2!.imageUrl}
+            name={team.player1.fullName}
+            src={team.player1.imageUrl}
             size="sm"
             className="ring-2 ring-background"
           />
+        </button>
+        {isDoubles && (
+          <button
+            type="button"
+            onClick={(e) => handlePlayerClick(e, team.player2!.id)}
+            className="hover:ring-2 hover:ring-primary/20 transition-all"
+            disabled={!onClickPlayer}
+          >
+            <Avatar
+              name={team.player2!.fullName}
+              src={team.player2!.imageUrl}
+              size="sm"
+              className="ring-2 ring-background"
+            />
+          </button>
         )}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-sm font-medium">
-          {isDoubles
-            ? `${getDisplayName(team.player1.fullName)} & ${getDisplayName(
-                team.player2!.fullName
-              )}`
-            : getDisplayName(team.player1.fullName)}
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={(e) => handlePlayerClick(e, team.player1.id)}
+            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm"
+            disabled={!onClickPlayer}
+          >
+            {getDisplayName(team.player1.fullName)}
+          </button>
+          {isDoubles && (
+            <button
+              type="button"
+              onClick={(e) => handlePlayerClick(e, team.player2!.id)}
+              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm"
+              disabled={!onClickPlayer}
+            >
+              {getDisplayName(team.player2!.fullName)}
+            </button>
+          )}
         </div>
       </div>
     </div>

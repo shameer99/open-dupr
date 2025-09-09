@@ -428,7 +428,7 @@ const MatchDetailsPage: React.FC = () => {
         <CardContent className="px-6 pb-6">
           <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-8">
             <div className="justify-self-start">
-              <TeamHeader team={teamA} />
+              <TeamHeader team={teamA} onClickPlayer={handleClickPlayer} />
             </div>
             <div className="flex flex-col items-center justify-center gap-2">
               <MatchScoreDisplay
@@ -438,7 +438,7 @@ const MatchDetailsPage: React.FC = () => {
               />
             </div>
             <div className="justify-self-end">
-              <TeamHeader team={teamB} />
+              <TeamHeader team={teamB} onClickPlayer={handleClickPlayer} />
             </div>
           </div>
 
