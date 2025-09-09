@@ -1,5 +1,9 @@
 # Open DUPR
 
+<div align="center">
+  <img src="open-dupr-react/public/logo.png" alt="Open DUPR Logo" width="200"/>
+</div>
+
 https://opendupr.com
 
 An unofficial, fast, clean, and open-source frontend for [DUPR](https://dupr.com)
