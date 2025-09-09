@@ -66,6 +66,7 @@ export default function AboutPage() {
                 </h3>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground text-sm">
                   <li>Faster and more responsive interface</li>
+                  <li>No ads, popups, or upsells</li>
                   <li>Cleaner, modern design without clutter</li>
                   <li>Streamlined match creation and validation process</li>
                 </ul>
