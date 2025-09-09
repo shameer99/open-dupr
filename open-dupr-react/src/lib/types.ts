@@ -22,6 +22,8 @@ export interface FollowUser {
   name: string;
   profileImage: string;
   isFollow: boolean;
+  singlesRating?: string;
+  doublesRating?: string;
 }
 
 export interface FollowInfo {
