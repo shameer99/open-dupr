@@ -36,16 +36,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background px-4">
+    <div className="flex min-h-screen flex-col bg-background px-4 safe-area-inset-y">
       <div className="flex flex-1 flex-col items-center justify-center">
         <div className="w-full max-w-sm text-center">
-        <div className="flex justify-center items-center mb-4">
-          <img src="/logo.png" alt="Open DUPR Logo" className="w-24 h-24" />
-        </div>
-        <h1 className="text-3xl font-bold">Open DUPR</h1>
-        <p className="text-muted-foreground mt-2">
-          A faster, cleaner, and more open way to access your DUPR data.
-        </p>
+          <div className="flex justify-center items-center mb-4">
+            <img src="/logo.png" alt="Open DUPR Logo" className="w-24 h-24" />
+          </div>
+          <h1 className="text-3xl font-bold">Open DUPR</h1>
+          <p className="text-muted-foreground mt-2">
+            A faster, cleaner, and more open way to access your DUPR data.
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="w-full max-w-sm mt-8">
           <div className="grid gap-4">
@@ -76,7 +76,9 @@ export default function LoginPage() {
                 className="bg-white"
               />
             </div>
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
           </div>
           <div className="flex flex-col gap-4 mt-6">
             <Button className="w-full" type="submit" disabled={loading}>
