@@ -419,7 +419,7 @@ const MatchDetailsPage: React.FC = () => {
             </div>
             {match.venue && (
               <div className="text-sm text-muted-foreground">
-                {match.location
+                {match.location && match.location !== match.venue
                   ? `${match.venue} • ${match.location}`
                   : match.venue}
               </div>
