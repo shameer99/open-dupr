@@ -125,10 +125,7 @@
     padding-top: env(safe-area-inset-top);
   }
 
-  /* Offsets sticky/fixed top elements below iOS status bar in PWA/Safari */
-  .top-safe {
-    top: env(safe-area-inset-top);
-  }
+  /* Removed custom top-safe - use safe-area-inset-top padding on header instead */
 
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
