@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import MatchCard from "@/components/player/MatchCard";
 import {
   ValidationQueueSkeleton,
@@ -139,17 +138,14 @@ const ValidationQueuePage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {pendingMatches.map((match) => (
-              <Card key={match.id}>
-                <CardContent className="p-4">
-                  <MatchCard
-                    match={match}
-                    currentUserId={currentUserId || undefined}
-                    onMatchUpdate={loadPendingMatches}
-                  />
-                </CardContent>
-              </Card>
+              <MatchCard
+                key={match.id}
+                match={match}
+                currentUserId={currentUserId || undefined}
+                onMatchUpdate={loadPendingMatches}
+              />
             ))}
           </div>
         )}
