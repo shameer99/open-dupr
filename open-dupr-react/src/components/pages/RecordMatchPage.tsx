@@ -1005,7 +1005,7 @@ const RecordMatchPage: React.FC = () => {
                   onChange={setMyScore}
                   layout="horizontal"
                 />
-                <div className="text-xl sm:text-2xl font-bold text-gray-400">
+                <div className="text-xl sm:text-2xl font-bold text-gray-400 select-none">
                   VS
                 </div>
                 <ScoreInput
@@ -1072,7 +1072,7 @@ const RecordMatchPage: React.FC = () => {
                     onChange={setMyScore}
                     layout="vertical"
                   />
-                  <div className="text-4xl font-bold text-gray-400">VS</div>
+                  <div className="text-4xl font-bold text-gray-400 select-none">VS</div>
                   <ScoreInput
                     value={opponentScore}
                     onChange={setOpponentScore}
