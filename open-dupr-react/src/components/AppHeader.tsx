@@ -71,7 +71,7 @@ const AppHeader: React.FC = () => {
 
   return (
     <header className="sticky top-0 safe-area-inset-top z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+      <div className="container mx-auto relative flex h-14 items-center justify-between px-4">
         {showBackButton ? (
           <Button
             variant="ghost"
@@ -103,8 +103,8 @@ const AppHeader: React.FC = () => {
         )}
 
         <div
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all ${
-            title ? "opacity-100" : "opacity-0 -translate-y-6"
+          className={`pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 flex items-center transition-opacity ${
+            title ? "opacity-100" : "opacity-0"
           }`}
         >
           <div className="flex items-center gap-3">
