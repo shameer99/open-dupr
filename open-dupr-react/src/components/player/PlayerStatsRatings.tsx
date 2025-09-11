@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
+import RatingHistoryChart from "./RatingHistoryChart";
 import type { UserStats } from "@/lib/types";
 
 interface PlayerStatsRatingsProps {
@@ -247,54 +248,61 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Singles</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-gray-50 p-1 rounded">
-                        <div className="text-muted-foreground">Avg Partner</div>
-                        <div className="font-mono font-medium">
-                          {toDecimalString(
-                            stats.singles?.averagePartnerDupr,
-                            3
-                          )}
+                    <h4 className="text-sm font-medium mb-3">Rating History</h4>
+                    <RatingHistoryChart playerId={playerId} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <h4 className="text-sm font-medium mb-1">Singles</h4>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-gray-50 p-1 rounded">
+                          <div className="text-muted-foreground">Avg Partner</div>
+                          <div className="font-mono font-medium">
+                            {toDecimalString(
+                              stats.singles?.averagePartnerDupr,
+                              3
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-gray-50 p-1 rounded">
-                        <div className="text-muted-foreground">
-                          Avg Opponent
-                        </div>
-                        <div className="font-mono font-medium">
-                          {toDecimalString(
-                            stats.singles?.averageOpponentDupr,
-                            3
-                          )}
+                        <div className="bg-gray-50 p-1 rounded">
+                          <div className="text-muted-foreground">
+                            Avg Opponent
+                          </div>
+                          <div className="font-mono font-medium">
+                            {toDecimalString(
+                              stats.singles?.averageOpponentDupr,
+                              3
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">Doubles</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-gray-50 p-1 rounded">
-                        <div className="text-muted-foreground">Avg Partner</div>
-                        <div className="font-mono font-medium">
-                          {toDecimalString(
-                            stats.doubles?.averagePartnerDupr,
-                            3
-                          )}
+                    <div>
+                      <h4 className="text-sm font-medium mb-1">Doubles</h4>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-gray-50 p-1 rounded">
+                          <div className="text-muted-foreground">Avg Partner</div>
+                          <div className="font-mono font-medium">
+                            {toDecimalString(
+                              stats.doubles?.averagePartnerDupr,
+                              3
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-gray-50 p-1 rounded">
-                        <div className="text-muted-foreground">
-                          Avg Opponent
-                        </div>
-                        <div className="font-mono font-medium">
-                          {toDecimalString(
-                            stats.doubles?.averageOpponentDupr,
-                            3
-                          )}
+                        <div className="bg-gray-50 p-1 rounded">
+                          <div className="text-muted-foreground">
+                            Avg Opponent
+                          </div>
+                          <div className="font-mono font-medium">
+                            {toDecimalString(
+                              stats.doubles?.averageOpponentDupr,
+                              3
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
