@@ -65,6 +65,17 @@ export interface OtherUserProfile {
   calculatedStats?: UserStats;
 }
 
+export interface RatingHistoryEntry {
+  date: string;
+  rating: number;
+  verified: boolean;
+  provisional: boolean;
+}
+
+export interface RatingHistoryResponse {
+  ratingHistory: RatingHistoryEntry[];
+}
+
 export interface AuthContextType {
   token: string | null;
   refreshToken: string | null;

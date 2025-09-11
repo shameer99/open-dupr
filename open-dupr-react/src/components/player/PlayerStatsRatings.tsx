@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ChevronDown, Info } from "lucide-react";
-import { getOtherUserStats } from "@/lib/api";
+import { getOtherUserStats, getOtherUserRatingHistoryBoth } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
-import type { UserStats } from "@/lib/types";
+import RatingHistoryChart from "@/components/ui/rating-history-chart";
+import type { UserStats, RatingHistoryEntry } from "@/lib/types";
 
 interface PlayerStatsRatingsProps {
   playerId?: number;
@@ -52,6 +53,11 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   const [currentReliabilityScore, setCurrentReliabilityScore] = useState<
     number | undefined
   >(undefined);
+  const [ratingHistory, setRatingHistory] = useState<{
+    singles: RatingHistoryEntry[];
+    doubles: RatingHistoryEntry[];
+  } | null>(null);
+  const [ratingHistoryLoading, setRatingHistoryLoading] = useState(false);
 
   const openReliabilityModal = (reliabilityScore: number | undefined) => {
     setCurrentReliabilityScore(reliabilityScore);
@@ -80,6 +86,24 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
     fetchStats();
   }, [playerId]);
+
+  useEffect(() => {
+    if (!playerId || !expanded) return;
+
+    const fetchRatingHistory = async () => {
+      try {
+        setRatingHistoryLoading(true);
+        const data = await getOtherUserRatingHistoryBoth(playerId);
+        setRatingHistory(data);
+      } catch (err) {
+        console.error("Failed to load rating history:", err);
+      } finally {
+        setRatingHistoryLoading(false);
+      }
+    };
+
+    fetchRatingHistory();
+  }, [playerId, expanded]);
 
   if (!playerId) {
     return (
@@ -299,6 +323,25 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="border-t pt-3">
+                  <h4 className="text-sm font-medium mb-2">Rating History</h4>
+                  {ratingHistoryLoading ? (
+                    <div className="flex items-center justify-center h-32 text-muted-foreground">
+                      <div className="text-sm">Loading rating history...</div>
+                    </div>
+                  ) : ratingHistory ? (
+                    <RatingHistoryChart
+                      singlesData={ratingHistory.singles}
+                      doublesData={ratingHistory.doubles}
+                      className="w-full"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-32 text-muted-foreground">
+                      <div className="text-sm">No rating history available</div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

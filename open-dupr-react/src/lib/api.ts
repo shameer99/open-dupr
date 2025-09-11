@@ -238,6 +238,18 @@ export const getOtherUserRatingHistory = (userId: number, type = "DOUBLES") =>
     body: JSON.stringify({ type }),
   });
 
+export const getOtherUserRatingHistoryBoth = async (userId: number) => {
+  const [singlesResponse, doublesResponse] = await Promise.all([
+    getOtherUserRatingHistory(userId, "SINGLES"),
+    getOtherUserRatingHistory(userId, "DOUBLES"),
+  ]);
+  
+  return {
+    singles: singlesResponse.result?.ratingHistory || [],
+    doubles: doublesResponse.result?.ratingHistory || [],
+  };
+};
+
 export const getOtherUserFollowInfo = (userId: number) =>
   apiFetch(`/activity/v1.1/user/${userId}/followingInfo`);
 
