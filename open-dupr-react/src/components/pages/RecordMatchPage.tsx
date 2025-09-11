@@ -308,7 +308,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
       {/* Player Selection Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-white z-50">
+        <div className="fixed inset-0 bg-white z-50 safe-area-inset-top">
           {/* Header */}
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
