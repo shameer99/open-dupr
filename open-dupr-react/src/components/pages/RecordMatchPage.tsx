@@ -41,6 +41,8 @@ interface PlayerSlotProps {
   label?: string;
 }
 
+type SuggestedPlayer = PlayerSearchHit & { lastPlayedAt?: number };
+
 const PlayerSlot: React.FC<PlayerSlotProps> = ({
   player,
   onPlayerSelect,
@@ -51,7 +53,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PlayerSearchHit[]>([]);
   const [friends, setFriends] = useState<PlayerSearchHit[]>([]);
-  const [recentOpponents, setRecentOpponents] = useState<PlayerSearchHit[]>([]);
+  const [recentOpponents, setRecentOpponents] = useState<SuggestedPlayer[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingFriends, setIsLoadingFriends] = useState(false);
   const [isLoadingRecent, setIsLoadingRecent] = useState(false);
@@ -97,56 +99,57 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
     if (!myId) return;
     setIsLoadingRecent(true);
     try {
-      const response = await getMyMatchHistory(0, 20);
+      const response = await getMyMatchHistory(0, 25);
       const matches = response?.result?.hits || [];
 
-      const opponentIds = new Set<number>();
-      const recentPlayers: PlayerSearchHit[] = [];
+      const seenIds = new Set<number>();
+      const recentPlayers: SuggestedPlayer[] = [];
+      const baseTime = Date.now();
 
-      for (const match of matches) {
-        if (match.team1?.player1 && match.team1.player1 !== myId) {
-          if (!opponentIds.has(match.team1.player1)) {
-            opponentIds.add(match.team1.player1);
-            recentPlayers.push({
-              id: match.team1.player1,
-              fullName: match.team1.player1Name || "Unknown Player",
-              imageUrl: match.team1.player1Image,
-            });
-          }
-        }
-        if (match.team1?.player2 && match.team1.player2 !== myId) {
-          if (!opponentIds.has(match.team1.player2)) {
-            opponentIds.add(match.team1.player2);
-            recentPlayers.push({
-              id: match.team1.player2,
-              fullName: match.team1.player2Name || "Unknown Player",
-              imageUrl: match.team1.player2Image,
-            });
-          }
-        }
-        if (match.team2?.player1 && match.team2.player1 !== myId) {
-          if (!opponentIds.has(match.team2.player1)) {
-            opponentIds.add(match.team2.player1);
-            recentPlayers.push({
-              id: match.team2.player1,
-              fullName: match.team2.player1Name || "Unknown Player",
-              imageUrl: match.team2.player1Image,
-            });
-          }
-        }
-        if (match.team2?.player2 && match.team2.player2 !== myId) {
-          if (!opponentIds.has(match.team2.player2)) {
-            opponentIds.add(match.team2.player2);
-            recentPlayers.push({
-              id: match.team2.player2,
-              fullName: match.team2.player2Name || "Unknown Player",
-              imageUrl: match.team2.player2Image,
-            });
-          }
-        }
+      for (let i = 0; i < matches.length; i++) {
+        const match = matches[i];
+        const eventDateStr = (match && (match.eventDate || match.date || match.eventTime)) || null;
+        const eventTime = typeof eventDateStr === "string" ? Date.parse(eventDateStr) : NaN;
+        const fallbackTime = baseTime - i;
+
+        const addIfNeeded = (
+          id?: number,
+          name?: string,
+          image?: string
+        ) => {
+          if (!id || id === myId || seenIds.has(id)) return;
+          seenIds.add(id);
+          recentPlayers.push({
+            id,
+            fullName: name || "Unknown Player",
+            imageUrl: image,
+            lastPlayedAt: Number.isFinite(eventTime) ? eventTime : fallbackTime,
+          });
+        };
+
+        addIfNeeded(
+          match?.team1?.player1,
+          match?.team1?.player1Name,
+          match?.team1?.player1Image
+        );
+        addIfNeeded(
+          match?.team1?.player2,
+          match?.team1?.player2Name,
+          match?.team1?.player2Image
+        );
+        addIfNeeded(
+          match?.team2?.player1,
+          match?.team2?.player1Name,
+          match?.team2?.player1Image
+        );
+        addIfNeeded(
+          match?.team2?.player2,
+          match?.team2?.player2Name,
+          match?.team2?.player2Image
+        );
       }
 
-      setRecentOpponents(recentPlayers.slice(0, 10));
+      setRecentOpponents(recentPlayers);
     } catch {
       // Error handling intentionally silent
     } finally {
@@ -218,15 +221,46 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
     return () => clearTimeout(timeoutId);
   }, [searchQuery, performSearch]);
 
-  // Filter friends based on search query
-  const filteredFriends = useMemo(() => {
+  const isLoadingSuggestions = isLoadingFriends || isLoadingRecent;
+
+  const suggestions = useMemo(() => {
+    const byId = new Map<number, SuggestedPlayer>();
+    friends.forEach((f) => {
+      if (f.id !== myId) {
+        byId.set(f.id, { ...f });
+      }
+    });
+    recentOpponents.forEach((r) => {
+      const existing = byId.get(r.id);
+      const merged: SuggestedPlayer = {
+        id: r.id,
+        fullName: r.fullName || existing?.fullName || "Unknown Player",
+        imageUrl: r.imageUrl || existing?.imageUrl,
+        lastPlayedAt: r.lastPlayedAt ?? existing?.lastPlayedAt,
+      };
+      byId.set(r.id, merged);
+    });
+
+    const result = Array.from(byId.values());
+    result.sort((a, b) => {
+      const aHas = typeof a.lastPlayedAt === "number";
+      const bHas = typeof b.lastPlayedAt === "number";
+      if (aHas && bHas) return (b.lastPlayedAt as number) - (a.lastPlayedAt as number);
+      if (aHas && !bHas) return -1;
+      if (!aHas && bHas) return 1;
+      return a.fullName.localeCompare(b.fullName);
+    });
+    return result;
+  }, [friends, recentOpponents, myId]);
+
+  const filteredSuggestions = useMemo(() => {
     if (!searchQuery.trim()) {
-      return friends;
+      return suggestions;
     }
-    return friends.filter((friend) =>
-      friend.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    return suggestions.filter((p) =>
+      p.fullName.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [friends, searchQuery]);
+  }, [suggestions, searchQuery]);
 
   const handlePlayerClick = (playerData: PlayerSearchHit) => {
     onPlayerSelect({
@@ -371,16 +405,16 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            {/* Friends - Show when there are filtered friends or when search is empty */}
-            {filteredFriends.length > 0 && (
+            {/* Suggested - merged friends and recent players */}
+            {filteredSuggestions.length > 0 && (
               <div className="p-6 border-b border-gray-100">
                 <h4 className="text-base font-medium text-gray-700 mb-4">
                   {searchQuery.trim()
-                    ? `Friends matching "${searchQuery}"`
-                    : "Friends"}
+                    ? `Suggested matching "${searchQuery}"`
+                    : "Suggested"}
                 </h4>
                 <div className="flex space-x-4 sm:space-x-5 overflow-x-auto pb-2 -mx-6 px-6">
-                  {isLoadingFriends ? (
+                  {isLoadingSuggestions ? (
                     <div className="flex space-x-4">
                       {[...Array(6)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
@@ -390,7 +424,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                       ))}
                     </div>
                   ) : (
-                    filteredFriends.map((playerData) => (
+                    filteredSuggestions.map((playerData) => (
                       <button
                         key={playerData.id}
                         type="button"
@@ -485,94 +519,27 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </div>
             )}
 
-            {/* Recent Opponents - Only show when no search query */}
-            {!searchQuery.trim() && recentOpponents.length > 0 && (
-              <div className="p-6 border-b border-gray-100">
-                <h4 className="text-base font-medium text-gray-700 mb-4">
-                  Recent Opponents
-                </h4>
-                <div className="flex space-x-4 sm:space-x-5 overflow-x-auto pb-2 -mx-6 px-6">
-                  {isLoadingRecent ? (
-                    <div className="flex space-x-4">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 sm:w-20 h-3 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    recentOpponents.map((playerData) => (
-                      <button
-                        key={playerData.id}
-                        type="button"
-                        className="flex-shrink-0 text-center group"
-                        onClick={() => handlePlayerClick(playerData)}
-                      >
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 mb-2 group-hover:scale-105 transition-transform">
-                          <Avatar
-                            src={playerData.imageUrl}
-                            name={playerData.fullName}
-                            size="lg"
-                          />
-                        </div>
-                        <div className="w-16 sm:w-20 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
-                          <p className="text-xs sm:text-sm font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
-                            {(() => {
-                              const words = playerData.fullName.split(" ");
-                              if (words.length === 1) {
-                                // Single word: split in middle if long enough
-                                if (playerData.fullName.length > 4) {
-                                  const mid = Math.ceil(
-                                    playerData.fullName.length / 2
-                                  );
-                                  return (
-                                    playerData.fullName.slice(0, mid) +
-                                    "\n" +
-                                    playerData.fullName.slice(mid)
-                                  );
-                                }
-                                return playerData.fullName + "\n ";
-                              } else if (words.length === 2) {
-                                // Two words: put each on separate line
-                                return words[0] + "\n" + words[1];
-                              } else {
-                                // Multiple words: put first word on first line, rest on second
-                                return (
-                                  words[0] + "\n" + words.slice(1).join(" ")
-                                );
-                              }
-                            })()}
-                          </p>
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
+            {/* Recent Opponents section removed in favor of unified Suggested list */}
 
             {/* Empty State - Show when no search query and no content */}
             {!searchQuery.trim() &&
-              filteredFriends.length === 0 &&
-              recentOpponents.length === 0 &&
-              !isLoadingFriends &&
-              !isLoadingRecent && (
+              suggestions.length === 0 &&
+              !isLoadingSuggestions && (
                 <div className="p-6 text-center text-gray-500">
-                  <p>No recent players or friends found</p>
+                  <p>No suggested players found</p>
                   <p className="text-sm mt-1">
                     Try searching for a player above
                   </p>
                 </div>
               )}
 
-            {/* No friends match search */}
+            {/* No suggested match search */}
             {searchQuery.trim() &&
-              filteredFriends.length === 0 &&
+              filteredSuggestions.length === 0 &&
               searchResults.length === 0 &&
               !isSearching && (
                 <div className="p-6 text-center text-gray-500">
-                  <p>No friends or players found matching "{searchQuery}"</p>
+                  <p>No suggested or players found matching "{searchQuery}"</p>
                   <p className="text-sm mt-1">Try a different search term</p>
                 </div>
               )}
