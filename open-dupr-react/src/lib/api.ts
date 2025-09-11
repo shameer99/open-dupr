@@ -232,18 +232,11 @@ export const getOtherUserMatchHistory = (
   limit = 25
 ) => apiFetch(`/player/v1.0/${userId}/history?offset=${offset}&limit=${limit}`);
 
-export const getOtherUserRatingHistory = (userId: number, type = "DOUBLES") =>
+export const getOtherUserRatingHistory = (userId: number, type: "SINGLES" | "DOUBLES") =>
   apiFetch(`/player/v1.0/${userId}/rating-history`, {
     method: "POST",
     body: JSON.stringify({ type }),
   });
-
-// Combined rating history (both singles and doubles) via GET with pagination
-export const getOtherUserRatingHistoryCombined = (
-  userId: number,
-  offset = 0,
-  limit = 100
-) => apiFetch(`/player/v1.0/${userId}/rating-history?offset=${offset}&limit=${limit}`);
 
 export const getOtherUserFollowInfo = (userId: number) =>
   apiFetch(`/activity/v1.1/user/${userId}/followingInfo`);

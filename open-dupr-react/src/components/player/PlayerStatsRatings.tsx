@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Info } from "lucide-react";
-import { getOtherUserStats, getOtherUserRatingHistoryCombined } from "@/lib/api";
+import { getOtherUserStats, getOtherUserRatingHistory } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReliabilityModal from "@/components/ui/reliability-modal";
@@ -94,18 +94,37 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
       try {
         setRatingHistoryLoading(true);
         setRatingHistoryError(null);
-        const resp = await getOtherUserRatingHistoryCombined(playerId, 0, 200);
-        const hits = resp?.result?.hits ?? [];
-        const rows: { date: string; singles?: number | null; doubles?: number | null }[] = hits
-          .map((h: { matchDate?: string; singles?: unknown; doubles?: unknown }) => {
-            const date = h.matchDate ?? "";
-            const singleNum = typeof h.singles === "number" ? h.singles : h.singles != null ? Number(h.singles) : null;
-            const doubleNum = typeof h.doubles === "number" ? h.doubles : h.doubles != null ? Number(h.doubles) : null;
-            return { date, singles: Number.isFinite(singleNum as number) ? (singleNum as number) : null, doubles: Number.isFinite(doubleNum as number) ? (doubleNum as number) : null };
-          })
-          .filter((r: { date: string }) => r.date);
-        // Sort by date ascending
-        rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        const [singlesResp, doublesResp] = await Promise.all([
+          getOtherUserRatingHistory(playerId, "SINGLES"),
+          getOtherUserRatingHistory(playerId, "DOUBLES"),
+        ]);
+
+        const singlesArr: Array<{ date?: string; rating?: unknown }> =
+          singlesResp?.result?.ratingHistory ?? [];
+        const doublesArr: Array<{ date?: string; rating?: unknown }> =
+          doublesResp?.result?.ratingHistory ?? [];
+
+        const byDate = new Map<string, { date: string; singles?: number | null; doubles?: number | null }>();
+
+        for (const s of singlesArr) {
+          const d = s.date || "";
+          if (!d) continue;
+          const prev = byDate.get(d) || { date: d };
+          const val = typeof s.rating === "number" ? s.rating : s.rating != null ? Number(s.rating) : null;
+          prev.singles = Number.isFinite(val as number) ? (val as number) : null;
+          byDate.set(d, prev);
+        }
+
+        for (const dItem of doublesArr) {
+          const d = dItem.date || "";
+          if (!d) continue;
+          const prev = byDate.get(d) || { date: d };
+          const val = typeof dItem.rating === "number" ? dItem.rating : dItem.rating != null ? Number(dItem.rating) : null;
+          prev.doubles = Number.isFinite(val as number) ? (val as number) : null;
+          byDate.set(d, prev);
+        }
+
+        const rows = Array.from(byDate.values()).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
         if (!cancelled) setRatingHistory(rows);
       } catch (e) {
         if (!cancelled)
