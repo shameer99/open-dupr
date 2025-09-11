@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import {
@@ -165,7 +164,7 @@ function TeamBlock({
             key={p.id ?? p.fullName}
             type="button"
             onClick={() => onClickPlayer(p.id)}
-            className="group flex items-center justify-between gap-3 rounded-md border p-2 text-left hover:bg-accent"
+            className="group flex items-center justify-between gap-3 rounded-lg border p-3 text-left hover:bg-muted/50 transition-colors"
           >
             <span className="flex items-center gap-3 min-w-0">
               <Avatar
@@ -404,28 +403,26 @@ const MatchDetailsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <Card className="rounded-xl">
-        <CardHeader className="px-6 pt-6 pb-4">
-          <div className="space-y-2">
-            {match.eventName && (
-              <CardTitle className="text-xl">
-                {match.eventName}
-              </CardTitle>
-            )}
-            {match.venue && (
-              <div className="text-sm text-muted-foreground">
-                {match.location && match.location.trim() !== match.venue.trim()
-                  ? `${match.venue} • ${match.location}`
-                  : match.venue}
-              </div>
-            )}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          {match.eventName && (
+            <h1 className="text-2xl font-semibold">
+              {match.eventName}
+            </h1>
+          )}
+          {match.venue && (
             <div className="text-sm text-muted-foreground">
-              {match.eventDate}
-              {match.tournament ? ` • ${match.tournament}` : ""}
+              {match.location && match.location.trim() !== match.venue.trim()
+                ? `${match.venue} • ${match.location}`
+                : match.venue}
             </div>
+          )}
+          <div className="text-sm text-muted-foreground">
+            {match.eventDate}
+            {match.tournament ? ` • ${match.tournament}` : ""}
           </div>
-        </CardHeader>
-        <CardContent className="px-6 pb-6">
+        </div>
+        <div>
           <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-8">
             <div className="justify-self-start">
               <TeamHeader team={teamA} onClickPlayer={handleClickPlayer} />
@@ -442,7 +439,7 @@ const MatchDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
             <TeamBlock
               team={teamA}
               onClickPlayer={handleClickPlayer}
@@ -456,7 +453,7 @@ const MatchDetailsPage: React.FC = () => {
           </div>
 
           {!match.confirmed && (
-            <div className="mt-6 pt-6 border-t">
+            <div className="mt-8 pt-6 border-t">
               <h3 className="text-sm font-medium text-muted-foreground mb-3">
                 Awaiting Validation From
               </h3>
@@ -469,7 +466,7 @@ const MatchDetailsPage: React.FC = () => {
                         key={p!.id}
                         type="button"
                         onClick={() => handleClickPlayer(p!.id)}
-                        className="flex items-center gap-3 p-3 rounded-md border w-full text-left hover:bg-accent transition-colors"
+                        className="flex items-center gap-3 p-3 rounded-lg border w-full text-left hover:bg-muted/50 transition-colors"
                       >
                         <Avatar
                           name={p!.fullName}
@@ -487,7 +484,7 @@ const MatchDetailsPage: React.FC = () => {
           )}
 
           {needsValidation && (
-            <div className="mt-6 pt-6 border-t">
+            <div className="mt-8 pt-6 border-t">
               <h3 className="text-sm font-medium text-muted-foreground mb-4">
                 Action Required
               </h3>
@@ -516,13 +513,13 @@ const MatchDetailsPage: React.FC = () => {
             </div>
           )}
 
-          <div className="mt-6 pt-4 border-t">
+          <div className="mt-8 pt-4 border-t">
             <div className="text-xs text-muted-foreground font-mono text-center">
               Match ID: {match.id}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

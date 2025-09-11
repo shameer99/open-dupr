@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { confirmMatch, rejectMatch } from "@/lib/api";
@@ -154,8 +153,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
   };
 
   return (
-    <Card
-      className="p-4 cursor-pointer transition hover:bg-accent/40"
+    <div
+      className="bg-background border rounded-lg p-3 cursor-pointer transition hover:bg-muted/30"
       onClick={() => {
         const path = profileUserId
           ? `/match/${match.id}/player/${profileUserId}`
@@ -186,87 +185,85 @@ const MatchCard: React.FC<MatchCardProps> = ({
         }
       }}
     >
-      <CardContent className="p-0">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <div className="flex items-center gap-2">
-              {userDelta !== null && (
-                <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
-                  {userDelta >= 0 ? (
-                    <ChevronUp className="h-3 w-3 text-emerald-600" />
-                  ) : (
-                    <ChevronDown className="h-3 w-3 text-rose-600" />
-                  )}
-                  <span
-                    className={
-                      userDelta >= 0 ? "text-emerald-700" : "text-rose-700"
-                    }
-                  >
-                    {Math.abs(userDelta).toFixed(3)}
-                  </span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            {userDelta !== null && (
+              <span className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-xs">
+                {userDelta >= 0 ? (
+                  <ChevronUp className="h-3 w-3 text-emerald-600" />
+                ) : (
+                  <ChevronDown className="h-3 w-3 text-rose-600" />
+                )}
+                <span
+                  className={
+                    userDelta >= 0 ? "text-emerald-700" : "text-rose-700"
+                  }
+                >
+                  {Math.abs(userDelta).toFixed(3)}
                 </span>
-              )}
-              {!match.confirmed && (
-                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
-                  Pending
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {match.eventDate && <span>{match.eventDate}</span>}
-            </div>
+              </span>
+            )}
+            {!match.confirmed && (
+              <span className="rounded bg-yellow-100 text-yellow-800 px-1.5 py-0.5 text-xs font-medium">
+                Pending
+              </span>
+            )}
           </div>
-          <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
-            <div
-              className={`${
-                teamAWon ? "text-emerald-700" : "text-rose-700"
-              } min-w-0 md:justify-self-start`}
-            >
-              <TeamStack team={teamA} />
-            </div>
-            <div className="flex flex-col items-center justify-center gap-1">
-              <MatchScoreDisplay
-                games={gamePairs}
-                currentUserId={currentUserId}
-                size="small"
-              />
-            </div>
-            <div
-              className={`${
-                teamBWon ? "text-emerald-700" : "text-rose-700"
-              } min-w-0 self-end md:justify-self-end`}
-            >
-              <TeamStack team={teamB} />
-            </div>
+          <div className="flex items-center gap-2">
+            {match.eventDate && <span>{match.eventDate}</span>}
           </div>
-
-          {needsValidation && (
-            <div className="flex gap-2 mt-4 pt-4 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
-                onClick={handleConfirm}
-                disabled={isProcessing}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {isProcessing ? "Validating..." : "Validate"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={handleReject}
-                disabled={isProcessing}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                {isProcessing ? "Rejecting..." : "Reject"}
-              </Button>
-            </div>
-          )}
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+          <div
+            className={`${
+              teamAWon ? "text-emerald-700" : "text-rose-700"
+            } min-w-0 md:justify-self-start`}
+          >
+            <TeamStack team={teamA} />
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <MatchScoreDisplay
+              games={gamePairs}
+              currentUserId={currentUserId}
+              size="small"
+            />
+          </div>
+          <div
+            className={`${
+              teamBWon ? "text-emerald-700" : "text-rose-700"
+            } min-w-0 self-end md:justify-self-end`}
+          >
+            <TeamStack team={teamB} />
+          </div>
+        </div>
+
+        {needsValidation && (
+          <div className="flex gap-2 mt-3 pt-3 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={handleConfirm}
+              disabled={isProcessing}
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              {isProcessing ? "Validating..." : "Validate"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={handleReject}
+              disabled={isProcessing}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              {isProcessing ? "Rejecting..." : "Reject"}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
