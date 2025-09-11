@@ -70,7 +70,7 @@ const AppHeader: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative safe-area-inset-top">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         {showBackButton ? (
           <Button
