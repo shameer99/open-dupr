@@ -26,9 +26,15 @@
 ## Comments Policy
 
 - Use comments very rarely and sparingly
-- Never comment out code - delete unused code instead
-- Only add comments to explain the 'why' behind code when it's not obvious for a good reason
-- Prefer self-documenting code over comments
+- Never comment out code. Delete unused code instead
+- Prefer self-documenting code over comments (clear names, small functions)
+- Only add comments to explain the "why" when it is non-obvious and meaningful
+- Avoid comments that restate the code, narrate obvious steps, or duplicate names
+- Reference: Code Health: To Comment or Not to Comment — see `https://testing.googleblog.com/2017/07/code-health-to-comment-or-not-to-comment.html`
+
+### Examples
+- Good: brief rationale, intent, tradeoff, or external constraint that cannot be expressed in code
+- Avoid: repeating what the code does, section headers, or TODOs without owners/context
 
 ## Code Quality
 

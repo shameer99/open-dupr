@@ -2,7 +2,6 @@ import React from "react";
 import { Skeleton } from "./skeleton";
 import { Card, CardContent } from "./card";
 
-// Re-export navigation progress for convenience
 export { NavigationProgress } from "./navigation-progress";
 
 export const PlayerProfileSkeleton: React.FC = () => (

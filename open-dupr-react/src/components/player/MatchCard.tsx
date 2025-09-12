@@ -95,8 +95,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // For display purposes, use profileUserId to arrange teams from the profile's perspective
-  // This ensures matches are shown from the profile being viewed
   const { teamA, teamB } = arrangeTeamsForUser(match.teams, profileUserId);
   const teamAWon = Boolean(teamA?.winner);
   const teamBWon = Boolean(teamB?.winner);
@@ -105,12 +103,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Check if current user needs to validate this match
-  // Only show validation buttons if:
-  // 1. Current user is logged in
-  // 2. Current user is part of the match
-  // 3. Match is not confirmed
-  // 4. Current user hasn't already validated the match
   const needsValidation =
     currentUserId &&
     !match.confirmed &&

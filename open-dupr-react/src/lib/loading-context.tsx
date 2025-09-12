@@ -66,7 +66,6 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({
       progress: 100,
     }));
 
-    // Complete loading after a brief moment
     setTimeout(() => {
       setLoadingState({
         isLoading: false,
@@ -122,7 +121,6 @@ export const usePageLoading = () => {
     finishLoading();
   }, [finishLoading]);
 
-  // Simple loading for basic pages
   const startSimpleLoad = useCallback(() => {
     startLoading([]);
     setProgress(50); // Show some initial progress

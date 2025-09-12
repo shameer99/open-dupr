@@ -15,7 +15,6 @@ export function extractApiErrorMessage(
   err: unknown,
   fallbackMessage: string = "An error occurred"
 ): string {
-  // Extract the API response message if available
   if (
     err &&
     typeof err === "object" &&
