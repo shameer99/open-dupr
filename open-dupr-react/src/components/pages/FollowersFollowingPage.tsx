@@ -17,9 +17,11 @@ import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
 import type { FollowUser, Player } from "@/lib/types";
 import FollowButton from "@/components/player/FollowButton";
-import { User, Users } from "lucide-react";
+import { User, Users, ArrowUp, ArrowDown } from "lucide-react";
 
 type TabType = "followers" | "following";
+type SortOption = "alphabetical" | "singles" | "doubles" | "none";
+type SortDirection = "asc" | "desc";
 
 const formatRating = (value: unknown): string => {
   if (value == null) return "-";
@@ -28,6 +30,48 @@ const formatRating = (value: unknown): string => {
   }
   const text = String(value).trim();
   return text.length > 0 ? text : "-";
+};
+
+const parseRating = (ratingStr: string): number => {
+  if (ratingStr === "-" || !ratingStr) return -1;
+  const parsed = parseFloat(ratingStr);
+  return isNaN(parsed) ? -1 : parsed;
+};
+
+const sortUsers = (users: FollowUser[], sortOption: SortOption, sortDirection: SortDirection, userRatings: Record<number, { singles: string; doubles: string }>): FollowUser[] => {
+  if (sortOption === "none") return users;
+  
+  return [...users].sort((a, b) => {
+    let result = 0;
+    
+    switch (sortOption) {
+      case "alphabetical": {
+        const nameA = a.name?.trim().toLowerCase() || "";
+        const nameB = b.name?.trim().toLowerCase() || "";
+        result = nameA.localeCompare(nameB);
+        break;
+      }
+      
+      case "singles": {
+        const ratingA = parseRating(userRatings[a.id]?.singles || "-");
+        const ratingB = parseRating(userRatings[b.id]?.singles || "-");
+        result = ratingB - ratingA; // Default descending order (higher ratings first)
+        break;
+      }
+      
+      case "doubles": {
+        const ratingA = parseRating(userRatings[a.id]?.doubles || "-");
+        const ratingB = parseRating(userRatings[b.id]?.doubles || "-");
+        result = ratingB - ratingA; // Default descending order (higher ratings first)
+        break;
+      }
+      
+      default:
+        return 0;
+    }
+    
+    return sortDirection === "asc" ? -result : result;
+  });
 };
 
 const FollowersFollowingPage: React.FC = () => {
@@ -61,6 +105,8 @@ const FollowersFollowingPage: React.FC = () => {
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [userRatings, setUserRatings] = useState<Record<number, { singles: string; doubles: string }>>({});
+  const [sortOption, setSortOption] = useState<SortOption>("none");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
@@ -179,6 +225,8 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowersHasMore(true);
         setFollowingHasMore(true);
         setUserRatings({});
+        setSortOption("none");
+        setSortDirection("desc");
 
         const userId = parseInt(id);
 
@@ -280,6 +328,8 @@ const FollowersFollowingPage: React.FC = () => {
 
     setActiveTab(newTab);
     setSearchParams({ tab: newTab });
+    setSortOption("none"); // Reset sort when switching tabs
+    setSortDirection("desc");
 
     if (!id) return;
     const userId = parseInt(id);
@@ -307,6 +357,22 @@ const FollowersFollowingPage: React.FC = () => {
       );
     setFollowers(updateUser);
     setFollowing(updateUser);
+  };
+
+  const handleSortOptionChange = (newSortOption: SortOption) => {
+    setSortOption(newSortOption);
+    if (newSortOption !== "none") {
+      // Set default direction based on sort type
+      if (newSortOption === "alphabetical") {
+        setSortDirection("asc");
+      } else {
+        setSortDirection("desc"); // For ratings, default to highest first
+      }
+    }
+  };
+
+  const toggleSortDirection = () => {
+    setSortDirection(prev => prev === "asc" ? "desc" : "asc");
   };
 
   const handleBackClick = useCallback(() => {
@@ -344,6 +410,8 @@ const FollowersFollowingPage: React.FC = () => {
     try {
       setListLoading(true);
       setError(null);
+      setSortOption("none"); // Reset sort on refresh
+      setSortDirection("desc");
 
       if (activeTab === "followers") {
         setFollowers([]);
@@ -384,6 +452,10 @@ const FollowersFollowingPage: React.FC = () => {
   const currentList = activeTab === "followers" ? followers : following;
   const hasMore =
     activeTab === "followers" ? followersHasMore : followingHasMore;
+  
+  const currentCount = activeTab === "followers" ? followersCount : followingCount;
+  const canSort = currentCount !== null && currentCount <= 100;
+  const sortedList = canSort ? sortUsers(currentList, sortOption, sortDirection, userRatings) : currentList;
 
   return (
     <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
@@ -421,6 +493,44 @@ const FollowersFollowingPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Sort Controls */}
+        {canSort ? (
+          <div className="mb-4 flex justify-end">
+            <div className="flex items-center gap-2">
+              <select
+                value={sortOption}
+                onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="none">Sort by...</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="singles">Singles Rating</option>
+                <option value="doubles">Doubles Rating</option>
+              </select>
+              <button
+                onClick={toggleSortDirection}
+                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  sortOption === "none" ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
+                title={sortOption !== "none" ? `Sort ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}
+                tabIndex={sortOption === "none" ? -1 : 0}
+              >
+                {sortDirection === "asc" ? (
+                  <ArrowUp className="h-4 w-4 text-gray-600" />
+                ) : (
+                  <ArrowDown className="h-4 w-4 text-gray-600" />
+                )}
+              </button>
+            </div>
+          </div>
+        ) : currentCount !== null && currentCount > 100 ? (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <span className="font-medium">Sort unavailable:</span> Lists with more than 100 {activeTab} cannot be sorted. This list has {currentCount} {activeTab}.
+            </p>
+          </div>
+        ) : null}
+
         {listLoading && currentList.length === 0 ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -436,13 +546,13 @@ const FollowersFollowingPage: React.FC = () => {
               </div>
             ))}
           </div>
-        ) : currentList.length === 0 ? (
+        ) : sortedList.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">
             No {activeTab} to display.
           </p>
         ) : (
           <div className="space-y-3">
-            {currentList.map((user) => (
+            {sortedList.map((user) => (
               <div
                 key={user.id}
                 className="flex items-center gap-3 p-3 rounded-lg border"
