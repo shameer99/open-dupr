@@ -155,7 +155,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   return (
     <Card
-      className="p-4 cursor-pointer transition hover:bg-accent/40"
+      className="p-3 cursor-pointer transition-colors hover:bg-accent/50"
       onClick={() => {
         const path = profileUserId
           ? `/match/${match.id}/player/${profileUserId}`
@@ -187,11 +187,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
       }}
     >
       <CardContent className="p-0">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
             <div className="flex items-center gap-2">
               {userDelta !== null && (
-                <span className="inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono">
+                <span className="inline-flex items-center gap-1 rounded bg-muted/50 px-1.5 py-0.5 font-mono">
                   {userDelta >= 0 ? (
                     <ChevronUp className="h-3 w-3 text-emerald-600" />
                   ) : (
@@ -207,16 +207,14 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 </span>
               )}
               {!match.confirmed && (
-                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.5 font-medium">
-                  Pending
-                </span>
+                <span className="text-amber-600">Pending</span>
               )}
             </div>
             <div className="flex items-center gap-2">
               {match.eventDate && <span>{match.eventDate}</span>}
             </div>
           </div>
-          <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+          <div className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
             <div
               className={`${
                 teamAWon ? "text-emerald-700" : "text-rose-700"
@@ -241,7 +239,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
           </div>
 
           {needsValidation && (
-            <div className="flex gap-2 mt-4 pt-4 border-t">
+            <div className="flex gap-2 mt-3 pt-3 border-t">
               <Button
                 variant="outline"
                 size="sm"

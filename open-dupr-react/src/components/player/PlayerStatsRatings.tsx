@@ -83,10 +83,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
   if (!playerId) {
     return (
-      <Card className="py-4">
+      <Card className="py-3">
         <CardHeader className="pb-1 px-4">
           <div className="text-center">
-            <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="grid grid-cols-2 gap-3 mt-1.5">
               <div>
                 <p className="text-2xl font-bold">-</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -108,10 +108,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
   if (error) {
     return (
-      <Card className="py-4">
+      <Card className="py-3">
         <CardHeader className="pb-1 px-4">
           <div className="text-center">
-            <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="grid grid-cols-2 gap-3 mt-1.5">
               <div>
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -148,10 +148,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         reliabilityPercentage={currentReliabilityScore}
       />
 
-      <Card className="py-4">
+      <Card className="py-3">
         <CardHeader className="pb-1 px-4">
           <div className="text-center lg:text-left">
-            <div className="grid grid-cols-2 gap-4 mt-2 lg:mt-0 lg:max-w-xs">
+            <div className="grid grid-cols-2 gap-3 mt-1.5 lg:mt-0 lg:max-w-xs">
               <div>
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
@@ -199,11 +199,11 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         </CardHeader>
 
         {stats && (
-          <CardContent className="-mt-2 pt-0 px-4">
+          <CardContent className="-mt-1.5 pt-0 px-4">
             <button
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
-              className="w-full flex items-center justify-between py-0.5 hover:bg-gray-50 rounded px-2 -mx-2 -mt-1 transition-colors"
+              className="w-full flex items-center justify-between py-0.5 hover:bg-accent rounded px-2 -mx-2 -mt-0.5 transition-colors"
               aria-expanded={expanded}
             >
               <div className="flex items-center gap-2">
@@ -215,10 +215,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
+                <span className="inline-flex items-center rounded bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
                   {stats.resulOverview.wins}W
                 </span>
-                <span className="inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium">
+                <span className="inline-flex items-center rounded bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium">
                   {stats.resulOverview.losses}L
                 </span>
               </div>
@@ -227,19 +227,19 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
             {expanded && (
               <div className="mt-1 space-y-1.5 border-t pt-1.5">
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-green-50 p-2 rounded-lg">
+                  <div className="bg-green-50 p-2 rounded-md">
                     <div className="text-base font-bold text-green-600">
                       {stats.resulOverview.wins}
                     </div>
                     <div className="text-xs text-muted-foreground">Wins</div>
                   </div>
-                  <div className="bg-red-50 p-2 rounded-lg">
+                  <div className="bg-red-50 p-2 rounded-md">
                     <div className="text-base font-bold text-red-600">
                       {stats.resulOverview.losses}
                     </div>
                     <div className="text-xs text-muted-foreground">Losses</div>
                   </div>
-                  <div className="bg-gray-50 p-2 rounded-lg">
+                  <div className="bg-gray-50 p-2 rounded-md">
                     <div className="text-base font-bold text-gray-600">
                       {stats.resulOverview.pending}
                     </div>

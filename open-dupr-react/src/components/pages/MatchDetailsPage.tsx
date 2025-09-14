@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Avatar from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import {
@@ -404,125 +403,116 @@ const MatchDetailsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      <Card className="rounded-xl">
-        <CardHeader className="px-6 pt-6 pb-4">
-          <div className="space-y-2">
-            {match.eventName && (
-              <CardTitle className="text-xl">
-                {match.eventName}
-              </CardTitle>
-            )}
-            {match.venue && (
-              <div className="text-sm text-muted-foreground">
-                {match.location && match.location.trim() !== match.venue.trim()
-                  ? `${match.venue} • ${match.location}`
-                  : match.venue}
-              </div>
-            )}
+      <div className="space-y-4">
+        <div className="space-y-1">
+          {match.eventName && (
+            <h1 className="text-lg font-semibold">{match.eventName}</h1>
+          )}
+          {match.venue && (
             <div className="text-sm text-muted-foreground">
-              {match.eventDate}
-              {match.tournament ? ` • ${match.tournament}` : ""}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="px-6 pb-6">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-8">
-            <div className="justify-self-start">
-              <TeamHeader team={teamA} onClickPlayer={handleClickPlayer} />
-            </div>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <MatchScoreDisplay
-                games={games}
-                currentUserId={effectiveUserId || undefined}
-                size="large"
-              />
-            </div>
-            <div className="justify-self-end">
-              <TeamHeader team={teamB} onClickPlayer={handleClickPlayer} />
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <TeamBlock
-              team={teamA}
-              onClickPlayer={handleClickPlayer}
-              eventFormat={match.eventFormat}
-            />
-            <TeamBlock
-              team={teamB}
-              onClickPlayer={handleClickPlayer}
-              eventFormat={match.eventFormat}
-            />
-          </div>
-
-          {!match.confirmed && (
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                Awaiting Validation From
-              </h3>
-              <div className="space-y-2">
-                {match.teams.map((team) =>
-                  [team.player1, team.player2]
-                    .filter((p) => p && p.validatedMatch === false)
-                    .map((p) => (
-                      <button
-                        key={p!.id}
-                        type="button"
-                        onClick={() => handleClickPlayer(p!.id)}
-                        className="flex items-center gap-3 p-3 rounded-md border w-full text-left hover:bg-accent transition-colors"
-                      >
-                        <Avatar
-                          name={p!.fullName}
-                          src={p!.imageUrl}
-                          size="sm"
-                        />
-                        <span className="text-sm font-medium hover:underline">
-                          {p!.fullName}
-                        </span>
-                      </button>
-                    ))
-                )}
-              </div>
+              {match.location && match.location.trim() !== match.venue.trim()
+                ? `${match.venue} • ${match.location}`
+                : match.venue}
             </div>
           )}
+          <div className="text-sm text-muted-foreground">
+            {match.eventDate}
+            {match.tournament ? ` • ${match.tournament}` : ""}
+          </div>
+        </div>
 
-          {needsValidation && (
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="text-sm font-medium text-muted-foreground mb-4">
-                Action Required
-              </h3>
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleConfirm}
-                  disabled={isProcessing}
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {isProcessing ? "Validating..." : "Validate Match"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={handleReject}
-                  disabled={isProcessing}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  {isProcessing ? "Rejecting..." : "Reject Match"}
-                </Button>
-              </div>
-            </div>
-          )}
+        <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6">
+          <div className="justify-self-start">
+            <TeamHeader team={teamA} onClickPlayer={handleClickPlayer} />
+          </div>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <MatchScoreDisplay
+              games={games}
+              currentUserId={effectiveUserId || undefined}
+              size="large"
+            />
+          </div>
+          <div className="justify-self-end">
+            <TeamHeader team={teamB} onClickPlayer={handleClickPlayer} />
+          </div>
+        </div>
 
-          <div className="mt-6 pt-4 border-t">
-            <div className="text-xs text-muted-foreground font-mono text-center">
-              Match ID: {match.id}
+        <div className="grid gap-4 md:grid-cols-2">
+          <TeamBlock
+            team={teamA}
+            onClickPlayer={handleClickPlayer}
+            eventFormat={match.eventFormat}
+          />
+          <TeamBlock
+            team={teamB}
+            onClickPlayer={handleClickPlayer}
+            eventFormat={match.eventFormat}
+          />
+        </div>
+
+        {!match.confirmed && (
+          <div className="space-y-2 border-t pt-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Awaiting Validation From
+            </h3>
+            <div className="space-y-2">
+              {match.teams.map((team) =>
+                [team.player1, team.player2]
+                  .filter((p) => p && p.validatedMatch === false)
+                  .map((p) => (
+                    <button
+                      key={p!.id}
+                      type="button"
+                      onClick={() => handleClickPlayer(p!.id)}
+                      className="flex items-center gap-3 p-2 rounded-md border w-full text-left hover:bg-accent transition-colors"
+                    >
+                      <Avatar name={p!.fullName} src={p!.imageUrl} size="sm" />
+                      <span className="text-sm font-medium hover:underline">
+                        {p!.fullName}
+                      </span>
+                    </button>
+                  ))
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {needsValidation && (
+          <div className="space-y-3 border-t pt-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Action Required
+            </h3>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                size="lg"
+                className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleConfirm}
+                disabled={isProcessing}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {isProcessing ? "Validating..." : "Validate Match"}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={handleReject}
+                disabled={isProcessing}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                {isProcessing ? "Rejecting..." : "Reject Match"}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <div className="pt-2 border-t">
+          <div className="text-xs text-muted-foreground font-mono text-center">
+            Match ID: {match.id}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
