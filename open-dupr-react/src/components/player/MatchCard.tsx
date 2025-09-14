@@ -22,13 +22,13 @@ interface MatchCardProps {
   onMatchUpdate?: () => void;
 }
 
-function TeamStack({ team }: { team: MatchTeam }) {
+function TeamStack({ team, profileUserId }: { team: MatchTeam; profileUserId?: number }) {
   const navigate = useNavigate();
   const isDoubles = Boolean(team.player2);
 
   const handlePlayerClick = (e: React.MouseEvent, playerId?: number) => {
     e.stopPropagation();
-    if (playerId) {
+    if (playerId && playerId !== profileUserId) {
       navigate(`/player/${playerId}`);
     }
   };
@@ -220,7 +220,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamAWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 md:justify-self-start`}
             >
-              <TeamStack team={teamA} />
+              <TeamStack team={teamA} profileUserId={profileUserId} />
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
               <MatchScoreDisplay
@@ -234,7 +234,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamBWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 self-end md:justify-self-end`}
             >
-              <TeamStack team={teamB} />
+              <TeamStack team={teamB} profileUserId={profileUserId} />
             </div>
           </div>
 

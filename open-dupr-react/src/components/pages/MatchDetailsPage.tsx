@@ -342,7 +342,7 @@ const MatchDetailsPage: React.FC = () => {
   }, [navigate]);
 
   const handleClickPlayer = (id?: number) => {
-    if (!id) return;
+    if (!id || id === perspectiveUserId) return;
     navigate(`/player/${id}`);
   };
 
