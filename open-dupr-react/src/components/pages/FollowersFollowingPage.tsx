@@ -180,11 +180,15 @@ const FollowersFollowingPage: React.FC = () => {
   );
 
   const loadFollowingPage = useCallback(
-    async (userId: number, startOffset: number) => {
+    async (userId: number, startOffset: number, isSelf: boolean = false) => {
       try {
         setIsLoadingMore(true);
         const response = await getFollowing(userId, startOffset, PAGE_SIZE);
-        const newItems: FollowUser[] = response?.results ?? [];
+        let newItems: FollowUser[] = response?.results ?? [];
+        if (isSelf) {
+          // On your own Following list, every entry is someone you follow
+          newItems = newItems.map((user) => ({ ...user, isFollow: true }));
+        }
         setFollowing((prev) =>
           startOffset === 0 ? newItems : [...prev, ...newItems]
         );
@@ -264,7 +268,8 @@ const FollowersFollowingPage: React.FC = () => {
         if (activeTab === "followers") {
           await loadFollowersPage(userId, 0);
         } else {
-          await loadFollowingPage(userId, 0);
+          const isSelfUser = selfProfileData?.result?.id === userId;
+          await loadFollowingPage(userId, 0, Boolean(isSelfUser));
         }
         setListLoading(false);
 
@@ -301,7 +306,8 @@ const FollowersFollowingPage: React.FC = () => {
           if (activeTab === "followers" && followersHasMore) {
             void loadFollowersPage(userId, followersOffset);
           } else if (activeTab === "following" && followingHasMore) {
-            void loadFollowingPage(userId, followingOffset);
+            const isSelfUser = selfProfile?.id === userId;
+            void loadFollowingPage(userId, followingOffset, Boolean(isSelfUser));
           }
         }
       },
@@ -321,6 +327,7 @@ const FollowersFollowingPage: React.FC = () => {
     followingOffset,
     loadFollowersPage,
     loadFollowingPage,
+    selfProfile,
   ]);
 
   const handleTabChange = async (newTab: TabType) => {
@@ -333,6 +340,7 @@ const FollowersFollowingPage: React.FC = () => {
 
     if (!id) return;
     const userId = parseInt(id);
+    const isSelfUser = selfProfile?.id === userId;
 
     // If the target tab has not been loaded yet, fetch its first page and show a list-only loading state
     if (newTab === "followers" && followers.length === 0) {
@@ -341,7 +349,7 @@ const FollowersFollowingPage: React.FC = () => {
       setListLoading(false);
     } else if (newTab === "following" && following.length === 0) {
       setListLoading(true);
-      await loadFollowingPage(userId, 0);
+      await loadFollowingPage(userId, 0, Boolean(isSelfUser));
       setListLoading(false);
     }
   };
@@ -422,7 +430,8 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowing([]);
         setFollowingOffset(0);
         setFollowingHasMore(true);
-        await loadFollowingPage(parseInt(id), 0);
+        const isSelfUser = selfProfile?.id === parseInt(id);
+        await loadFollowingPage(parseInt(id), 0, Boolean(isSelfUser));
       }
     } catch (err) {
       setError(
@@ -431,7 +440,7 @@ const FollowersFollowingPage: React.FC = () => {
     } finally {
       setListLoading(false);
     }
-  }, [id, activeTab, loadFollowersPage, loadFollowingPage]);
+  }, [id, activeTab, loadFollowersPage, loadFollowingPage, selfProfile]);
 
   if (pageLoading) {
     return (
