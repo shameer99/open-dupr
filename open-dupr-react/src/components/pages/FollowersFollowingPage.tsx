@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   getFollowers,
@@ -20,6 +20,7 @@ import FollowButton from "@/components/player/FollowButton";
 import { User, Users } from "lucide-react";
 
 type TabType = "followers" | "following";
+type SortOption = "none" | "alpha" | "singles" | "doubles";
 
 const formatRating = (value: unknown): string => {
   if (value == null) return "-";
@@ -61,10 +62,12 @@ const FollowersFollowingPage: React.FC = () => {
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [userRatings, setUserRatings] = useState<Record<number, { singles: string; doubles: string }>>({});
+  const [sortOption, setSortOption] = useState<SortOption>("none");
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
   const PAGE_SIZE = 50;
+  const MAX_SORT_COUNT = 100;
 
   const fetchUserRatings = useCallback(async (userIds: number[]) => {
     const ratingPromises = userIds.map(async (userId) => {
@@ -122,6 +125,7 @@ const FollowersFollowingPage: React.FC = () => {
         // Fetch ratings for new users
         const newUserIds = newItems.map((user) => user.id);
         await fetchUserRatings(newUserIds);
+        return newItems.length;
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load followers"
@@ -129,6 +133,7 @@ const FollowersFollowingPage: React.FC = () => {
       } finally {
         setIsLoadingMore(false);
       }
+      return 0;
     },
     [fetchUserRatings]
   );
@@ -148,6 +153,7 @@ const FollowersFollowingPage: React.FC = () => {
         // Fetch ratings for new users
         const newUserIds = newItems.map((user) => user.id);
         await fetchUserRatings(newUserIds);
+        return newItems.length;
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load following"
@@ -155,6 +161,7 @@ const FollowersFollowingPage: React.FC = () => {
       } finally {
         setIsLoadingMore(false);
       }
+      return 0;
     },
     [fetchUserRatings]
   );
@@ -280,6 +287,7 @@ const FollowersFollowingPage: React.FC = () => {
 
     setActiveTab(newTab);
     setSearchParams({ tab: newTab });
+    setSortOption("none");
 
     if (!id) return;
     const userId = parseInt(id);
@@ -365,6 +373,84 @@ const FollowersFollowingPage: React.FC = () => {
     }
   }, [id, activeTab, loadFollowersPage, loadFollowingPage]);
 
+  const activeTotalCount = useMemo(() => {
+    return activeTab === "followers" ? followersCount : followingCount;
+  }, [activeTab, followersCount, followingCount]);
+
+  const canSort = useMemo(() => {
+    const knownCount = typeof activeTotalCount === "number" ? activeTotalCount : null;
+    if (knownCount != null) return knownCount <= MAX_SORT_COUNT;
+    const currentListLength = activeTab === "followers" ? followers.length : following.length;
+    return currentListLength <= MAX_SORT_COUNT;
+  }, [activeTab, activeTotalCount, followers.length, following.length]);
+
+  useEffect(() => {
+    const ensureFullyLoadedForSorting = async () => {
+      if (!id) return;
+      if (sortOption === "none") return;
+      if (!canSort) return;
+
+      const userId = parseInt(id);
+      // Load remaining pages (at most a couple due to MAX_SORT_COUNT and PAGE_SIZE)
+      if (activeTab === "followers") {
+        let localOffset = followersOffset;
+        for (let i = 0; i < 5; i++) {
+          const loaded = await loadFollowersPage(userId, localOffset);
+          if (!loaded || loaded < PAGE_SIZE) break;
+          localOffset += loaded;
+          if (localOffset >= MAX_SORT_COUNT) break;
+        }
+      } else {
+        let localOffset = followingOffset;
+        for (let i = 0; i < 5; i++) {
+          const loaded = await loadFollowingPage(userId, localOffset);
+          if (!loaded || loaded < PAGE_SIZE) break;
+          localOffset += loaded;
+          if (localOffset >= MAX_SORT_COUNT) break;
+        }
+      }
+    };
+
+    void ensureFullyLoadedForSorting();
+  }, [id, activeTab, sortOption, canSort, followersOffset, followingOffset, loadFollowersPage, loadFollowingPage]);
+
+  const parseRatingValue = (value: string | undefined): number => {
+    if (!value) return Number.NEGATIVE_INFINITY;
+    const num = parseFloat(value);
+    return Number.isFinite(num) ? num : Number.NEGATIVE_INFINITY;
+  };
+
+  const currentList = activeTab === "followers" ? followers : following;
+
+  const displayedList = useMemo(() => {
+    if (sortOption === "none") return currentList;
+    const listCopy = [...currentList];
+    if (sortOption === "alpha") {
+      return listCopy.sort((a, b) => {
+        const nameA = (a.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+        const nameB = (b.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        return a.id - b.id;
+      });
+    }
+    if (sortOption === "singles" || sortOption === "doubles") {
+      return listCopy.sort((a, b) => {
+        const aRatings = userRatings[a.id];
+        const bRatings = userRatings[b.id];
+        const aVal = parseRatingValue(sortOption === "singles" ? aRatings?.singles : aRatings?.doubles);
+        const bVal = parseRatingValue(sortOption === "singles" ? bRatings?.singles : bRatings?.doubles);
+        if (bVal !== aVal) return bVal - aVal; // high to low
+        const nameA = (a.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+        const nameB = (b.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        return a.id - b.id;
+      });
+    }
+    return listCopy;
+  }, [currentList, sortOption, userRatings]);
+
   if (pageLoading) {
     return (
       <div className="container mx-auto p-4 max-w-2xl">
@@ -381,7 +467,6 @@ const FollowersFollowingPage: React.FC = () => {
     );
   }
 
-  const currentList = activeTab === "followers" ? followers : following;
   const hasMore =
     activeTab === "followers" ? followersHasMore : followingHasMore;
 
@@ -421,6 +506,33 @@ const FollowersFollowingPage: React.FC = () => {
           </button>
         </div>
 
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            {!(canSort) && (
+              <p className="text-xs text-muted-foreground">
+                Sorting is disabled for lists over {MAX_SORT_COUNT} people.
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-select" className="text-sm text-muted-foreground">
+              Sort by
+            </label>
+            <select
+              id="sort-select"
+              className="border rounded-md px-2 py-1 text-sm"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as SortOption)}
+              disabled={!canSort || listLoading}
+            >
+              <option value="none">Default</option>
+              <option value="alpha">Alphabetical (A–Z)</option>
+              <option value="singles">Rating: Singles (high → low)</option>
+              <option value="doubles">Rating: Doubles (high → low)</option>
+            </select>
+          </div>
+        </div>
+
         {listLoading && currentList.length === 0 ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -442,7 +554,7 @@ const FollowersFollowingPage: React.FC = () => {
           </p>
         ) : (
           <div className="space-y-3">
-            {currentList.map((user) => (
+            {displayedList.map((user) => (
               <div
                 key={user.id}
                 className="flex items-center gap-3 p-3 rounded-lg border"
