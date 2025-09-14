@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Prefer Bun: ignore npm/yarn/pnpm lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
