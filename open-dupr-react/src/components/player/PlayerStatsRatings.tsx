@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Info } from "lucide-react";
-import { getOtherUserStats } from "@/lib/api";
+import { getOtherUserStats, getOtherUserRatingHistory } from "@/lib/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
 import type { UserStats } from "@/lib/types";
+import RatingHistoryChart from "./RatingHistoryChart";
 
 interface PlayerStatsRatingsProps {
   playerId?: number;
@@ -52,6 +53,11 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   const [currentReliabilityScore, setCurrentReliabilityScore] = useState<
     number | undefined
   >(undefined);
+  const [ratingHistory, setRatingHistory] = useState<
+    { date: string; singles?: number | null; doubles?: number | null }[]
+  >([]);
+  const [ratingHistoryLoading, setRatingHistoryLoading] = useState(false);
+  const [ratingHistoryError, setRatingHistoryError] = useState<string | null>(null);
 
   const openReliabilityModal = (reliabilityScore: number | undefined) => {
     setCurrentReliabilityScore(reliabilityScore);
@@ -80,6 +86,60 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
     fetchStats();
   }, [playerId]);
+
+  useEffect(() => {
+    if (!playerId) return;
+    let cancelled = false;
+    const fetchRatingHistory = async () => {
+      try {
+        setRatingHistoryLoading(true);
+        setRatingHistoryError(null);
+        const [singlesResp, doublesResp] = await Promise.all([
+          getOtherUserRatingHistory(playerId, "SINGLES"),
+          getOtherUserRatingHistory(playerId, "DOUBLES"),
+        ]);
+
+        const singlesArr: Array<{ date?: string; rating?: unknown }> =
+          singlesResp?.result?.ratingHistory ?? [];
+        const doublesArr: Array<{ date?: string; rating?: unknown }> =
+          doublesResp?.result?.ratingHistory ?? [];
+
+        const byDate = new Map<string, { date: string; singles?: number | null; doubles?: number | null }>();
+
+        for (const s of singlesArr) {
+          const d = s.date || "";
+          if (!d) continue;
+          const prev = byDate.get(d) || { date: d };
+          const val = typeof s.rating === "number" ? s.rating : s.rating != null ? Number(s.rating) : null;
+          prev.singles = Number.isFinite(val as number) ? (val as number) : null;
+          byDate.set(d, prev);
+        }
+
+        for (const dItem of doublesArr) {
+          const d = dItem.date || "";
+          if (!d) continue;
+          const prev = byDate.get(d) || { date: d };
+          const val = typeof dItem.rating === "number" ? dItem.rating : dItem.rating != null ? Number(dItem.rating) : null;
+          prev.doubles = Number.isFinite(val as number) ? (val as number) : null;
+          byDate.set(d, prev);
+        }
+
+        const rows = Array.from(byDate.values()).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        if (!cancelled) setRatingHistory(rows);
+      } catch (e) {
+        if (!cancelled)
+          setRatingHistoryError(e instanceof Error ? e.message : "Failed to load rating history");
+      } finally {
+        if (!cancelled) setRatingHistoryLoading(false);
+      }
+    };
+    fetchRatingHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [playerId]);
+
+  const hasAnyHistory = useMemo(() => ratingHistory && ratingHistory.length > 1, [ratingHistory]);
 
   if (!playerId) {
     return (
@@ -226,6 +286,25 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
 
             {expanded && (
               <div className="mt-1 space-y-1.5 border-t pt-1.5">
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Rating History</h4>
+                  {ratingHistoryLoading && (
+                    <div className="text-xs text-muted-foreground">Loading rating history…</div>
+                  )}
+                  {ratingHistoryError && (
+                    <div className="text-xs text-red-600">{ratingHistoryError}</div>
+                  )}
+                  {!ratingHistoryLoading && !ratingHistoryError && (
+                    hasAnyHistory ? (
+                      <div className="h-40 w-full">
+                        <RatingHistoryChart data={ratingHistory} />
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground">No rating history yet.</div>
+                    )
+                  )}
+                </div>
+
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-green-50 p-2 rounded-md">
                     <div className="text-base font-bold text-green-600">
