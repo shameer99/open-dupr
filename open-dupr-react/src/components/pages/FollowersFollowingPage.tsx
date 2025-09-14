@@ -497,19 +497,9 @@ const FollowersFollowingPage: React.FC = () => {
         {canSort ? (
           <div className="mb-4 flex justify-end">
             <div className="flex items-center gap-2">
-              <select
-                value={sortOption}
-                onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="none">Sort by...</option>
-                <option value="alphabetical">Alphabetical</option>
-                <option value="singles">Singles Rating</option>
-                <option value="doubles">Doubles Rating</option>
-              </select>
               <button
                 onClick={toggleSortDirection}
-                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 transition-colors ${
                   sortOption === "none" ? "opacity-0 pointer-events-none" : "opacity-100"
                 }`}
                 title={sortOption !== "none" ? `Sort ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}
@@ -521,6 +511,16 @@ const FollowersFollowingPage: React.FC = () => {
                   <ArrowDown className="h-4 w-4 text-gray-600" />
                 )}
               </button>
+              <select
+                value={sortOption}
+                onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="none">Sort by...</option>
+                <option value="alphabetical">Alphabetical</option>
+                <option value="singles">Singles Rating</option>
+                <option value="doubles">Doubles Rating</option>
+              </select>
             </div>
           </div>
         ) : currentCount !== null && currentCount > 100 ? (
