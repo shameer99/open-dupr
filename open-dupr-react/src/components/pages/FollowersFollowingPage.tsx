@@ -507,19 +507,20 @@ const FollowersFollowingPage: React.FC = () => {
                 <option value="singles">Singles Rating</option>
                 <option value="doubles">Doubles Rating</option>
               </select>
-              {sortOption !== "none" && (
-                <button
-                  onClick={toggleSortDirection}
-                  className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  title={`Sort ${sortDirection === "asc" ? "ascending" : "descending"}`}
-                >
-                  {sortDirection === "asc" ? (
-                    <ArrowUp className="h-4 w-4 text-gray-600" />
-                  ) : (
-                    <ArrowDown className="h-4 w-4 text-gray-600" />
-                  )}
-                </button>
-              )}
+              <button
+                onClick={toggleSortDirection}
+                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  sortOption === "none" ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
+                title={sortOption !== "none" ? `Sort ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}
+                tabIndex={sortOption === "none" ? -1 : 0}
+              >
+                {sortDirection === "asc" ? (
+                  <ArrowUp className="h-4 w-4 text-gray-600" />
+                ) : (
+                  <ArrowDown className="h-4 w-4 text-gray-600" />
+                )}
+              </button>
             </div>
           </div>
         ) : currentCount !== null && currentCount > 100 ? (
