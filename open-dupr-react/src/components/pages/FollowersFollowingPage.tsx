@@ -584,7 +584,10 @@ const FollowersFollowingPage: React.FC = () => {
                 </div>
                 {selfProfile && user.id !== selfProfile.id && (
                   <FollowButton
-                    user={user}
+                    user={{
+                      ...user,
+                      isFollow: activeTab === "following" && parseInt(id || "0") === selfProfile.id ? true : user.isFollow
+                    }}
                     onFollowStateChange={handleFollowStateChange}
                   />
                 )}
