@@ -205,23 +205,23 @@ export async function apiFetch(
 export const getMyProfile = () => apiFetch("/user/v1.0/profile");
 
 export const getFollowInfo = (feedId: number) =>
-  apiFetch(`/activity/v1/user/${feedId}/followingInfo`);
+  apiFetch(`/activity/v1.1/user/${feedId}/followingInfo`);
 
 export const getFollowers = (feedId: number, offset = 0, limit = 20) =>
   apiFetch(
-    `/activity/v1/user/${feedId}/followers?offset=${offset}&limit=${limit}`
+    `/activity/v1.1/user/${feedId}/followers?offset=${offset}&limit=${limit}`
   );
 
 export const getFollowing = (feedId: number, offset = 0, limit = 20) =>
   apiFetch(
-    `/activity/v1/user/${feedId}/followings?offset=${offset}&limit=${limit}`
+    `/activity/v1.1/user/${feedId}/followings?offset=${offset}&limit=${limit}`
   );
 
 export const followUser = (feedId: number) =>
-  apiFetch(`/activity/v1/user/${feedId}/follow`, { method: "POST" });
+  apiFetch(`/activity/v1.1/user/${feedId}/follow`, { method: "POST" });
 
 export const unfollowUser = (feedId: number) =>
-  apiFetch(`/activity/v1/user/${feedId}/follow`, { method: "DELETE" });
+  apiFetch(`/activity/v1.1/user/${feedId}/follow`, { method: "DELETE" });
 
 export const getOtherUserStats = (userId: number) =>
   apiFetch(`/user/calculated/v1.0/stats/${userId}`);
