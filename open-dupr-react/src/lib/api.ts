@@ -209,12 +209,12 @@ export const getFollowInfo = (feedId: number) =>
 
 export const getFollowers = (feedId: number, offset = 0, limit = 20) =>
   apiFetch(
-    `/activity/v1/user/${feedId}/followers?offset=${offset}&limit=${limit}`
+    `/activity/v1.1/user/${feedId}/followers?offset=${offset}&limit=${limit}`
   );
 
 export const getFollowing = (feedId: number, offset = 0, limit = 20) =>
   apiFetch(
-    `/activity/v1/user/${feedId}/followings?offset=${offset}&limit=${limit}`
+    `/activity/v1.1/user/${feedId}/followings?offset=${offset}&limit=${limit}`
   );
 
 export const followUser = (feedId: number) =>
