@@ -54,7 +54,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     setShowConfirmModal(true);
   };
 
-  const buttonText = isFollowed ? "Following" : "Follow";
+  const buttonText = isFollowed ? "Unfollow" : "Follow";
 
   return (
     <>

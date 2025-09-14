@@ -180,11 +180,17 @@ const FollowersFollowingPage: React.FC = () => {
   );
 
   const loadFollowingPage = useCallback(
-    async (userId: number, startOffset: number) => {
+    async (userId: number, startOffset: number, coerceFollowed = false) => {
       try {
         setIsLoadingMore(true);
         const response = await getFollowing(userId, startOffset, PAGE_SIZE);
-        const newItems: FollowUser[] = response?.results ?? [];
+        let newItems: FollowUser[] = response?.results ?? [];
+
+        // If viewing your own Following tab, all entries are followed by definition
+        if (coerceFollowed || (selfProfile && userId === selfProfile.id)) {
+          newItems = newItems.map((u) => ({ ...u, isFollow: true }));
+        }
+
         setFollowing((prev) =>
           startOffset === 0 ? newItems : [...prev, ...newItems]
         );
@@ -202,7 +208,7 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(false);
       }
     },
-    [fetchUserRatings]
+    [fetchUserRatings, selfProfile]
   );
 
   // Initial load and when visiting a different player id
@@ -355,8 +361,22 @@ const FollowersFollowingPage: React.FC = () => {
       list.map((user) =>
         user.id === userId ? { ...user, isFollow: isFollowed } : user
       );
+
+    // Update both lists with new follow state
     setFollowers(updateUser);
-    setFollowing(updateUser);
+    setFollowing((prev) => {
+      // If on own Following tab and the user was unfollowed, remove from list
+      const isSelfPage = selfProfile && id && selfProfile.id === parseInt(id);
+      if (activeTab === "following" && isSelfPage && !isFollowed) {
+        const next = prev.filter((u) => u.id !== userId);
+        // Adjust count if known
+        setFollowingCount((curr) =>
+          typeof curr === "number" ? Math.max(0, curr - 1) : curr
+        );
+        return next;
+      }
+      return updateUser(prev);
+    });
   };
 
   const handleSortOptionChange = (newSortOption: SortOption) => {
