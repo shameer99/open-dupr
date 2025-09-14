@@ -70,16 +70,18 @@ const RatingHistoryChart: React.FC<RatingHistoryChartProps> = ({ data }) => {
   const pad = (max - min || 1) * 0.1;
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis dataKey="date" tickFormatter={formatDateTick} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={24} />
-        <YAxis domain={[min - pad, max + pad]} tickFormatter={formatYAxisTick} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={28} />
-        <Tooltip content={<CustomTooltip />} />
-        <Line type="monotone" dataKey="singles" stroke="#1d4ed8" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
-        <Line type="monotone" dataKey="doubles" stroke="#059669" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="[&_*]:!outline-none [&_*]:select-none touch-manipulation" style={{ WebkitTapHighlightColor: 'transparent' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="date" tickFormatter={formatDateTick} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={24} />
+          <YAxis domain={[min - pad, max + pad]} tickFormatter={formatYAxisTick} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={28} />
+          <Tooltip content={<CustomTooltip />} />
+          <Line type="monotone" dataKey="singles" stroke="#1d4ed8" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
+          <Line type="monotone" dataKey="doubles" stroke="#059669" strokeWidth={2} dot={false} isAnimationActive={false} connectNulls />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
