@@ -116,7 +116,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
           <EnlargedAvatar src={imageUrl} name={name} />
           <button
             onClick={() => setIsModalOpen(false)}
-            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 transition-colors"
+            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 hover:scale-110 transition-all duration-200 animate-fadeIn"
             aria-label="Close"
           >
             <X size={24} />

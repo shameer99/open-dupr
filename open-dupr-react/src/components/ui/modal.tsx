@@ -33,14 +33,14 @@ const Modal: React.FC<ModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
-      className="fixed inset-0 z-50"
+      className="fixed inset-0 z-50 animate-fadeIn"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 animate-fadeIn" />
       <div className="absolute inset-0 grid place-items-center p-4">
         <div
           className={cn(
-            "bg-background text-foreground w-full max-w-lg md:max-w-2xl rounded-xl shadow-lg border",
+            "bg-background text-foreground w-full max-w-lg md:max-w-2xl rounded-xl shadow-lg border animate-zoomIn",
             className
           )}
           onClick={(e) => e.stopPropagation()}

@@ -16,7 +16,7 @@ const EnlargedAvatar: React.FC<EnlargedAvatarProps> = ({ src, name }) => {
   if (shouldShowInitials) {
     return (
       <div
-        className={`w-[80vw] h-[80vw] max-w-[24rem] max-h-[24rem] ${bgColor} rounded-lg flex items-center justify-center text-white font-bold text-8xl sm:text-9xl`}
+        className={`w-[80vw] h-[80vw] max-w-[24rem] max-h-[24rem] ${bgColor} rounded-lg flex items-center justify-center text-white font-bold text-8xl sm:text-9xl animate-scaleIn`}
       >
         {initials}
       </div>
@@ -27,7 +27,7 @@ const EnlargedAvatar: React.FC<EnlargedAvatarProps> = ({ src, name }) => {
     <img
       src={src}
       alt={name}
-      className="max-w-[80vw] max-h-[80vh] rounded-lg"
+      className="max-w-[80vw] max-h-[80vh] rounded-lg animate-scaleIn"
       onError={() => setImageError(true)}
     />
   );

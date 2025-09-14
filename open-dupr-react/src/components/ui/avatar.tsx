@@ -35,10 +35,10 @@ const Avatar: React.FC<AvatarProps> = ({
     <div
       className={cn(
         sizeClasses[size],
-        "rounded-full flex items-center justify-center",
+        "rounded-full flex items-center justify-center transition-transform duration-200",
         className,
         {
-          "cursor-pointer": !!onClick,
+          "cursor-pointer hover:scale-105 active:scale-95": !!onClick,
         }
       )}
       onClick={onClick}
