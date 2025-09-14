@@ -17,10 +17,11 @@ import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
 import type { FollowUser, Player } from "@/lib/types";
 import FollowButton from "@/components/player/FollowButton";
-import { User, Users, ArrowUpDown } from "lucide-react";
+import { User, Users, ArrowUp, ArrowDown } from "lucide-react";
 
 type TabType = "followers" | "following";
 type SortOption = "alphabetical" | "singles" | "doubles" | "none";
+type SortDirection = "asc" | "desc";
 
 const formatRating = (value: unknown): string => {
   if (value == null) return "-";
@@ -37,32 +38,39 @@ const parseRating = (ratingStr: string): number => {
   return isNaN(parsed) ? -1 : parsed;
 };
 
-const sortUsers = (users: FollowUser[], sortOption: SortOption, userRatings: Record<number, { singles: string; doubles: string }>): FollowUser[] => {
+const sortUsers = (users: FollowUser[], sortOption: SortOption, sortDirection: SortDirection, userRatings: Record<number, { singles: string; doubles: string }>): FollowUser[] => {
   if (sortOption === "none") return users;
   
   return [...users].sort((a, b) => {
+    let result = 0;
+    
     switch (sortOption) {
       case "alphabetical": {
         const nameA = a.name?.trim().toLowerCase() || "";
         const nameB = b.name?.trim().toLowerCase() || "";
-        return nameA.localeCompare(nameB);
+        result = nameA.localeCompare(nameB);
+        break;
       }
       
       case "singles": {
         const ratingA = parseRating(userRatings[a.id]?.singles || "-");
         const ratingB = parseRating(userRatings[b.id]?.singles || "-");
-        return ratingB - ratingA; // Descending order (higher ratings first)
+        result = ratingB - ratingA; // Default descending order (higher ratings first)
+        break;
       }
       
       case "doubles": {
         const ratingA = parseRating(userRatings[a.id]?.doubles || "-");
         const ratingB = parseRating(userRatings[b.id]?.doubles || "-");
-        return ratingB - ratingA; // Descending order (higher ratings first)
+        result = ratingB - ratingA; // Default descending order (higher ratings first)
+        break;
       }
       
       default:
         return 0;
     }
+    
+    return sortDirection === "asc" ? -result : result;
   });
 };
 
@@ -98,6 +106,7 @@ const FollowersFollowingPage: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [userRatings, setUserRatings] = useState<Record<number, { singles: string; doubles: string }>>({});
   const [sortOption, setSortOption] = useState<SortOption>("none");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
@@ -217,6 +226,7 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowingHasMore(true);
         setUserRatings({});
         setSortOption("none");
+        setSortDirection("desc");
 
         const userId = parseInt(id);
 
@@ -319,6 +329,7 @@ const FollowersFollowingPage: React.FC = () => {
     setActiveTab(newTab);
     setSearchParams({ tab: newTab });
     setSortOption("none"); // Reset sort when switching tabs
+    setSortDirection("desc");
 
     if (!id) return;
     const userId = parseInt(id);
@@ -346,6 +357,22 @@ const FollowersFollowingPage: React.FC = () => {
       );
     setFollowers(updateUser);
     setFollowing(updateUser);
+  };
+
+  const handleSortOptionChange = (newSortOption: SortOption) => {
+    setSortOption(newSortOption);
+    if (newSortOption !== "none") {
+      // Set default direction based on sort type
+      if (newSortOption === "alphabetical") {
+        setSortDirection("asc");
+      } else {
+        setSortDirection("desc"); // For ratings, default to highest first
+      }
+    }
+  };
+
+  const toggleSortDirection = () => {
+    setSortDirection(prev => prev === "asc" ? "desc" : "asc");
   };
 
   const handleBackClick = useCallback(() => {
@@ -384,6 +411,7 @@ const FollowersFollowingPage: React.FC = () => {
       setListLoading(true);
       setError(null);
       setSortOption("none"); // Reset sort on refresh
+      setSortDirection("desc");
 
       if (activeTab === "followers") {
         setFollowers([]);
@@ -427,7 +455,7 @@ const FollowersFollowingPage: React.FC = () => {
   
   const currentCount = activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
-  const sortedList = canSort ? sortUsers(currentList, sortOption, userRatings) : currentList;
+  const sortedList = canSort ? sortUsers(currentList, sortOption, sortDirection, userRatings) : currentList;
 
   return (
     <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
@@ -467,12 +495,11 @@ const FollowersFollowingPage: React.FC = () => {
 
         {/* Sort Controls */}
         {canSort ? (
-          <div className="mb-4">
+          <div className="mb-4 flex justify-end">
             <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4 text-gray-500" />
               <select
                 value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as SortOption)}
+                onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="none">Sort by...</option>
@@ -480,6 +507,19 @@ const FollowersFollowingPage: React.FC = () => {
                 <option value="singles">Singles Rating</option>
                 <option value="doubles">Doubles Rating</option>
               </select>
+              {sortOption !== "none" && (
+                <button
+                  onClick={toggleSortDirection}
+                  className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  title={`Sort ${sortDirection === "asc" ? "ascending" : "descending"}`}
+                >
+                  {sortDirection === "asc" ? (
+                    <ArrowUp className="h-4 w-4 text-gray-600" />
+                  ) : (
+                    <ArrowDown className="h-4 w-4 text-gray-600" />
+                  )}
+                </button>
+              )}
             </div>
           </div>
         ) : currentCount !== null && currentCount > 100 ? (
