@@ -176,7 +176,7 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(false);
       }
     },
-    [fetchUserRatings]
+    [fetchUserRatings, selfProfile?.id]
   );
 
   const loadFollowingPage = useCallback(
@@ -202,7 +202,7 @@ const FollowersFollowingPage: React.FC = () => {
         setIsLoadingMore(false);
       }
     },
-    [fetchUserRatings]
+    [fetchUserRatings, selfProfile?.id]
   );
 
   // Initial load and when visiting a different player id
