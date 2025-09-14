@@ -35,7 +35,7 @@ const Avatar: React.FC<AvatarProps> = ({
     <div
       className={cn(
         sizeClasses[size],
-        "rounded-full flex items-center justify-center",
+        "rounded-full flex items-center justify-center transition-transform active:scale-95",
         className,
         {
           "cursor-pointer": !!onClick,

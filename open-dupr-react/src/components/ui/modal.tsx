@@ -36,11 +36,11 @@ const Modal: React.FC<ModalProps> = ({
       className="fixed inset-0 z-50"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 animate-fade-in" />
       <div className="absolute inset-0 grid place-items-center p-4">
         <div
           className={cn(
-            "bg-background text-foreground w-full max-w-lg md:max-w-2xl rounded-xl shadow-lg border",
+            "bg-background text-foreground w-full max-w-lg md:max-w-2xl rounded-xl shadow-lg border animate-zoom-fade-in",
             className
           )}
           onClick={(e) => e.stopPropagation()}
