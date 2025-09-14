@@ -351,12 +351,41 @@ const FollowersFollowingPage: React.FC = () => {
   };
 
   const handleFollowStateChange = (userId: number, isFollowed: boolean) => {
-    const updateUser = (list: FollowUser[]) =>
-      list.map((user) =>
-        user.id === userId ? { ...user, isFollow: isFollowed } : user
-      );
-    setFollowers(updateUser);
-    setFollowing(updateUser);
+    const currentUserId = selfProfile?.id;
+    const profileUserId = parseInt(id || "0");
+    const isViewingOwnProfile = currentUserId === profileUserId;
+
+    if (isViewingOwnProfile) {
+      if (activeTab === "following") {
+        if (!isFollowed) {
+          // Unfollowing someone - remove them from following list
+          setFollowing((prev) => prev.filter((user) => user.id !== userId));
+          setFollowingCount((prev) => (prev !== null ? prev - 1 : null));
+        } else {
+          // Following someone - just update their status (they're already in the list)
+          setFollowing((prev) =>
+            prev.map((user) =>
+              user.id === userId ? { ...user, isFollow: true } : user
+            )
+          );
+        }
+      } else {
+        // For followers list, just update the follow status
+        const updateUser = (list: FollowUser[]) =>
+          list.map((user) =>
+            user.id === userId ? { ...user, isFollow: isFollowed } : user
+          );
+        setFollowers(updateUser);
+      }
+    } else {
+      // If viewing someone else's profile, just update follow status
+      const updateUser = (list: FollowUser[]) =>
+        list.map((user) =>
+          user.id === userId ? { ...user, isFollow: isFollowed } : user
+        );
+      setFollowers(updateUser);
+      setFollowing(updateUser);
+    }
   };
 
   const handleSortOptionChange = (newSortOption: SortOption) => {
@@ -584,10 +613,7 @@ const FollowersFollowingPage: React.FC = () => {
                 </div>
                 {selfProfile && user.id !== selfProfile.id && (
                   <FollowButton
-                    user={{
-                      ...user,
-                      isFollow: activeTab === "following" && parseInt(id || "0") === selfProfile.id ? true : user.isFollow
-                    }}
+                    user={user}
                     onFollowStateChange={handleFollowStateChange}
                   />
                 )}
