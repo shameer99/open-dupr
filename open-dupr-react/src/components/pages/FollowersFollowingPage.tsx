@@ -110,7 +110,7 @@ const FollowersFollowingPage: React.FC = () => {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
     usePageLoading();
-  const PAGE_SIZE = 50;
+  const PAGE_SIZE = 10;
 
   const fetchUserRatings = useCallback(async (userIds: number[]) => {
     const ratingPromises = userIds.map(async (userId) => {
