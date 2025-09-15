@@ -14,7 +14,6 @@ import {
   Info,
   Moon,
   Sun,
-  Laptop,
   LayoutList,
 } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
@@ -34,7 +33,7 @@ const AppHeader: React.FC = () => {
   const { logout: authLogout, token } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -157,46 +156,27 @@ const AppHeader: React.FC = () => {
                 {open && (
                   <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
                     <div className="px-4 py-3">
-                      <div className="text-xs text-muted-foreground mb-2">
-                        Theme
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="flex gap-2 justify-center">
                         <button
                           type="button"
                           onClick={() => setTheme("light")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
-                            theme === "light" ? "ring-2 ring-ring" : ""
+                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
+                            resolvedTheme === "light" ? "ring-2 ring-ring" : ""
                           }`}
-                          aria-pressed={theme === "light"}
+                          aria-label="Light theme"
                         >
-                          <Sun className="h-4 w-4" />
-                          Light
+                          <Sun className="h-5 w-5" />
                         </button>
                         <button
                           type="button"
                           onClick={() => setTheme("dark")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
-                            theme === "dark" ? "ring-2 ring-ring" : ""
+                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
+                            resolvedTheme === "dark" ? "ring-2 ring-ring" : ""
                           }`}
-                          aria-pressed={theme === "dark"}
+                          aria-label="Dark theme"
                         >
-                          <Moon className="h-4 w-4" />
-                          Dark
+                          <Moon className="h-5 w-5" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("system")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
-                            theme === "system" ? "ring-2 ring-ring" : ""
-                          }`}
-                          aria-pressed={theme === "system"}
-                        >
-                          <Laptop className="h-4 w-4" />
-                          System
-                        </button>
-                      </div>
-                      <div className="mt-2 text-[10px] text-muted-foreground">
-                        Using: {resolvedTheme}
                       </div>
                     </div>
                     <div className="my-1 h-px bg-border" />
@@ -232,6 +212,7 @@ const AppHeader: React.FC = () => {
                       <Plus className="h-5 w-5" />
                       Add Match
                     </button>
+                    <div className="my-1 h-px bg-border" />
                     <button
                       type="button"
                       onClick={goToAbout}
