@@ -1,6 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { getOtherUserMatchHistory, getMyProfile } from "@/lib/api";
+import {
+  getOtherUserMatchHistory,
+  getMyProfile,
+  getFilteredOtherUserMatchHistory,
+} from "@/lib/api";
 import MatchCard from "@/components/player/MatchCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,7 +69,15 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+  }>({ top: 0, left: 0 });
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const PAGE_SIZE = 25;
 
   // Get current logged-in user's ID
@@ -83,34 +96,75 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     fetchCurrentUser();
   }, []);
 
-  const loadPage = useCallback(async (userId: number, startOffset: number) => {
-    try {
-      setIsLoadingMore(true);
-      const data = await getOtherUserMatchHistory(
-        userId,
-        startOffset,
-        PAGE_SIZE
-      );
-      const result = data?.result ?? {};
-      const newItems: MatchData[] = result?.hits ?? [];
-      setMatches((prev) =>
-        startOffset === 0 ? newItems : [...prev, ...newItems]
-      );
-      const hasMoreFromApi =
-        typeof result?.hasMore === "boolean"
-          ? result.hasMore
-          : newItems.length === PAGE_SIZE;
-      setHasMore(hasMoreFromApi);
-      setOffset(startOffset + newItems.length);
-      if (typeof result?.total === "number") setTotalCount(result.total);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load match history"
-      );
-    } finally {
-      setIsLoadingMore(false);
-    }
+  const loadPage = useCallback(
+    async (userId: number, startOffset: number) => {
+      try {
+        setIsLoadingMore(true);
+
+        let data;
+        if (activeFilter === "all") {
+          // Use the regular API for "all" matches
+          data = await getOtherUserMatchHistory(userId, startOffset, PAGE_SIZE);
+        } else {
+          // Use the filtered API for singles/doubles
+          const eventFormat: ("SINGLES" | "DOUBLES")[] =
+            activeFilter === "singles" ? ["SINGLES"] : ["DOUBLES"];
+          data = await getFilteredOtherUserMatchHistory(userId, {
+            offset: startOffset,
+            limit: PAGE_SIZE,
+            filters: {
+              eventFormat,
+            },
+            sort: {
+              order: "DESC",
+              parameter: "MATCH_DATE",
+            },
+          });
+        }
+
+        const result = data?.result ?? {};
+        const newItems: MatchData[] = result?.hits ?? [];
+        setMatches((prev) =>
+          startOffset === 0 ? newItems : [...prev, ...newItems]
+        );
+        const hasMoreFromApi =
+          typeof result?.hasMore === "boolean"
+            ? result.hasMore
+            : newItems.length === PAGE_SIZE;
+        setHasMore(hasMoreFromApi);
+        setOffset(startOffset + newItems.length);
+        if (typeof result?.total === "number") setTotalCount(result.total);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load match history"
+        );
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [activeFilter]
+  );
+
+  const handleFilterChange = useCallback((newFilter: string) => {
+    setActiveFilter(newFilter);
+    setMatches([]);
+    setOffset(0);
+    setHasMore(true);
+    setTotalCount(null);
+    setError(null);
+    setShowFilterDropdown(false);
   }, []);
+
+  const toggleFilterDropdown = useCallback(() => {
+    if (!showFilterDropdown && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+      });
+    }
+    setShowFilterDropdown((prev) => !prev);
+  }, [showFilterDropdown]);
 
   // Refresh is controlled by the parent profile container
 
@@ -129,7 +183,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       }
     };
     void run();
-  }, [playerId, loadPage]);
+  }, [playerId, loadPage, activeFilter]);
 
   useEffect(() => {
     if (!loaderRef.current) return;
@@ -148,6 +202,30 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     return () => observer.disconnect();
   }, [playerId, hasMore, isLoadingMore, loading, offset, loadPage]);
 
+  // Handle clicking outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      // Check if click is outside both the button and the dropdown
+      if (
+        buttonRef.current &&
+        !buttonRef.current.contains(target) &&
+        // Also check if the click is not on the dropdown itself
+        !(target as Element).closest('[data-dropdown="filter-dropdown"]')
+      ) {
+        setShowFilterDropdown(false);
+      }
+    };
+
+    if (showFilterDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilterDropdown]);
+
   if (!playerId) {
     return (
       <div>
@@ -159,14 +237,52 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
 
   const count = typeof totalCount === "number" ? totalCount : matches.length;
 
+  const getFilterDisplayText = () => {
+    switch (activeFilter) {
+      case "singles":
+        return "singles";
+      case "doubles":
+        return "doubles";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <div className="flex flex-col">
-          <h2 className="text-xl font-bold">Match History</h2>
-          <p className="text-sm text-muted-foreground">
-            {count} {count === 1 ? "match" : "matches"}
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="relative" ref={dropdownRef}>
+            <Button
+              ref={buttonRef}
+              variant="ghost"
+              size="icon"
+              onClick={toggleFilterDropdown}
+              className="h-8 w-8"
+              aria-label="Filter matches"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+            </Button>
+          </div>
+
+          <div className="flex flex-col">
+            <h2 className="text-xl font-bold">Match History</h2>
+            <p className="text-sm text-muted-foreground">
+              {count} {getFilterDisplayText()}{" "}
+              {count === 1 ? "match" : "matches"}
+            </p>
+          </div>
         </div>
         {isSelf && (
           <Button variant="default" onClick={() => navigate("/record-match")}>
@@ -184,7 +300,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       )}
       {error && <p className="text-destructive mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
-        <p className="text-muted-foreground mt-2">No matches found.</p>
+        <p className="text-muted-foreground mt-2 relative z-0">
+          No matches found.
+        </p>
       )}
       {!error && matches.length > 0 && (
         <div className="mt-4 space-y-3">
@@ -212,6 +330,52 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           )}
         </div>
       )}
+
+      {showFilterDropdown &&
+        createPortal(
+          <div
+            data-dropdown="filter-dropdown"
+            className="fixed w-48 bg-background border border-border rounded-md shadow-lg z-[9999]"
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+            }}
+          >
+            <div className="p-2">
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                  activeFilter === "all"
+                    ? "bg-accent text-accent-foreground"
+                    : ""
+                }`}
+                onClick={() => handleFilterChange("all")}
+              >
+                All Matches
+              </button>
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                  activeFilter === "singles"
+                    ? "bg-accent text-accent-foreground"
+                    : ""
+                }`}
+                onClick={() => handleFilterChange("singles")}
+              >
+                Singles Only
+              </button>
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                  activeFilter === "doubles"
+                    ? "bg-accent text-accent-foreground"
+                    : ""
+                }`}
+                onClick={() => handleFilterChange("doubles")}
+              >
+                Doubles Only
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

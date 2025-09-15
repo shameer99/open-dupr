@@ -279,9 +279,19 @@ Content-Type: application/json
       "endDate": "2024-01-31"
     },
     "venue": "Austin Pickleball Club"
+  },
+  "sort": {
+    "order": "DESC",
+    "parameter": "MATCH_DATE"
   }
 }
 ```
+
+**Notes:**
+
+- `eventFormat` filter supports: `["SINGLES"]`, `["DOUBLES"]`, or both `["SINGLES", "DOUBLES"]`
+- `sort.parameter` supports: `"MATCH_DATE"`
+- `sort.order` supports: `"ASC"` or `"DESC"`
 
 ## Player Search
 
@@ -541,11 +551,21 @@ Content-Type: application/json
       "endDate": "2024-01-31"
     },
     "venue": "Dreamland Pickleball"
+  },
+  "sort": {
+    "order": "DESC",
+    "parameter": "MATCH_DATE"
   }
 }
 ```
 
 **Response:** Same `SingleWrapperPageMatchResponse` format as GET version above.
+
+**Notes:**
+
+- `eventFormat` filter supports: `["SINGLES"]`, `["DOUBLES"]`, or both `["SINGLES", "DOUBLES"]`
+- `sort.parameter` supports: `"MATCH_DATE"`
+- `sort.order` supports: `"ASC"` or `"DESC"`
 
 ## Rating History
 

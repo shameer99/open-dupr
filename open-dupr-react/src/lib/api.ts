@@ -323,6 +323,40 @@ export const rejectMatch = (matchId: number) =>
 export const getMyMatchHistory = (offset = 0, limit = 25) =>
   apiFetch(`/match/v1.0/history?offset=${offset}&limit=${limit}`);
 
+export interface MatchHistoryFilters {
+  eventFormat?: ("SINGLES" | "DOUBLES")[];
+  dateRange?: {
+    startDate: string;
+    endDate: string;
+  };
+  venue?: string;
+}
+
+export interface FilteredMatchHistoryRequest {
+  offset: number;
+  limit: number;
+  filters?: MatchHistoryFilters;
+  sort?: {
+    order: "ASC" | "DESC";
+    parameter: "MATCH_DATE";
+  };
+}
+
+export const getFilteredMatchHistory = (request: FilteredMatchHistoryRequest) =>
+  apiFetch("/match/v1.0/history", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+export const getFilteredOtherUserMatchHistory = (
+  userId: number,
+  request: FilteredMatchHistoryRequest
+) =>
+  apiFetch(`/player/v1.0/${userId}/history`, {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
 export const getPendingMatches = async () => {
   const data = await getMyMatchHistory(0, 25);
   const matches = data?.result?.hits || [];
