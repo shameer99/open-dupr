@@ -156,11 +156,11 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     immediate: true,
     onRegistered(registration) {
       if (!registration) return;
-      const HOUR = 60 * 60 * 1000;
+      const FOUR_HOURS = 4 * 60 * 60 * 1000;
       // Periodically check for updates
       setInterval(() => {
         registration.update().catch(() => {});
-      }, HOUR);
+      }, FOUR_HOURS);
       // Check for updates when app becomes visible
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {

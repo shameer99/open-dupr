@@ -2,18 +2,18 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 // Track recent successful pull-to-refresh triggers across the app.
-// If 3 triggers occur within 15 seconds, perform a hard reload.
+// If 5 triggers occur within 60 seconds, perform a hard reload.
 let pullToRefreshTimestamps: number[] = [];
-const PULL_TO_REFRESH_WINDOW_MS = 15000;
+const PULL_TO_REFRESH_WINDOW_MS = 60000;
 
 function recordPullAndShouldHardReload(): boolean {
   const now = Date.now();
-  // Keep only timestamps within the last 15 seconds
+  // Keep only timestamps within the last 60 seconds
   pullToRefreshTimestamps = pullToRefreshTimestamps.filter(
     (t) => now - t <= PULL_TO_REFRESH_WINDOW_MS
   );
   pullToRefreshTimestamps.push(now);
-  if (pullToRefreshTimestamps.length >= 3) {
+  if (pullToRefreshTimestamps.length >= 5) {
     pullToRefreshTimestamps = [];
     return true;
   }
