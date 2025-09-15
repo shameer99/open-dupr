@@ -22,21 +22,22 @@ interface MatchCardProps {
   onMatchUpdate?: () => void;
 }
 
-function TeamStack({
-  team,
-  profileUserId,
-}: {
+interface TeamStackProps {
   team: MatchTeam;
   profileUserId?: number;
-}) {
+  onExpandMatch?: () => void;
+}
+
+function TeamStack({ team, profileUserId, onExpandMatch }: TeamStackProps) {
   const navigate = useNavigate();
   const isDoubles = Boolean(team.player2);
 
   const handlePlayerClick = (e: React.MouseEvent, playerId?: number) => {
     e.stopPropagation();
     if (playerId) {
-      // If we're already viewing this player's profile, don't navigate - just expand the match
-      if (profileUserId && playerId === profileUserId) {
+      // If we're already viewing this player's profile, expand the match instead of navigating
+      if (profileUserId && playerId === profileUserId && onExpandMatch) {
+        onExpandMatch();
         return;
       }
       navigate(`/player/${playerId}`);
@@ -105,6 +106,19 @@ const MatchCard: React.FC<MatchCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  const handleExpandMatch = () => {
+    const path = profileUserId
+      ? `/match/${match.id}/player/${profileUserId}`
+      : `/match/${match.id}`;
+    navigate(path, {
+      state: {
+        match,
+        perspectiveUserId: profileUserId,
+        currentUserId: currentUserId,
+      },
+    });
+  };
+
   // For display purposes, use profileUserId to arrange teams from the profile's perspective
   // This ensures matches are shown from the profile being viewed
   const { teamA, teamB } = arrangeTeamsForUser(match.teams, profileUserId);
@@ -166,33 +180,13 @@ const MatchCard: React.FC<MatchCardProps> = ({
   return (
     <Card
       className="p-3 cursor-pointer transition-colors hover:bg-accent/50"
-      onClick={() => {
-        const path = profileUserId
-          ? `/match/${match.id}/player/${profileUserId}`
-          : `/match/${match.id}`;
-        navigate(path, {
-          state: {
-            match,
-            perspectiveUserId: profileUserId,
-            currentUserId: currentUserId,
-          },
-        });
-      }}
+      onClick={handleExpandMatch}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          const path = profileUserId
-            ? `/match/${match.id}/player/${profileUserId}`
-            : `/match/${match.id}`;
-          navigate(path, {
-            state: {
-              match,
-              perspectiveUserId: profileUserId,
-              currentUserId: currentUserId,
-            },
-          });
+          handleExpandMatch();
         }
       }}
     >
@@ -230,7 +224,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamAWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 md:justify-self-start`}
             >
-              <TeamStack team={teamA} profileUserId={profileUserId} />
+              <TeamStack
+                team={teamA}
+                profileUserId={profileUserId}
+                onExpandMatch={handleExpandMatch}
+              />
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
               <MatchScoreDisplay
@@ -244,7 +242,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamBWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 self-end md:justify-self-end`}
             >
-              <TeamStack team={teamB} profileUserId={profileUserId} />
+              <TeamStack
+                team={teamB}
+                profileUserId={profileUserId}
+                onExpandMatch={handleExpandMatch}
+              />
             </div>
           </div>
 
