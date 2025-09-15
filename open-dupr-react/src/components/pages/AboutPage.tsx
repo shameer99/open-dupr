@@ -147,19 +147,6 @@ export default function AboutPage() {
               <ExternalLink className="h-4 w-4" />
               Official DUPR
             </Button>
-            <Button
-              variant="outline"
-              onClick={() =>
-                window.open(
-                  "https://cloud.umami.is/share/hd9kfrVkKVc4YoWf/opendupr.com",
-                  "_blank",
-                )
-              }
-              className="flex items-center gap-2"
-            >
-              <ExternalLink className="h-4 w-4" />
-              View Analytics
-            </Button>
           </div>
         </div>
       </div>
