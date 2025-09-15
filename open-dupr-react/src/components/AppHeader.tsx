@@ -216,7 +216,7 @@ const AppHeader: React.FC = () => {
                         className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                       >
                         <Download className="h-5 w-5" />
-                        Install app
+                        Install App
                       </button>
                     )}
                     {!isInstalled && canInstall && <div className="my-1 h-px bg-border" />}
