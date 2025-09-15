@@ -674,8 +674,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           }}
           onMouseUp={stopHold}
           onMouseLeave={stopHold}
-          onTouchStart={(e) => {
-            e.preventDefault();
+          onTouchStart={() => {
             startHold(handleIncrement);
           }}
           onTouchEnd={stopHold}
@@ -707,8 +706,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           }}
           onMouseUp={stopHold}
           onMouseLeave={stopHold}
-          onTouchStart={(e) => {
-            e.preventDefault();
+          onTouchStart={() => {
             startHold(handleDecrement);
           }}
           onTouchEnd={stopHold}
@@ -736,8 +734,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         }}
         onMouseUp={stopHold}
         onMouseLeave={stopHold}
-        onTouchStart={(e) => {
-          e.preventDefault();
+        onTouchStart={() => {
           startHold(handleDecrement);
         }}
         onTouchEnd={stopHold}
@@ -769,8 +766,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         }}
         onMouseUp={stopHold}
         onMouseLeave={stopHold}
-        onTouchStart={(e) => {
-          e.preventDefault();
+        onTouchStart={() => {
           startHold(handleIncrement);
         }}
         onTouchEnd={stopHold}
