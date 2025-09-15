@@ -184,4 +184,16 @@
       height: -webkit-fill-available;
     }
   }
+
+  /* Date input calendar icon dark mode fix */
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.8;
+  }
+
+  .dark input[type="date"]::-webkit-inner-spin-button,
+  .dark input[type="date"]::-webkit-clear-button {
+    filter: invert(1);
+    opacity: 0.8;
+  }
 }
