@@ -43,11 +43,28 @@ const sortUsers = (
   users: FollowUser[],
   sortOption: SortOption,
   sortDirection: SortDirection,
-  userRatings: Record<number, { singles: string; doubles: string }>
+  userRatings: Record<number, { singles: string; doubles: string }>,
+  profileOwner: Player | null,
+  profileOwnerFollowState: boolean
 ): FollowUser[] => {
-  if (sortOption === "none") return users;
+  const usersToSort = [...users];
+  
+  // Add profile owner to the list ONLY when sorting by singles or doubles rating
+  if (profileOwner && 
+      (sortOption === "singles" || sortOption === "doubles") && 
+      !users.find(user => user.id === profileOwner.id)) {
+    const ownerAsFollowUser: FollowUser = {
+      id: profileOwner.id,
+      name: profileOwner.fullName,
+      profileImage: profileOwner.imageUrl,
+      isFollow: profileOwnerFollowState,
+    };
+    usersToSort.push(ownerAsFollowUser);
+  }
+  
+  if (sortOption === "none") return usersToSort;
 
-  return [...users].sort((a, b) => {
+  return usersToSort.sort((a, b) => {
     let result = 0;
 
     switch (sortOption) {
@@ -83,6 +100,8 @@ const sortUsers = (
 const FollowersFollowingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selfProfile, setSelfProfile] = useState<Player | null>(null);
+  const [profileOwner, setProfileOwner] = useState<Player | null>(null);
+  const [profileOwnerFollowState, setProfileOwnerFollowState] = useState<boolean>(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
@@ -304,6 +323,8 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowersHasMore(true);
         setFollowingHasMore(true);
         setUserRatings({});
+        setProfileOwner(null);
+        setProfileOwnerFollowState(false);
         setSortOption("none");
         setSortDirection("desc");
 
@@ -321,12 +342,22 @@ const FollowersFollowingPage: React.FC = () => {
           setSelfProfile(selfProfileData.result);
         }
 
+        // Set the profile owner (the user whose page we're viewing)
+        if (playerDetail?.result) {
+          setProfileOwner(playerDetail.result);
+          // Fetch profile owner's ratings as well
+          await fetchUserRatings([playerDetail.result.id]);
+        }
+
         const followersTotal = followInfoData?.result?.followers;
         const followingTotal = followInfoData?.result?.followings;
+        const isFollowingProfileOwner = followInfoData?.result?.isFollowed;
         if (typeof followersTotal === "number")
           setFollowersCount(followersTotal);
         if (typeof followingTotal === "number")
           setFollowingCount(followingTotal);
+        if (typeof isFollowingProfileOwner === "boolean")
+          setProfileOwnerFollowState(isFollowingProfileOwner);
 
         const name = playerDetail?.result?.fullName as string | undefined;
         const image = playerDetail?.result?.imageUrl as string | undefined;
@@ -440,6 +471,11 @@ const FollowersFollowingPage: React.FC = () => {
       );
     setFollowers(updateUser);
     setFollowing(updateUser);
+    
+    // Update profile owner follow state if it's the same user
+    if (profileOwner && userId === profileOwner.id) {
+      setProfileOwnerFollowState(isFollowed);
+    }
   };
 
   const handleSortOptionChange = async (newSortOption: SortOption) => {
@@ -557,8 +593,9 @@ const FollowersFollowingPage: React.FC = () => {
   const currentCount =
     activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
+  
   const sortedList = canSort
-    ? sortUsers(currentList, sortOption, sortDirection, userRatings)
+    ? sortUsers(currentList, sortOption, sortDirection, userRatings, profileOwner, profileOwnerFollowState)
     : currentList;
 
   return (
@@ -680,11 +717,15 @@ const FollowersFollowingPage: React.FC = () => {
           </p>
         ) : (
           <div className="space-y-3">
-            {sortedList.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center gap-3 p-3 rounded-lg border"
-              >
+            {sortedList.map((user) => {
+              const isProfileOwner = profileOwner && user.id === profileOwner.id;
+              return (
+                <div
+                  key={user.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border ${
+                    isProfileOwner ? "border-dashed border-2 border-blue-400" : ""
+                  }`}
+                >
                 <div
                   className="flex items-center gap-3 flex-1 cursor-pointer"
                   onClick={() => handleUserClick(user.id)}
@@ -728,14 +769,15 @@ const FollowersFollowingPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                {selfProfile && user.id !== selfProfile.id && (
-                  <FollowButton
-                    user={user}
-                    onFollowStateChange={handleFollowStateChange}
-                  />
-                )}
-              </div>
-            ))}
+                  {selfProfile && user.id !== selfProfile.id && (
+                    <FollowButton
+                      user={user}
+                      onFollowStateChange={handleFollowStateChange}
+                    />
+                  )}
+                </div>
+              );
+            })}
             <div ref={loaderRef} />
             {(isLoadingMore || listLoading) && hasMore && sortOption === "none" && (
               <div className="py-4 text-center">
