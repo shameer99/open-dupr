@@ -89,14 +89,14 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
               <div className="flex space-x-6 text-sm">
                 <button
                   onClick={handleFollowersClick}
-                  className="hover:text-gray-600 transition-colors"
+                  className="hover:text-gray-600 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold">{followInfo.followers}</span>{" "}
                   <span className="text-muted-foreground">followers</span>
                 </button>
                 <button
                   onClick={handleFollowingClick}
-                  className="hover:text-gray-600 transition-colors"
+                  className="hover:text-gray-600 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold">{followInfo.followings}</span>{" "}
                   <span className="text-muted-foreground">following</span>
@@ -116,7 +116,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
           <EnlargedAvatar src={imageUrl} name={name} />
           <button
             onClick={() => setIsModalOpen(false)}
-            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 transition-colors"
+            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-white rounded-full hover:bg-gray-800/80 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X size={24} />

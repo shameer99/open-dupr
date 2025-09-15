@@ -1,9 +1,5 @@
 import Avatar from "@/components/ui/avatar";
-import {
-  type MatchTeam,
-  getDisplayName,
-  getScoreClasses,
-} from "./match-utils";
+import { type MatchTeam, getDisplayName, getScoreClasses } from "./match-utils";
 
 interface TeamHeaderProps {
   team: MatchTeam;
@@ -26,28 +22,28 @@ export function TeamHeader({ team, onClickPlayer }: TeamHeaderProps) {
         <button
           type="button"
           onClick={(e) => handlePlayerClick(e, team.player1.id)}
-          className="hover:ring-2 hover:ring-primary/20 transition-all"
+          className="rounded-full transition-all cursor-pointer disabled:cursor-not-allowed"
           disabled={!onClickPlayer}
         >
           <Avatar
             name={team.player1.fullName}
             src={team.player1.imageUrl}
             size="sm"
-            className="ring-2 ring-background"
+            className="ring-2 ring-background hover:ring-primary/20 transition-all"
           />
         </button>
         {isDoubles && (
           <button
             type="button"
             onClick={(e) => handlePlayerClick(e, team.player2!.id)}
-            className="hover:ring-2 hover:ring-primary/20 transition-all"
+            className="rounded-full transition-all cursor-pointer disabled:cursor-not-allowed"
             disabled={!onClickPlayer}
           >
             <Avatar
               name={team.player2!.fullName}
               src={team.player2!.imageUrl}
               size="sm"
-              className="ring-2 ring-background"
+              className="ring-2 ring-background hover:ring-primary/20 transition-all"
             />
           </button>
         )}
@@ -57,7 +53,7 @@ export function TeamHeader({ team, onClickPlayer }: TeamHeaderProps) {
           <button
             type="button"
             onClick={(e) => handlePlayerClick(e, team.player1.id)}
-            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm"
+            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm cursor-pointer disabled:cursor-not-allowed"
             disabled={!onClickPlayer}
           >
             {getDisplayName(team.player1.fullName)}
@@ -66,7 +62,7 @@ export function TeamHeader({ team, onClickPlayer }: TeamHeaderProps) {
             <button
               type="button"
               onClick={(e) => handlePlayerClick(e, team.player2!.id)}
-              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm"
+              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors text-sm cursor-pointer disabled:cursor-not-allowed"
               disabled={!onClickPlayer}
             >
               {getDisplayName(team.player2!.fullName)}
@@ -122,7 +118,7 @@ export function MatchScoreDisplay({
         // Per-game winner logic
         const aWonGame = g.a > g.b;
         const bWonGame = g.b > g.a;
-        
+
         const aGameClass = isUserContext
           ? aWonGame
             ? "text-emerald-600"
@@ -132,7 +128,7 @@ export function MatchScoreDisplay({
           : aWonGame
           ? "text-foreground"
           : "text-muted-foreground";
-          
+
         const bGameClass = isUserContext
           ? "text-muted-foreground"
           : bWonGame
@@ -141,7 +137,9 @@ export function MatchScoreDisplay({
 
         return (
           <div key={i} className="flex items-center gap-2">
-            <div className="text-xs text-muted-foreground whitespace-nowrap">Game {i + 1}:</div>
+            <div className="text-xs text-muted-foreground whitespace-nowrap">
+              Game {i + 1}:
+            </div>
             <div className="flex-1 text-center">
               <span className={aGameClass}>{g.a}</span>
               <span className={`${spacingClass} text-foreground`}>–</span>

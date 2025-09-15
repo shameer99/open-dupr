@@ -164,14 +164,14 @@ function TeamBlock({
             key={p.id ?? p.fullName}
             type="button"
             onClick={() => onClickPlayer(p.id)}
-            className="group flex items-center justify-between gap-3 rounded-md border p-2 text-left hover:bg-accent"
+            className="group flex items-center justify-between gap-3 rounded-md border p-2 text-left hover:bg-accent cursor-pointer"
           >
             <span className="flex items-center gap-3 min-w-0">
               <Avatar
                 name={p.fullName}
                 src={p.imageUrl}
                 size="md"
-                className="ring-2 ring-background"
+                className="ring-2 ring-background hover:ring-primary/20 transition-all"
               />
               <span className="truncate group-hover:underline">
                 {getDisplayName(p.fullName)}
@@ -464,7 +464,7 @@ const MatchDetailsPage: React.FC = () => {
                       key={p!.id}
                       type="button"
                       onClick={() => handleClickPlayer(p!.id)}
-                      className="flex items-center gap-3 p-2 rounded-md border w-full text-left hover:bg-accent transition-colors"
+                      className="flex items-center gap-3 p-2 rounded-md border w-full text-left hover:bg-accent transition-colors cursor-pointer"
                     >
                       <Avatar name={p!.fullName} src={p!.imageUrl} size="sm" />
                       <span className="text-sm font-medium hover:underline">
@@ -487,7 +487,11 @@ const MatchDetailsPage: React.FC = () => {
                 variant="outline"
                 size="lg"
                 className="flex-1 hover:opacity-90"
-                style={{ color: "var(--success)", backgroundColor: "color-mix(in oklab, var(--success) 12%, transparent)" }}
+                style={{
+                  color: "var(--success)",
+                  backgroundColor:
+                    "color-mix(in oklab, var(--success) 12%, transparent)",
+                }}
                 onClick={handleConfirm}
                 disabled={isProcessing}
               >
@@ -498,7 +502,11 @@ const MatchDetailsPage: React.FC = () => {
                 variant="outline"
                 size="lg"
                 className="flex-1 hover:opacity-90"
-                style={{ color: "var(--destructive)", backgroundColor: "color-mix(in oklab, var(--destructive) 12%, transparent)" }}
+                style={{
+                  color: "var(--destructive)",
+                  backgroundColor:
+                    "color-mix(in oklab, var(--destructive) 12%, transparent)",
+                }}
                 onClick={handleReject}
                 disabled={isProcessing}
               >

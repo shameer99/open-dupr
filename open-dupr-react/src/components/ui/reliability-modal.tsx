@@ -108,7 +108,7 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
               href="https://www.dupr.com/post/introducing-the-dupr-reliability-score"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm underline"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm underline cursor-pointer"
             >
               Learn more on DUPR's blog →
             </a>

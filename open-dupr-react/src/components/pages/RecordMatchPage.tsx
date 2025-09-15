@@ -297,7 +297,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
       <div className="flex flex-col items-center space-y-3 relative">
         <button
           onClick={() => setShowModal(true)}
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed transition-colors flex items-center justify-center hover:bg-accent bg-muted/25"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed transition-colors flex items-center justify-center hover:bg-accent bg-muted/25 cursor-pointer"
           style={{ borderColor: "var(--border)" }}
         >
           <span className="text-muted-foreground text-xl sm:text-2xl">+</span>
@@ -457,7 +457,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                       <button
                         key={playerData.id}
                         type="button"
-                        className="w-full flex items-center space-x-4 p-4 rounded-xl transition-colors text-left hover:bg-accent"
+                        className="w-full flex items-center space-x-4 p-4 rounded-xl transition-colors text-left hover:bg-accent cursor-pointer"
                         onClick={() => handlePlayerClick(playerData)}
                       >
                         <Avatar
@@ -1158,7 +1158,7 @@ const RecordMatchPage: React.FC = () => {
                     ) : (
                       <button
                         onClick={() => setIsEditingDate(true)}
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
                       >
                         {eventDate}
                       </button>

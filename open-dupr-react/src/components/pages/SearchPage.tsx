@@ -250,7 +250,7 @@ const SearchPage: React.FC = () => {
             {hits.map((h) => (
               <button
                 key={h.id}
-                className="w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors border"
+                className="w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors border cursor-pointer"
                 style={{
                   backgroundColor:
                     "color-mix(in oklab, var(--muted) 20%, transparent)",

@@ -57,7 +57,9 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
     { date: string; singles?: number | null; doubles?: number | null }[]
   >([]);
   const [ratingHistoryLoading, setRatingHistoryLoading] = useState(false);
-  const [ratingHistoryError, setRatingHistoryError] = useState<string | null>(null);
+  const [ratingHistoryError, setRatingHistoryError] = useState<string | null>(
+    null
+  );
 
   const openReliabilityModal = (reliabilityScore: number | undefined) => {
     setCurrentReliabilityScore(reliabilityScore);
@@ -104,14 +106,24 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         const doublesArr: Array<{ date?: string; rating?: unknown }> =
           doublesResp?.result?.ratingHistory ?? [];
 
-        const byDate = new Map<string, { date: string; singles?: number | null; doubles?: number | null }>();
+        const byDate = new Map<
+          string,
+          { date: string; singles?: number | null; doubles?: number | null }
+        >();
 
         for (const s of singlesArr) {
           const d = s.date || "";
           if (!d) continue;
           const prev = byDate.get(d) || { date: d };
-          const val = typeof s.rating === "number" ? s.rating : s.rating != null ? Number(s.rating) : null;
-          prev.singles = Number.isFinite(val as number) ? (val as number) : null;
+          const val =
+            typeof s.rating === "number"
+              ? s.rating
+              : s.rating != null
+              ? Number(s.rating)
+              : null;
+          prev.singles = Number.isFinite(val as number)
+            ? (val as number)
+            : null;
           byDate.set(d, prev);
         }
 
@@ -119,16 +131,27 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
           const d = dItem.date || "";
           if (!d) continue;
           const prev = byDate.get(d) || { date: d };
-          const val = typeof dItem.rating === "number" ? dItem.rating : dItem.rating != null ? Number(dItem.rating) : null;
-          prev.doubles = Number.isFinite(val as number) ? (val as number) : null;
+          const val =
+            typeof dItem.rating === "number"
+              ? dItem.rating
+              : dItem.rating != null
+              ? Number(dItem.rating)
+              : null;
+          prev.doubles = Number.isFinite(val as number)
+            ? (val as number)
+            : null;
           byDate.set(d, prev);
         }
 
-        const rows = Array.from(byDate.values()).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        const rows = Array.from(byDate.values()).sort((a, b) =>
+          a.date < b.date ? -1 : a.date > b.date ? 1 : 0
+        );
         if (!cancelled) setRatingHistory(rows);
       } catch (e) {
         if (!cancelled)
-          setRatingHistoryError(e instanceof Error ? e.message : "Failed to load rating history");
+          setRatingHistoryError(
+            e instanceof Error ? e.message : "Failed to load rating history"
+          );
       } finally {
         if (!cancelled) setRatingHistoryLoading(false);
       }
@@ -139,7 +162,10 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
     };
   }, [playerId]);
 
-  const hasAnyHistory = useMemo(() => ratingHistory && ratingHistory.length > 1, [ratingHistory]);
+  const hasAnyHistory = useMemo(
+    () => ratingHistory && ratingHistory.length > 1,
+    [ratingHistory]
+  );
 
   if (!playerId) {
     return (
@@ -263,7 +289,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
             <button
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
-              className="w-full flex items-center justify-between py-0.5 hover:bg-accent rounded px-2 -mx-2 -mt-0.5 transition-colors"
+              className="w-full flex items-center justify-between py-0.5 hover:bg-accent rounded px-2 -mx-2 -mt-0.5 transition-colors cursor-pointer"
               aria-expanded={expanded}
             >
               <div className="flex items-center gap-2">
@@ -275,12 +301,24 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: "color-mix(in oklab, var(--success) 15%, transparent)", color: "var(--success)" }}>
+                <span
+                  className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in oklab, var(--success) 15%, transparent)",
+                    color: "var(--success)",
+                  }}
+                >
                   {stats.resulOverview.wins}W
                 </span>
-                <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 15%, transparent)", color: "var(--destructive)" }}>
+                <span
+                  className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in oklab, var(--destructive) 15%, transparent)",
+                    color: "var(--destructive)",
+                  }}
+                >
                   {stats.resulOverview.losses}L
                 </span>
               </div>
@@ -291,33 +329,55 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <div>
                   <h4 className="text-sm font-medium mb-1">Rating History</h4>
                   {ratingHistoryLoading && (
-                    <div className="text-xs text-muted-foreground">Loading rating history…</div>
+                    <div className="text-xs text-muted-foreground">
+                      Loading rating history…
+                    </div>
                   )}
                   {ratingHistoryError && (
-                    <div className="text-xs text-red-600">{ratingHistoryError}</div>
+                    <div className="text-xs text-red-600">
+                      {ratingHistoryError}
+                    </div>
                   )}
-                  {!ratingHistoryLoading && !ratingHistoryError && (
-                    hasAnyHistory ? (
+                  {!ratingHistoryLoading &&
+                    !ratingHistoryError &&
+                    (hasAnyHistory ? (
                       <div className="h-40 w-full">
                         <RatingHistoryChart data={ratingHistory} />
                       </div>
                     ) : (
-                      <div className="text-xs text-muted-foreground">No rating history yet.</div>
-                    )
-                  )}
+                      <div className="text-xs text-muted-foreground">
+                        No rating history yet.
+                      </div>
+                    ))}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 rounded-md"
-                    style={{ backgroundColor: "color-mix(in oklab, var(--success) 10%, transparent)" }}>
-                    <div className="text-base font-bold" style={{ color: "var(--success)" }}>
+                  <div
+                    className="p-2 rounded-md"
+                    style={{
+                      backgroundColor:
+                        "color-mix(in oklab, var(--success) 10%, transparent)",
+                    }}
+                  >
+                    <div
+                      className="text-base font-bold"
+                      style={{ color: "var(--success)" }}
+                    >
                       {stats.resulOverview.wins}
                     </div>
                     <div className="text-xs text-muted-foreground">Wins</div>
                   </div>
-                  <div className="p-2 rounded-md"
-                    style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 10%, transparent)" }}>
-                    <div className="text-base font-bold" style={{ color: "var(--destructive)" }}>
+                  <div
+                    className="p-2 rounded-md"
+                    style={{
+                      backgroundColor:
+                        "color-mix(in oklab, var(--destructive) 10%, transparent)",
+                    }}
+                  >
+                    <div
+                      className="text-base font-bold"
+                      style={{ color: "var(--destructive)" }}
+                    >
                       {stats.resulOverview.losses}
                     </div>
                     <div className="text-xs text-muted-foreground">Losses</div>

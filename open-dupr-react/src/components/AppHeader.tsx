@@ -164,7 +164,7 @@ const AppHeader: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setTheme("light")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent ${
+                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
                             theme === "light" ? "ring-2 ring-ring" : ""
                           }`}
                           aria-pressed={theme === "light"}
@@ -175,7 +175,7 @@ const AppHeader: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setTheme("dark")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent ${
+                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
                             theme === "dark" ? "ring-2 ring-ring" : ""
                           }`}
                           aria-pressed={theme === "dark"}
@@ -186,7 +186,7 @@ const AppHeader: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setTheme("system")}
-                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent ${
+                          className={`flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-sm hover:bg-accent cursor-pointer ${
                             theme === "system" ? "ring-2 ring-ring" : ""
                           }`}
                           aria-pressed={theme === "system"}
@@ -203,7 +203,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={goToProfile}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <User className="h-5 w-5" />
                       My Profile
@@ -211,7 +211,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={goToFeed}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <LayoutList className="h-5 w-5" />
                       Feed
@@ -219,7 +219,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={goToSearch}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <Search className="h-5 w-5" />
                       Search Players
@@ -227,7 +227,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={goToRecordMatch}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <Plus className="h-5 w-5" />
                       Add Match
@@ -235,7 +235,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={goToAbout}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <Info className="h-5 w-5" />
                       About Open DUPR
@@ -244,7 +244,7 @@ const AppHeader: React.FC = () => {
                     <button
                       type="button"
                       onClick={logout}
-                      className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
                       <LogOut className="h-5 w-5" />
                       Log out

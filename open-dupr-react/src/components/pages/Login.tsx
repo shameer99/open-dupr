@@ -107,7 +107,7 @@ export default function LoginPage() {
             official DUPR backend.{" "}
             <button
               onClick={() => navigate("/about")}
-              className="underline hover:text-foreground transition-colors"
+              className="underline hover:text-foreground transition-colors cursor-pointer"
             >
               Learn more about Open DUPR
             </button>

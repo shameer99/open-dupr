@@ -49,26 +49,26 @@ function TeamStack({
         <button
           type="button"
           onClick={(e) => handlePlayerClick(e, team.player1.id)}
-          className="hover:ring-2 hover:ring-primary/20 transition-all"
+          className="rounded-full transition-all cursor-pointer"
         >
           <Avatar
             name={team.player1.fullName}
             src={team.player1.imageUrl}
             size="sm"
-            className="ring-2 ring-background"
+            className="ring-2 ring-background hover:ring-primary/20 transition-all"
           />
         </button>
         {isDoubles && (
           <button
             type="button"
             onClick={(e) => handlePlayerClick(e, team.player2!.id)}
-            className="hover:ring-2 hover:ring-primary/20 transition-all"
+            className="rounded-full transition-all cursor-pointer"
           >
             <Avatar
               name={team.player2!.fullName}
               src={team.player2!.imageUrl}
               size="sm"
-              className="ring-2 ring-background"
+              className="ring-2 ring-background hover:ring-primary/20 transition-all"
             />
           </button>
         )}
@@ -78,7 +78,7 @@ function TeamStack({
           <button
             type="button"
             onClick={(e) => handlePlayerClick(e, team.player1.id)}
-            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors"
+            className="font-medium truncate text-left hover:underline hover:text-primary transition-colors cursor-pointer"
           >
             {getDisplayName(team.player1.fullName)}
           </button>
@@ -86,7 +86,7 @@ function TeamStack({
             <button
               type="button"
               onClick={(e) => handlePlayerClick(e, team.player2!.id)}
-              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors"
+              className="font-medium truncate text-left hover:underline hover:text-primary transition-colors cursor-pointer"
             >
               {getDisplayName(team.player2!.fullName)}
             </button>

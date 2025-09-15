@@ -38,12 +38,17 @@ const parseRating = (ratingStr: string): number => {
   return isNaN(parsed) ? -1 : parsed;
 };
 
-const sortUsers = (users: FollowUser[], sortOption: SortOption, sortDirection: SortDirection, userRatings: Record<number, { singles: string; doubles: string }>): FollowUser[] => {
+const sortUsers = (
+  users: FollowUser[],
+  sortOption: SortOption,
+  sortDirection: SortDirection,
+  userRatings: Record<number, { singles: string; doubles: string }>
+): FollowUser[] => {
   if (sortOption === "none") return users;
-  
+
   return [...users].sort((a, b) => {
     let result = 0;
-    
+
     switch (sortOption) {
       case "alphabetical": {
         const nameA = a.name?.trim().toLowerCase() || "";
@@ -51,25 +56,25 @@ const sortUsers = (users: FollowUser[], sortOption: SortOption, sortDirection: S
         result = nameA.localeCompare(nameB);
         break;
       }
-      
+
       case "singles": {
         const ratingA = parseRating(userRatings[a.id]?.singles || "-");
         const ratingB = parseRating(userRatings[b.id]?.singles || "-");
         result = ratingB - ratingA; // Default descending order (higher ratings first)
         break;
       }
-      
+
       case "doubles": {
         const ratingA = parseRating(userRatings[a.id]?.doubles || "-");
         const ratingB = parseRating(userRatings[b.id]?.doubles || "-");
         result = ratingB - ratingA; // Default descending order (higher ratings first)
         break;
       }
-      
+
       default:
         return 0;
     }
-    
+
     return sortDirection === "asc" ? -result : result;
   });
 };
@@ -104,7 +109,9 @@ const FollowersFollowingPage: React.FC = () => {
   const [followersHasMore, setFollowersHasMore] = useState<boolean>(true);
   const [followingHasMore, setFollowingHasMore] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-  const [userRatings, setUserRatings] = useState<Record<number, { singles: string; doubles: string }>>({});
+  const [userRatings, setUserRatings] = useState<
+    Record<number, { singles: string; doubles: string }>
+  >({});
   const [sortOption, setSortOption] = useState<SortOption>("none");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const loaderRef = useRef<HTMLDivElement | null>(null);
@@ -128,7 +135,10 @@ const FollowersFollowingPage: React.FC = () => {
             },
           };
         } else {
-          console.log(`No ratings found for user ${userId}, playerData:`, playerData);
+          console.log(
+            `No ratings found for user ${userId}, playerData:`,
+            playerData
+          );
         }
       } catch (err) {
         console.warn(`Failed to fetch ratings for user ${userId}:`, err);
@@ -138,17 +148,17 @@ const FollowersFollowingPage: React.FC = () => {
 
     const results = await Promise.all(ratingPromises);
     const newRatings: Record<number, { singles: string; doubles: string }> = {};
-    
+
     results.forEach((result) => {
       if (result) {
         newRatings[result.userId] = result.ratings;
       }
     });
 
-    console.log('Setting new ratings:', newRatings);
+    console.log("Setting new ratings:", newRatings);
     setUserRatings((prev) => {
       const updated = { ...prev, ...newRatings };
-      console.log('Updated userRatings state:', updated);
+      console.log("Updated userRatings state:", updated);
       return updated;
     });
   }, []);
@@ -164,7 +174,7 @@ const FollowersFollowingPage: React.FC = () => {
         );
         setFollowersHasMore(newItems.length === PAGE_SIZE);
         setFollowersOffset(startOffset + newItems.length);
-        
+
         // Fetch ratings for new users
         const newUserIds = newItems.map((user) => user.id);
         await fetchUserRatings(newUserIds);
@@ -190,7 +200,7 @@ const FollowersFollowingPage: React.FC = () => {
         );
         setFollowingHasMore(newItems.length === PAGE_SIZE);
         setFollowingOffset(startOffset + newItems.length);
-        
+
         // Fetch ratings for new users
         const newUserIds = newItems.map((user) => user.id);
         await fetchUserRatings(newUserIds);
@@ -372,7 +382,7 @@ const FollowersFollowingPage: React.FC = () => {
   };
 
   const toggleSortDirection = () => {
-    setSortDirection(prev => prev === "asc" ? "desc" : "asc");
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
   const handleBackClick = useCallback(() => {
@@ -452,10 +462,13 @@ const FollowersFollowingPage: React.FC = () => {
   const currentList = activeTab === "followers" ? followers : following;
   const hasMore =
     activeTab === "followers" ? followersHasMore : followingHasMore;
-  
-  const currentCount = activeTab === "followers" ? followersCount : followingCount;
+
+  const currentCount =
+    activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
-  const sortedList = canSort ? sortUsers(currentList, sortOption, sortDirection, userRatings) : currentList;
+  const sortedList = canSort
+    ? sortUsers(currentList, sortOption, sortDirection, userRatings)
+    : currentList;
 
   return (
     <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
@@ -463,7 +476,7 @@ const FollowersFollowingPage: React.FC = () => {
         <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => handleTabChange("followers")}
-            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors cursor-pointer ${
               activeTab === "followers"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -478,7 +491,7 @@ const FollowersFollowingPage: React.FC = () => {
           </button>
           <button
             onClick={() => handleTabChange("following")}
-            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors ${
+            className={`flex-1 pb-3 px-1 text-center font-medium transition-colors cursor-pointer ${
               activeTab === "following"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -499,10 +512,18 @@ const FollowersFollowingPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleSortDirection}
-                className={`p-2 border rounded-md transition-colors ${
-                  sortOption === "none" ? "opacity-0 pointer-events-none" : "opacity-100"
+                className={`p-2 border rounded-md transition-colors cursor-pointer ${
+                  sortOption === "none"
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100"
                 }`}
-                title={sortOption !== "none" ? `Sort ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}
+                title={
+                  sortOption !== "none"
+                    ? `Sort ${
+                        sortDirection === "asc" ? "ascending" : "descending"
+                      }`
+                    : ""
+                }
                 tabIndex={sortOption === "none" ? -1 : 0}
                 style={{ borderColor: "var(--border)" }}
               >
@@ -514,7 +535,9 @@ const FollowersFollowingPage: React.FC = () => {
               </button>
               <select
                 value={sortOption}
-                onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
+                onChange={(e) =>
+                  handleSortOptionChange(e.target.value as SortOption)
+                }
                 className="px-3 py-2 border rounded-md text-sm focus:ring-2"
                 style={{ borderColor: "var(--border)" }}
               >
@@ -528,7 +551,9 @@ const FollowersFollowingPage: React.FC = () => {
         ) : currentCount !== null && currentCount > 100 ? (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700">
-              <span className="font-medium">Sort unavailable:</span> Lists with more than 100 {activeTab} cannot be sorted. This list has {currentCount} {activeTab}.
+              <span className="font-medium">Sort unavailable:</span> Lists with
+              more than 100 {activeTab} cannot be sorted. This list has{" "}
+              {currentCount} {activeTab}.
             </p>
           </div>
         ) : null}
@@ -541,10 +566,19 @@ const FollowersFollowingPage: React.FC = () => {
                 className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
                 style={{ borderColor: "var(--border)" }}
               >
-                <div className="h-12 w-12 rounded-full" style={{ backgroundColor: "var(--muted)" }} />
+                <div
+                  className="h-12 w-12 rounded-full"
+                  style={{ backgroundColor: "var(--muted)" }}
+                />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-32 rounded" style={{ backgroundColor: "var(--muted)" }} />
-                  <div className="h-3 w-24 rounded" style={{ backgroundColor: "var(--muted)" }} />
+                  <div
+                    className="h-4 w-32 rounded"
+                    style={{ backgroundColor: "var(--muted)" }}
+                  />
+                  <div
+                    className="h-3 w-24 rounded"
+                    style={{ backgroundColor: "var(--muted)" }}
+                  />
                 </div>
               </div>
             ))}
