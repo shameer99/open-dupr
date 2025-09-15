@@ -44,19 +44,19 @@ const sortUsers = (
   sortOption: SortOption,
   sortDirection: SortDirection,
   userRatings: Record<number, { singles: string; doubles: string }>,
-  selfProfile: Player | null
+  profileOwner: Player | null
 ): FollowUser[] => {
   const usersToSort = [...users];
   
-  // Add self profile to the list if it exists and isn't already included
-  if (selfProfile && !users.find(user => user.id === selfProfile.id)) {
-    const selfAsFollowUser: FollowUser = {
-      id: selfProfile.id,
-      name: selfProfile.fullName,
-      profileImage: selfProfile.imageUrl,
-      isFollow: false, // User doesn't follow themselves
+  // Add profile owner to the list if it exists and isn't already included
+  if (profileOwner && !users.find(user => user.id === profileOwner.id)) {
+    const ownerAsFollowUser: FollowUser = {
+      id: profileOwner.id,
+      name: profileOwner.fullName,
+      profileImage: profileOwner.imageUrl,
+      isFollow: false, // Profile owner doesn't follow themselves
     };
-    usersToSort.push(selfAsFollowUser);
+    usersToSort.push(ownerAsFollowUser);
   }
   
   if (sortOption === "none") return usersToSort;
@@ -319,6 +319,7 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowersHasMore(true);
         setFollowingHasMore(true);
         setUserRatings({});
+        setProfileOwner(null);
         setSortOption("none");
         setSortDirection("desc");
 
@@ -334,8 +335,13 @@ const FollowersFollowingPage: React.FC = () => {
         const selfProfileData = await getMyProfile().catch(() => null);
         if (selfProfileData?.result) {
           setSelfProfile(selfProfileData.result);
-          // Fetch current user's ratings as well
-          await fetchUserRatings([selfProfileData.result.id]);
+        }
+
+        // Set the profile owner (the user whose page we're viewing)
+        if (playerDetail?.result) {
+          setProfileOwner(playerDetail.result);
+          // Fetch profile owner's ratings as well
+          await fetchUserRatings([playerDetail.result.id]);
         }
 
         const followersTotal = followInfoData?.result?.followers;
@@ -575,20 +581,20 @@ const FollowersFollowingPage: React.FC = () => {
     activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
   
-  // Always include the user in the list, whether sorting or not
+  // Always include the profile owner in the list, whether sorting or not
   let displayList = currentList;
-  if (selfProfile && !currentList.find(user => user.id === selfProfile.id)) {
-    const selfAsFollowUser: FollowUser = {
-      id: selfProfile.id,
-      name: selfProfile.fullName,
-      profileImage: selfProfile.imageUrl,
+  if (profileOwner && !currentList.find(user => user.id === profileOwner.id)) {
+    const ownerAsFollowUser: FollowUser = {
+      id: profileOwner.id,
+      name: profileOwner.fullName,
+      profileImage: profileOwner.imageUrl,
       isFollow: false,
     };
-    displayList = [...currentList, selfAsFollowUser];
+    displayList = [...currentList, ownerAsFollowUser];
   }
   
   const sortedList = canSort
-    ? sortUsers(currentList, sortOption, sortDirection, userRatings, selfProfile)
+    ? sortUsers(currentList, sortOption, sortDirection, userRatings, profileOwner)
     : displayList;
 
   return (
@@ -711,12 +717,12 @@ const FollowersFollowingPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {sortedList.map((user) => {
-              const isCurrentUser = selfProfile && user.id === selfProfile.id;
+              const isProfileOwner = profileOwner && user.id === profileOwner.id;
               return (
                 <div
                   key={user.id}
                   className={`flex items-center gap-3 p-3 rounded-lg border ${
-                    isCurrentUser ? "border-dashed border-2 border-blue-400" : ""
+                    isProfileOwner ? "border-dashed border-2 border-blue-400" : ""
                   }`}
                 >
                 <div
