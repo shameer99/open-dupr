@@ -60,7 +60,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white"
+                className=""
               />
             </div>
             <div className="grid gap-2">
@@ -73,7 +73,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white"
+                className=""
               />
             </div>
             {error && (

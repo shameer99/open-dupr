@@ -6,6 +6,7 @@ import "./index.css";
 import { AuthProvider } from "./lib/AuthProvider.tsx";
 import { LoadingProvider } from "./lib/loading-context.tsx";
 import { HeaderProvider } from "./lib/header-context.tsx";
+import ThemeProvider from "./lib/theme-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
 import AboutPage from "./components/pages/AboutPage.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
@@ -22,100 +23,102 @@ import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <LoadingProvider>
-        <HeaderProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<App />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <ProfilePage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
+    <ThemeProvider>
+      <AuthProvider>
+        <LoadingProvider>
+          <HeaderProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<App />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <ProfilePage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
 
-              <Route
-                path="/user/:id/social"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <FollowersFollowingPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/player/:id"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <OtherUserPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/search"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <SearchPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/record-match"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <RecordMatchPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/validation-queue"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <ValidationQueuePage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/match/:id"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <MatchDetailsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/match/:id/player/:playerId"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <MatchDetailsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Router>
-        </HeaderProvider>
-      </LoadingProvider>
-    </AuthProvider>
+                <Route
+                  path="/user/:id/social"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <FollowersFollowingPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/player/:id"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <OtherUserPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/search"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <SearchPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/record-match"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <RecordMatchPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/validation-queue"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <ValidationQueuePage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/match/:id"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <MatchDetailsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/match/:id/player/:playerId"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <MatchDetailsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Router>
+          </HeaderProvider>
+        </LoadingProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
