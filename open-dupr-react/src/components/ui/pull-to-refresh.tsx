@@ -1,6 +1,25 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
+// Track recent successful pull-to-refresh triggers across the app.
+// If 3 triggers occur within 15 seconds, perform a hard reload.
+let pullToRefreshTimestamps: number[] = [];
+const PULL_TO_REFRESH_WINDOW_MS = 15000;
+
+function recordPullAndShouldHardReload(): boolean {
+  const now = Date.now();
+  // Keep only timestamps within the last 15 seconds
+  pullToRefreshTimestamps = pullToRefreshTimestamps.filter(
+    (t) => now - t <= PULL_TO_REFRESH_WINDOW_MS
+  );
+  pullToRefreshTimestamps.push(now);
+  if (pullToRefreshTimestamps.length >= 3) {
+    pullToRefreshTimestamps = [];
+    return true;
+  }
+  return false;
+}
+
 interface PullToRefreshProps {
   children: React.ReactNode;
   onRefresh: () => Promise<void>;
@@ -112,6 +131,13 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
     if (pullDistance >= threshold) {
       setIsRefreshing(true);
+      const shouldHardReload = recordPullAndShouldHardReload();
+      if (shouldHardReload) {
+        // Hard reload the page immediately
+        window.location.reload();
+        return;
+      }
+
       try {
         await onRefresh();
         setShowSuccessPulse(true);
