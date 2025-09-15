@@ -126,7 +126,7 @@ const ValidationQueuePage: React.FC = () => {
           </LoadingPage>
         ) : error ? (
           <div className="text-center py-8">
-            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-destructive mb-4">{error}</p>
             <Button onClick={loadPendingMatches}>Try Again</Button>
           </div>
         ) : pendingMatches.length === 0 ? (

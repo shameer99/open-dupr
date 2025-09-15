@@ -160,30 +160,33 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     >
       {(isPulling || isRefreshing || showSuccessPulse) && (
         <div
-          className="absolute top-0 left-0 right-0 h-1 bg-gray-200 overflow-hidden z-50"
+          className="absolute top-0 left-0 right-0 h-1 overflow-hidden z-50"
           style={{
-            borderBottom: "1px solid #e5e7eb",
+            backgroundColor: "var(--input)",
+            borderBottom: "1px solid var(--border)",
           }}
         >
           <div
             className={cn(
-              "absolute top-0 right-1/2 h-full bg-blue-600 transition-all duration-300 ease-out",
-              showSuccessPulse && "animate-pulse bg-green-500"
+              "absolute top-0 right-1/2 h-full transition-all duration-300 ease-out",
+              showSuccessPulse && "animate-pulse"
             )}
             style={{
               width: `${leftWidth}%`,
               transformOrigin: "right center",
+              backgroundColor: showSuccessPulse ? "var(--success)" : "var(--primary)",
             }}
           />
 
           <div
             className={cn(
-              "absolute top-0 left-1/2 h-full bg-blue-600 transition-all duration-300 ease-out",
-              showSuccessPulse && "animate-pulse bg-green-500"
+              "absolute top-0 left-1/2 h-full transition-all duration-300 ease-out",
+              showSuccessPulse && "animate-pulse"
             )}
             style={{
               width: `${rightWidth}%`,
               transformOrigin: "left center",
+              backgroundColor: showSuccessPulse ? "var(--success)" : "var(--primary)",
             }}
           />
         </div>

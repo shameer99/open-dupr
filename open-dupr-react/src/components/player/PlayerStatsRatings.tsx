@@ -176,7 +176,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-2xl font-bold">{formatRating(singles)}</p>
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
-                  <p className="text-xs text-green-600 font-medium">
+                  <p className="text-xs text-[color:var(--success)] font-medium">
                     {formatReliability(singlesReliabilityScore)}
                   </p>
                 )}
@@ -185,7 +185,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-2xl font-bold">{formatRating(doubles)}</p>
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
-                  <p className="text-xs text-green-600 font-medium">
+                  <p className="text-xs text-[color:var(--success)] font-medium">
                     {formatReliability(doublesReliabilityScore)}
                   </p>
                 )}
@@ -217,7 +217,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
                   <div className="flex items-center justify-center lg:justify-start gap-1">
-                    <p className="text-xs text-green-600 font-medium">
+                    <p className="text-xs text-[color:var(--success)] font-medium">
                       {formatReliability(singlesReliabilityScore)}
                     </p>
                     <Button
@@ -226,7 +226,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                       onClick={() =>
                         openReliabilityModal(singlesReliabilityScore)
                       }
-                      className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
+                      className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
                     >
                       <Info className="h-3 w-3" />
                     </Button>
@@ -238,7 +238,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
                   <div className="flex items-center justify-center lg:justify-start gap-1">
-                    <p className="text-xs text-green-600 font-medium">
+                    <p className="text-xs text-[color:var(--success)] font-medium">
                       {formatReliability(doublesReliabilityScore)}
                     </p>
                     <Button
@@ -247,7 +247,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                       onClick={() =>
                         openReliabilityModal(doublesReliabilityScore)
                       }
-                      className="h-4 w-4 p-0 text-green-600 hover:text-green-800"
+                      className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
                     >
                       <Info className="h-3 w-3" />
                     </Button>
@@ -275,10 +275,12 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded bg-green-100 text-green-700 px-2 py-0.5 text-xs font-medium">
+                <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                  style={{ backgroundColor: "color-mix(in oklab, var(--success) 15%, transparent)", color: "var(--success)" }}>
                   {stats.resulOverview.wins}W
                 </span>
-                <span className="inline-flex items-center rounded bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium">
+                <span className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                  style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 15%, transparent)", color: "var(--destructive)" }}>
                   {stats.resulOverview.losses}L
                 </span>
               </div>
@@ -306,20 +308,22 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-green-50 p-2 rounded-md">
-                    <div className="text-base font-bold text-green-600">
+                  <div className="p-2 rounded-md"
+                    style={{ backgroundColor: "color-mix(in oklab, var(--success) 10%, transparent)" }}>
+                    <div className="text-base font-bold" style={{ color: "var(--success)" }}>
                       {stats.resulOverview.wins}
                     </div>
                     <div className="text-xs text-muted-foreground">Wins</div>
                   </div>
-                  <div className="bg-red-50 p-2 rounded-md">
-                    <div className="text-base font-bold text-red-600">
+                  <div className="p-2 rounded-md"
+                    style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 10%, transparent)" }}>
+                    <div className="text-base font-bold" style={{ color: "var(--destructive)" }}>
                       {stats.resulOverview.losses}
                     </div>
                     <div className="text-xs text-muted-foreground">Losses</div>
                   </div>
-                  <div className="bg-gray-50 p-2 rounded-md">
-                    <div className="text-base font-bold text-gray-600">
+                  <div className="p-2 rounded-md bg-muted/40">
+                    <div className="text-base font-bold text-muted-foreground">
                       {stats.resulOverview.pending}
                     </div>
                     <div className="text-xs text-muted-foreground">Pending</div>
@@ -330,7 +334,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   <div>
                     <h4 className="text-sm font-medium mb-1">Singles</h4>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-gray-50 p-1 rounded">
+                      <div className="bg-muted/40 p-1 rounded">
                         <div className="text-muted-foreground">Avg Partner</div>
                         <div className="font-mono font-medium">
                           {toDecimalString(
@@ -339,7 +343,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                           )}
                         </div>
                       </div>
-                      <div className="bg-gray-50 p-1 rounded">
+                      <div className="bg-muted/40 p-1 rounded">
                         <div className="text-muted-foreground">
                           Avg Opponent
                         </div>
@@ -356,7 +360,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   <div>
                     <h4 className="text-sm font-medium mb-1">Doubles</h4>
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-gray-50 p-1 rounded">
+                      <div className="bg-muted/40 p-1 rounded">
                         <div className="text-muted-foreground">Avg Partner</div>
                         <div className="font-mono font-medium">
                           {toDecimalString(
@@ -365,7 +369,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                           )}
                         </div>
                       </div>
-                      <div className="bg-gray-50 p-1 rounded">
+                      <div className="bg-muted/40 p-1 rounded">
                         <div className="text-muted-foreground">
                           Avg Opponent
                         </div>

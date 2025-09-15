@@ -47,19 +47,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches);
-    try {
+    // Prefer modern API, fallback to older Safari listener API if available
+    if (typeof media.addEventListener === "function") {
       media.addEventListener("change", onChange);
-    } catch {
-      // Safari - older API
-      // @ts-ignore
-      media.addListener(onChange);
+    } else {
+      const legacy = media as unknown as { addListener?: (cb: (e: MediaQueryListEvent) => void) => void };
+      legacy.addListener?.(onChange);
     }
     return () => {
-      try {
+      if (typeof media.removeEventListener === "function") {
         media.removeEventListener("change", onChange);
-      } catch {
-        // @ts-ignore
-        media.removeListener(onChange);
+      } else {
+        const legacy = media as unknown as { removeListener?: (cb: (e: MediaQueryListEvent) => void) => void };
+        legacy.removeListener?.(onChange);
       }
     };
   }, []);

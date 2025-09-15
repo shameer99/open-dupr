@@ -156,7 +156,7 @@ const OtherUserPage: React.FC = () => {
   }
 
   if (error) {
-    return <div className="container mx-auto p-4 text-red-500">{error}</div>;
+    return <div className="container mx-auto p-4 text-destructive">{error}</div>;
   }
 
   if (!player) {

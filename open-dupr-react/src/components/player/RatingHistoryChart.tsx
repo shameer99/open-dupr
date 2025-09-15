@@ -48,7 +48,7 @@ const CustomTooltip: React.FC<RechartsTooltipProps> = ({ active, payload, label 
     const singles = payload.find((p: PayloadItem) => String(p.dataKey) === "singles");
     const doubles = payload.find((p: PayloadItem) => String(p.dataKey) === "doubles");
     return (
-      <div className="rounded border bg-white p-2 shadow-sm">
+      <div className="rounded border bg-card p-2 shadow-sm text-card-foreground">
         <div className="text-xs text-muted-foreground">{label}</div>
         {singles && singles.value != null && (
           <div className="text-xs"><span className="inline-block w-2 h-2 rounded-sm mr-1" style={{ backgroundColor: "#1d4ed8" }} />Singles: {Number(singles.value as number).toFixed(3)}</div>

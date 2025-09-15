@@ -157,8 +157,8 @@ function TeamBlock({
           delta === null
             ? ""
             : delta >= 0
-            ? "text-emerald-600"
-            : "text-rose-600";
+            ? "text-[color:var(--success)]"
+            : "text-[color:var(--destructive)]";
         return (
           <button
             key={p.id ?? p.fullName}
@@ -486,7 +486,8 @@ const MatchDetailsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                className="flex-1 hover:opacity-90"
+                style={{ color: "var(--success)", backgroundColor: "color-mix(in oklab, var(--success) 12%, transparent)" }}
                 onClick={handleConfirm}
                 disabled={isProcessing}
               >
@@ -496,7 +497,8 @@ const MatchDetailsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="flex-1 hover:opacity-90"
+                style={{ color: "var(--destructive)", backgroundColor: "color-mix(in oklab, var(--destructive) 12%, transparent)" }}
                 onClick={handleReject}
                 disabled={isProcessing}
               >

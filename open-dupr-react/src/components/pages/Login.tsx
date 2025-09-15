@@ -77,7 +77,7 @@ export default function LoginPage() {
               />
             </div>
             {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+              <p className="text-destructive text-sm text-center">{error}</p>
             )}
           </div>
           <div className="flex flex-col gap-4 mt-6">
