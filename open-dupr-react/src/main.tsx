@@ -22,6 +22,9 @@ import ValidationQueuePage from "./components/pages/ValidationQueuePage.tsx";
 import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
 import FeedPage from "./components/pages/FeedPage.tsx";
 
+// PWA service worker registration with auto-update and reload
+import { registerSW } from "virtual:pwa-register";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider>
@@ -133,3 +136,35 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </ThemeProvider>
   </React.StrictMode>
 );
+
+// Register the service worker to auto-update and reload when a new version is available
+if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  let hasRefreshed = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (hasRefreshed) return;
+    hasRefreshed = true;
+    window.location.reload();
+  });
+
+  const updateSW = registerSW({
+    immediate: true,
+    onRegistered(registration) {
+      if (!registration) return;
+      const HOUR = 60 * 60 * 1000;
+      // Periodically check for updates
+      setInterval(() => {
+        registration.update().catch(() => {});
+      }, HOUR);
+      // Check for updates when app becomes visible
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          registration.update().catch(() => {});
+        }
+      });
+    },
+    // If a new SW is waiting, ask it to skip waiting and take control
+    onNeedRefresh() {
+      updateSW(true);
+    },
+  });
+}
