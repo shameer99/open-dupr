@@ -10,7 +10,27 @@ node_modules/
 
 # Build outputs
 dist/
+open-dupr-react/dev-dist/
+open-dupr-react/dist
 build/
+
+# open-dupr-react project-specific ignores (consolidated from sub .gitignore)
+open-dupr-react/dist-ssr
+open-dupr-react/logs
+open-dupr-react/*.log
+open-dupr-react/npm-debug.log*
+open-dupr-react/yarn-debug.log*
+open-dupr-react/yarn-error.log*
+open-dupr-react/pnpm-debug.log*
+open-dupr-react/lerna-debug.log*
+open-dupr-react/*.local
+open-dupr-react/.vscode/*
+!open-dupr-react/.vscode/extensions.json
+open-dupr-react/*.suo
+open-dupr-react/*.ntvs*
+open-dupr-react/*.njsproj
+open-dupr-react/*.sln
+open-dupr-react/*.sw?
 
 # Environment files
 .env.local
