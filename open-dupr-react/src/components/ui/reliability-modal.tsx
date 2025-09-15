@@ -42,7 +42,10 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
             <div className="relative h-2 bg-input rounded-full overflow-hidden border border-border">
               <div
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(reliabilityPercentage, 100)}%` }}
+                style={{ 
+                  width: `${Math.min(reliabilityPercentage, 100)}%`,
+                  backgroundColor: `var(--success)`
+                }}
               />
               {/* 60% Threshold Indicator */}
               <div

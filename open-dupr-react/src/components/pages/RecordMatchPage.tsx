@@ -298,8 +298,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
       <div className="flex flex-col items-center space-y-3 relative">
         <button
           onClick={() => setShowModal(true)}
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed transition-colors flex items-center justify-center hover:bg-accent"
-          style={{ backgroundColor: "color-mix(in oklab, var(--muted) 25%, transparent)", borderColor: "var(--border)" }}
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed transition-colors flex items-center justify-center hover:bg-accent bg-muted/25"
+          style={{ borderColor: "var(--border)" }}
         >
           <span className="text-muted-foreground text-xl sm:text-2xl">+</span>
         </button>
@@ -319,8 +319,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                style={{ backgroundColor: "color-mix(in oklab, var(--muted) 30%, transparent)" }}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-muted/30"
               >
                 <span className="text-muted-foreground text-xl">×</span>
               </button>
@@ -387,8 +386,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                     <div className="flex space-x-4">
                       {[...Array(6)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2" style={{ backgroundColor: "var(--muted)" }} />
-                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse" style={{ backgroundColor: "var(--muted)" }} />
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2 bg-muted" />
+                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse bg-muted" />
                         </div>
                       ))}
                     </div>
@@ -499,8 +498,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                     <div className="flex space-x-4">
                       {[...Array(3)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2" style={{ backgroundColor: "var(--muted)" }} />
-                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse" style={{ backgroundColor: "var(--muted)" }} />
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2 bg-muted" />
+                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse bg-muted" />
                         </div>
                       ))}
                     </div>
@@ -668,8 +667,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none"
-          style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none text-muted-foreground bg-muted/20"
           onClick={handleIncrement}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -693,8 +691,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           value={value}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          className="w-16 h-16 text-3xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          style={{ borderColor: "var(--border)" }}
+        className="w-16 h-16 text-3xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-border"
           inputMode="numeric"
           pattern="[0-9]*"
         />
@@ -703,8 +700,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none"
-          style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none text-muted-foreground bg-muted/20"
           onClick={handleDecrement}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -733,8 +729,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none"
-        style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none text-muted-foreground bg-muted/20"
         onClick={handleDecrement}
         onMouseDown={(e) => {
           e.preventDefault();
@@ -758,8 +753,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         value={value}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
-        className="w-20 h-20 text-4xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        style={{ borderColor: "var(--border)" }}
+        className="w-20 h-20 text-4xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-border"
         inputMode="numeric"
         pattern="[0-9]*"
       />
@@ -768,8 +762,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none"
-        style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none text-muted-foreground bg-muted/20"
         onClick={handleIncrement}
         onMouseDown={(e) => {
           e.preventDefault();
