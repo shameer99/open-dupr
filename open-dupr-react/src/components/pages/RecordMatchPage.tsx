@@ -1000,7 +1000,7 @@ const RecordMatchPage: React.FC = () => {
               />
             </div>
 
-            <div className="bg-muted/40 rounded-lg p-4">
+            <div className="bg-muted/20 dark:bg-muted/10 rounded-lg p-4">
               <div className="flex flex-col space-y-4 justify-center items-center">
                 <ScoreInput
                   value={myScore}
@@ -1067,7 +1067,7 @@ const RecordMatchPage: React.FC = () => {
                   Score
                 </h3>
               </div>
-              <div className="bg-muted/40 rounded-lg p-7">
+              <div className="bg-muted/20 dark:bg-muted/10 rounded-lg p-7">
                 <div className="flex items-center space-x-10">
                   <ScoreInput
                     value={myScore}
@@ -1124,7 +1124,7 @@ const RecordMatchPage: React.FC = () => {
               )}
 
               {/* Match Card Style Display */}
-              <div className="bg-muted/40 rounded-lg p-5 mb-6">
+              <div className="bg-muted/20 dark:bg-muted/10 rounded-lg p-5 mb-6">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
                     <span className="rounded-full px-2.5 py-0.5 font-medium"
