@@ -216,6 +216,74 @@ const FollowersFollowingPage: React.FC = () => {
     [fetchUserRatings]
   );
 
+  const loadAllFollowers = useCallback(
+    async (userId: number) => {
+      try {
+        setIsLoadingMore(true);
+        const allFollowers: FollowUser[] = [];
+        let offset = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+          const response = await getFollowers(userId, offset, PAGE_SIZE);
+          const newItems: FollowUser[] = response?.results ?? [];
+          allFollowers.push(...newItems);
+          hasMore = newItems.length === PAGE_SIZE;
+          offset += newItems.length;
+        }
+
+        setFollowers(allFollowers);
+        setFollowersHasMore(false);
+        setFollowersOffset(allFollowers.length);
+
+        // Fetch ratings for all users
+        const allUserIds = allFollowers.map((user) => user.id);
+        await fetchUserRatings(allUserIds);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load all followers"
+        );
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [fetchUserRatings]
+  );
+
+  const loadAllFollowing = useCallback(
+    async (userId: number) => {
+      try {
+        setIsLoadingMore(true);
+        const allFollowing: FollowUser[] = [];
+        let offset = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+          const response = await getFollowing(userId, offset, PAGE_SIZE);
+          const newItems: FollowUser[] = response?.results ?? [];
+          allFollowing.push(...newItems);
+          hasMore = newItems.length === PAGE_SIZE;
+          offset += newItems.length;
+        }
+
+        setFollowing(allFollowing);
+        setFollowingHasMore(false);
+        setFollowingOffset(allFollowing.length);
+
+        // Fetch ratings for all users
+        const allUserIds = allFollowing.map((user) => user.id);
+        await fetchUserRatings(allUserIds);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load all following"
+        );
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [fetchUserRatings]
+  );
+
   // Initial load and when visiting a different player id
   useEffect(() => {
     const fetchPage = async () => {
@@ -309,6 +377,9 @@ const FollowersFollowingPage: React.FC = () => {
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting && !isLoadingMore && !pageLoading) {
+          // Don't load more if we're in sort mode - we should have all data already
+          if (sortOption !== "none") return;
+          
           if (activeTab === "followers" && followersHasMore) {
             void loadFollowersPage(userId, followersOffset);
           } else if (activeTab === "following" && followingHasMore) {
@@ -332,6 +403,7 @@ const FollowersFollowingPage: React.FC = () => {
     followingOffset,
     loadFollowersPage,
     loadFollowingPage,
+    sortOption,
   ]);
 
   const handleTabChange = async (newTab: TabType) => {
@@ -370,7 +442,25 @@ const FollowersFollowingPage: React.FC = () => {
     setFollowing(updateUser);
   };
 
-  const handleSortOptionChange = (newSortOption: SortOption) => {
+  const handleSortOptionChange = async (newSortOption: SortOption) => {
+    if (!id) return;
+    const userId = parseInt(id);
+    
+    // If we're enabling sorting and don't have all data yet, load it all
+    if (newSortOption !== "none" && sortOption === "none") {
+      const currentCount = activeTab === "followers" ? followersCount : followingCount;
+      const hasMore = activeTab === "followers" ? followersHasMore : followingHasMore;
+      
+      // Only load all data if we can sort (within the 100 limit) and there's more data to load
+      if (currentCount !== null && currentCount <= 100 && hasMore) {
+        if (activeTab === "followers") {
+          await loadAllFollowers(userId);
+        } else {
+          await loadAllFollowing(userId);
+        }
+      }
+    }
+    
     setSortOption(newSortOption);
     if (newSortOption !== "none") {
       // Set default direction based on sort type
@@ -629,11 +719,19 @@ const FollowersFollowingPage: React.FC = () => {
               </div>
             ))}
             <div ref={loaderRef} />
-            {(isLoadingMore || listLoading) && hasMore && (
+            {(isLoadingMore || listLoading) && hasMore && sortOption === "none" && (
               <div className="py-4 text-center">
                 <LoadingSpinner size="sm" />
                 <p className="text-sm text-muted-foreground mt-2">
                   Loading more...
+                </p>
+              </div>
+            )}
+            {isLoadingMore && sortOption !== "none" && (
+              <div className="py-4 text-center">
+                <LoadingSpinner size="sm" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Loading all data for sorting...
                 </p>
               </div>
             )}
