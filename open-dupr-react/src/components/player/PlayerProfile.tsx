@@ -209,6 +209,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
         <div className="mt-6 lg:mt-0">
           <PlayerStatsRatings
             playerId={player.id}
+            playerName={player.fullName}
+            playerImageUrl={player.imageUrl}
             singles={player.stats?.singles ?? null}
             doubles={player.stats?.doubles ?? null}
             singlesReliabilityScore={player.stats?.singlesReliabilityScore}
