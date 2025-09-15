@@ -136,6 +136,7 @@ function transformFeedMatch(feedMatch: FeedMatch): Match {
           game3: team.game3,
           game4: team.game4,
           game5: team.game5,
+          preMatchRatingAndImpact: team.preMatchRatingAndImpact as Record<string, string | number | null | undefined> | undefined,
         })
       ),
     confirmed: feedMatch.confirmed,
