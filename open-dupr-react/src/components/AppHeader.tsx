@@ -12,8 +12,12 @@ import {
   LogOut,
   ArrowLeft,
   Info,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import { useTheme } from "@/lib/useTheme";
 
 const AppHeader: React.FC = () => {
   const {
@@ -27,6 +31,7 @@ const AppHeader: React.FC = () => {
   } = useHeader();
   const navigate = useNavigate();
   const { logout: authLogout, token } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,6 +72,40 @@ const AppHeader: React.FC = () => {
 
   const goToLogin = () => {
     navigate("/login");
+  };
+
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun className="h-5 w-5" />;
+      case 'dark':
+        return <Moon className="h-5 w-5" />;
+      case 'system':
+        return <Monitor className="h-5 w-5" />;
+      default:
+        return <Monitor className="h-5 w-5" />;
+    }
+  };
+
+  const getThemeLabel = () => {
+    switch (theme) {
+      case 'light':
+        return 'Light Theme';
+      case 'dark':
+        return 'Dark Theme';
+      case 'system':
+        return 'System Theme';
+      default:
+        return 'System Theme';
+    }
+  };
+
+  const cycleTheme = () => {
+    const themes: Array<'light' | 'dark' | 'system'> = ['system', 'light', 'dark'];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+    setOpen(false);
   };
 
   return (
@@ -188,6 +227,14 @@ const AppHeader: React.FC = () => {
                     >
                       <Info className="h-5 w-5" />
                       About Open DUPR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cycleTheme}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      {getThemeIcon()}
+                      {getThemeLabel()}
                     </button>
                     <div className="my-1 h-px bg-border" />
                     <button

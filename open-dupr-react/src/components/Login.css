@@ -10,6 +10,11 @@
     "Ubuntu", "Cantarell", sans-serif;
 }
 
+/* Dark mode background gradient */
+.dark .login-container {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
 /* Login Card - Modern card design */
 .login-card {
   background: white;
@@ -23,6 +28,13 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+}
+
+/* Dark mode card styles */
+.dark .login-card {
+  background: oklch(0.208 0.042 265.755);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 10px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
 .login-card:hover {
@@ -43,11 +55,19 @@
   letter-spacing: -0.025em;
 }
 
+.dark .login-title {
+  color: oklch(0.984 0.003 247.858);
+}
+
 .login-subtitle {
   color: #6b7280;
   font-size: 1rem;
   margin: 0;
   font-weight: 400;
+}
+
+.dark .login-subtitle {
+  color: oklch(0.704 0.04 256.788);
 }
 
 /* Form Styles */
@@ -70,6 +90,10 @@
   margin: 0;
 }
 
+.dark .form-label {
+  color: oklch(0.984 0.003 247.858);
+}
+
 .form-input {
   padding: 0.875rem 1rem;
   border: 2px solid #e5e7eb;
@@ -79,6 +103,13 @@
   background-color: #ffffff;
   width: 100%;
   box-sizing: border-box;
+  color: #1f2937;
+}
+
+.dark .form-input {
+  background-color: oklch(0.279 0.041 260.031);
+  border-color: oklch(1 0 0 / 10%);
+  color: oklch(0.984 0.003 247.858);
 }
 
 .form-input:focus {
@@ -87,8 +118,17 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.dark .form-input:focus {
+  border-color: oklch(0.58 0.19 263.86);
+  box-shadow: 0 0 0 3px oklch(0.58 0.19 263.86 / 0.1);
+}
+
 .form-input::placeholder {
   color: #9ca3af;
+}
+
+.dark .form-input::placeholder {
+  color: oklch(0.704 0.04 256.788);
 }
 
 /* Error Message */
@@ -100,6 +140,12 @@
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.dark .error-message {
+  background-color: oklch(0.704 0.191 22.216 / 0.1);
+  border-color: oklch(0.704 0.191 22.216 / 0.3);
+  color: oklch(0.704 0.191 22.216);
 }
 
 /* Login Button */
@@ -144,10 +190,18 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.dark .login-footer {
+  border-top-color: oklch(1 0 0 / 10%);
+}
+
 .login-footer p {
   color: #6b7280;
   font-size: 0.875rem;
   margin: 0;
+}
+
+.dark .login-footer p {
+  color: oklch(0.704 0.04 256.788);
 }
 
 .signup-link {

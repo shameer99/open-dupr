@@ -6,6 +6,7 @@ import "./index.css";
 import { AuthProvider } from "./lib/AuthProvider.tsx";
 import { LoadingProvider } from "./lib/loading-context.tsx";
 import { HeaderProvider } from "./lib/header-context.tsx";
+import { ThemeProvider } from "./lib/theme-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
 import AboutPage from "./components/pages/AboutPage.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
@@ -22,10 +23,11 @@ import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthProvider>
-      <LoadingProvider>
-        <HeaderProvider>
-          <Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <LoadingProvider>
+          <HeaderProvider>
+            <Router>
             <Routes>
               <Route path="/" element={<App />} />
               <Route path="/login" element={<LoginPage />} />
@@ -117,5 +119,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </HeaderProvider>
       </LoadingProvider>
     </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
