@@ -83,6 +83,15 @@ export default function AboutPage() {
               </div>
 
               <div>
+                <h3 className="text-lg font-semibold mb-1">Analytics and Privacy</h3>
+                <p className="text-muted-foreground text-sm">
+                  This application uses Umami analytics to understand usage patterns and improve the user experience. 
+                  Umami is a privacy-focused analytics tool that does not use cookies or collect personal information. 
+                  The analytics are anonymous and help us understand how the application is being used.
+                </p>
+              </div>
+
+              <div>
                 <h3 className="text-lg font-semibold mb-1">
                   Is Open DUPR open source?
                 </h3>
