@@ -15,6 +15,7 @@ import {
   Moon,
   Sun,
   Laptop,
+  Activity,
 } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { useTheme } from "@/lib/useTheme";
@@ -57,6 +58,11 @@ const AppHeader: React.FC = () => {
   const goToRecordMatch = () => {
     setOpen(false);
     navigate("/record-match");
+  };
+
+  const goToFeed = () => {
+    setOpen(false);
+    navigate("/feed");
   };
 
   const goToAbout = () => {
@@ -211,6 +217,14 @@ const AppHeader: React.FC = () => {
                     >
                       <User className="h-5 w-5" />
                       My Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToFeed}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <Activity className="h-5 w-5" />
+                      Activity Feed
                     </button>
                     <button
                       type="button"
