@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
+import { navigateWithTransition } from "@/lib/view-transitions";
 
 const AppHeader: React.FC = () => {
   const {
@@ -46,37 +47,37 @@ const AppHeader: React.FC = () => {
 
   const goToProfile = () => {
     setOpen(false);
-    navigate("/profile");
+    navigateWithTransition(navigate, "/profile");
   };
 
   const goToSearch = () => {
     setOpen(false);
-    navigate("/search");
+    navigateWithTransition(navigate, "/search");
   };
 
   const goToRecordMatch = () => {
     setOpen(false);
-    navigate("/record-match");
+    navigateWithTransition(navigate, "/record-match");
   };
 
   const goToAbout = () => {
     setOpen(false);
-    navigate("/about");
+    navigateWithTransition(navigate, "/about");
   };
 
   const goToFeed = () => {
     setOpen(false);
-    navigate("/feed");
+    navigateWithTransition(navigate, "/feed");
   };
 
   const logout = () => {
     setOpen(false);
     authLogout();
-    navigate("/login");
+    navigateWithTransition(navigate, "/login");
   };
 
   const goToLogin = () => {
-    navigate("/login");
+    navigateWithTransition(navigate, "/login");
   };
 
   return (

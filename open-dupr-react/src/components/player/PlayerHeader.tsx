@@ -5,6 +5,7 @@ import Modal from "@/components/ui/modal";
 import { X } from "lucide-react";
 import type { FollowInfo } from "@/lib/types";
 import EnlargedAvatar from "./EnlargedAvatar";
+import { navigateWithTransition } from "@/lib/view-transitions";
 
 interface PlayerHeaderProps {
   name: string;
@@ -33,11 +34,11 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   const navigate = useNavigate();
 
   const handleFollowersClick = () => {
-    navigate(`/user/${playerId}/social?tab=followers`);
+    navigateWithTransition(navigate, `/user/${playerId}/social?tab=followers`);
   };
 
   const handleFollowingClick = () => {
-    navigate(`/user/${playerId}/social?tab=following`);
+    navigateWithTransition(navigate, `/user/${playerId}/social?tab=following`);
   };
 
   const calculateAge = (dateString?: string): number | null => {
