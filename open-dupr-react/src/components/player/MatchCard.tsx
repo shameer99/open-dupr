@@ -22,13 +22,23 @@ interface MatchCardProps {
   onMatchUpdate?: () => void;
 }
 
-function TeamStack({ team }: { team: MatchTeam }) {
+function TeamStack({
+  team,
+  profileUserId,
+}: {
+  team: MatchTeam;
+  profileUserId?: number;
+}) {
   const navigate = useNavigate();
   const isDoubles = Boolean(team.player2);
 
   const handlePlayerClick = (e: React.MouseEvent, playerId?: number) => {
     e.stopPropagation();
     if (playerId) {
+      // If we're already viewing this player's profile, don't navigate - just expand the match
+      if (profileUserId && playerId === profileUserId) {
+        return;
+      }
       navigate(`/player/${playerId}`);
     }
   };
@@ -220,7 +230,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamAWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 md:justify-self-start`}
             >
-              <TeamStack team={teamA} />
+              <TeamStack team={teamA} profileUserId={profileUserId} />
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
               <MatchScoreDisplay
@@ -234,7 +244,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 teamBWon ? "text-emerald-700" : "text-rose-700"
               } min-w-0 self-end md:justify-self-end`}
             >
-              <TeamStack team={teamB} />
+              <TeamStack team={teamB} profileUserId={profileUserId} />
             </div>
           </div>
 
@@ -244,7 +254,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 variant="outline"
                 size="sm"
                 className="flex-1 hover:opacity-90"
-                style={{ color: "var(--success)", backgroundColor: "color-mix(in oklab, var(--success) 12%, transparent)" }}
+                style={{
+                  color: "var(--success)",
+                  backgroundColor:
+                    "color-mix(in oklab, var(--success) 12%, transparent)",
+                }}
                 onClick={handleConfirm}
                 disabled={isProcessing}
               >
@@ -255,7 +269,11 @@ const MatchCard: React.FC<MatchCardProps> = ({
                 variant="outline"
                 size="sm"
                 className="flex-1 hover:opacity-90"
-                style={{ color: "var(--destructive)", backgroundColor: "color-mix(in oklab, var(--destructive) 12%, transparent)" }}
+                style={{
+                  color: "var(--destructive)",
+                  backgroundColor:
+                    "color-mix(in oklab, var(--destructive) 12%, transparent)",
+                }}
                 onClick={handleReject}
                 disabled={isProcessing}
               >
