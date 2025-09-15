@@ -251,42 +251,6 @@
 }
 
 /* View Transition Animations */
-@keyframes slide-out-right {
-  from {
-    transform: translateX(0%);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0%);
-  }
-}
-
-@keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @keyframes scale-fade-out {
   from {
     opacity: 1;
@@ -309,42 +273,11 @@
   }
 }
 
-/* Default page transition animations */
+/* All page transition animations use scale */
 ::view-transition-old(root) {
-  animation: 0.3s ease-out both fade-out;
+  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-out;
 }
 
 ::view-transition-new(root) {
-  animation: 0.3s ease-out both fade-in;
-}
-
-/* Enhanced transitions for specific navigation patterns */
-@media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(root) {
-    animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-out;
-  }
-
-  ::view-transition-new(root) {
-    animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-in;
-  }
-}
-
-/* Profile-specific slide transitions */
-.profile-transition::view-transition-old(root) {
-  animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-out-right;
-}
-
-.profile-transition::view-transition-new(root) {
-  animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-in-right;
-}
-
-/* Back navigation slide transitions */
-.back-transition::view-transition-old(root) {
-  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both slide-in-right;
-  animation-direction: reverse;
-}
-
-.back-transition::view-transition-new(root) {
-  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both slide-out-right;
-  animation-direction: reverse;
+  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-in;
 }
