@@ -24,13 +24,15 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">
             Reliability Score{" "}
-            {reliabilityPercentage !== undefined && `(${reliabilityPercentage}%)`}
+            {reliabilityPercentage !== undefined &&
+              `(${reliabilityPercentage}%)`}
           </h3>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={onClose}
-            className="h-8 w-8 p-0"
+            aria-label="Close"
+            className="text-2xl"
           >
             ×
           </Button>
@@ -42,9 +44,9 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
             <div className="relative h-2 bg-input rounded-full overflow-hidden border border-border">
               <div
                 className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
-                style={{ 
+                style={{
                   width: `${Math.min(reliabilityPercentage, 100)}%`,
-                  backgroundColor: `var(--success)`
+                  backgroundColor: `var(--success)`,
                 }}
               />
               {/* 60% Threshold Indicator */}
