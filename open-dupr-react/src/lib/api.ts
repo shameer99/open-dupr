@@ -232,7 +232,10 @@ export const getOtherUserMatchHistory = (
   limit = 25
 ) => apiFetch(`/player/v1.0/${userId}/history?offset=${offset}&limit=${limit}`);
 
-export const getOtherUserRatingHistory = (userId: number, type: "SINGLES" | "DOUBLES") =>
+export const getOtherUserRatingHistory = (
+  userId: number,
+  type: "SINGLES" | "DOUBLES"
+) =>
   apiFetch(`/player/v1.0/${userId}/rating-history`, {
     method: "POST",
     body: JSON.stringify({ type }),
@@ -328,3 +331,6 @@ export const getPendingMatches = async () => {
 
 export const getMatchDetails = (matchId: number) =>
   apiFetch(`/match/${matchId}`);
+
+export const getFeed = (feedId: number, limit = 10) =>
+  apiFetch(`/activity/v1.1/user/${feedId}?limit=${limit}`);

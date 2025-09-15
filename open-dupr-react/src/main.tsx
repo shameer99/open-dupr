@@ -20,6 +20,7 @@ import SearchPage from "./components/pages/SearchPage.tsx";
 import RecordMatchPage from "./components/pages/RecordMatchPage.tsx";
 import ValidationQueuePage from "./components/pages/ValidationQueuePage.tsx";
 import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
+import FeedPage from "./components/pages/FeedPage.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -38,6 +39,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     <ProtectedRoute>
                       <AppShell>
                         <ProfilePage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/feed"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <FeedPage />
                       </AppShell>
                     </ProtectedRoute>
                   }

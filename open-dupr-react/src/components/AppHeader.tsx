@@ -15,6 +15,7 @@ import {
   Moon,
   Sun,
   Laptop,
+  LayoutList,
 } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
@@ -62,6 +63,11 @@ const AppHeader: React.FC = () => {
   const goToAbout = () => {
     setOpen(false);
     navigate("/about");
+  };
+
+  const goToFeed = () => {
+    setOpen(false);
+    navigate("/feed");
   };
 
   const logout = () => {
@@ -201,6 +207,14 @@ const AppHeader: React.FC = () => {
                     >
                       <User className="h-5 w-5" />
                       My Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goToFeed}
+                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2"
+                    >
+                      <LayoutList className="h-5 w-5" />
+                      Feed
                     </button>
                     <button
                       type="button"

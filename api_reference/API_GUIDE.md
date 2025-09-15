@@ -1094,4 +1094,125 @@ Authorization: Bearer {accessToken}
 }
 ```
 
+## Feed
+
+### Get User Activity Feed
+
+**Endpoint:** `GET /activity/{version}/user/{feedId}`
+
+**Purpose:** Retrieve activity feed for a user, showing matches and posts from followed users
+
+**Parameters:**
+
+- `version` (path, required): API version (e.g., "v1.1")
+- `feedId` (path, required): User's feed ID (typically the user's DUPR ID)
+- `limit` (query, optional): Maximum number of feed items to return (default: 10)
+- `ref` (query, optional): Reference point for pagination
+
+**Headers:**
+
+```
+Authorization: Bearer {accessToken}
+```
+
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "message": "Feed retrieved successfully",
+  "results": [
+    {
+      "id": "post_12345",
+      "activityId": "activity_12345",
+      "actor": {
+        "id": 5285541901,
+        "name": "John Doe",
+        "profileImage": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile.jpg",
+        "isFollow": true
+      },
+      "verb": "MATCH",
+      "content": "Match completed",
+      "reactionCounts": {
+        "like": 5,
+        "comment": 2
+      },
+      "ownReactions": {
+        "like": []
+      },
+      "tags": [],
+      "hashtags": [],
+      "images": [],
+      "matches": [
+        {
+          "id": 123456,
+          "userId": 5285541901,
+          "venue": "Local Court",
+          "location": "New York, NY",
+          "matchScoreAdded": true,
+          "tournament": null,
+          "league": null,
+          "eventDate": "2024-09-15",
+          "eventFormat": "SINGLES",
+          "scoreFormat": {
+            "id": 1,
+            "format": "Best of 3",
+            "variant": "Standard",
+            "priority": 1,
+            "games": 3,
+            "winningScore": 11
+          },
+          "confirmed": true,
+          "confirmationThreshold": 2,
+          "teams": [
+            {
+              "player1": {
+                "id": 5285541901,
+                "fullName": "John Doe",
+                "imageUrl": "https://dupr-dev.s3.us-east-1.amazonaws.com/users/profile.jpg",
+                "validatedMatch": true
+              },
+              "player2": null,
+              "game1": 11,
+              "game2": 9,
+              "game3": null,
+              "winner": true
+            },
+            {
+              "player1": {
+                "id": 987654,
+                "fullName": "Jane Smith",
+                "imageUrl": null,
+                "validatedMatch": true
+              },
+              "player2": null,
+              "game1": 9,
+              "game2": 11,
+              "game3": null,
+              "winner": false
+            }
+          ],
+          "status": "COMPLETE",
+          "modified": "2024-09-15T14:30:00Z"
+        }
+      ],
+      "location": {},
+      "createdAt": 1726405800000,
+      "updatedAt": 1726405800000
+    }
+  ]
+}
+```
+
+**Notes:**
+
+- The `matches` array contains the actual match data that can be displayed in the feed
+- Each post may contain multiple matches
+- The `actor` field contains information about the user who posted the activity
+- Use the `limit` parameter to control pagination (default is 10)
+- The response is an array of `PostResponse` objects wrapped in a standard response format
+- The `verb` field indicates the type of activity: `"MATCH"` for match-related posts, `"POST"` for general posts
+- For match feeds, filter posts where `verb === "MATCH"` to exclude general posts
+- The response uses `results` (plural) as the key for the posts array
+
 This API guide provides all the information needed to implement the core functionality of Open DUPR as outlined in your implementation plan.

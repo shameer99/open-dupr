@@ -123,6 +123,14 @@ export const ValidationQueueSkeleton: React.FC = () => (
   </div>
 );
 
+export const FeedSkeleton: React.FC = () => (
+  <div className="space-y-4 p-4">
+    {[1, 2, 3].map((i) => (
+      <MatchCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
 export const PlayerStatsSkeleton: React.FC = () => (
   <div className="space-y-4">
     <Skeleton className="h-6 w-24 mb-4" />
