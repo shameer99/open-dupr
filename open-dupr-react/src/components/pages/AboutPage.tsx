@@ -89,6 +89,18 @@ export default function AboutPage() {
                   Umami is a privacy-focused analytics tool that does not use cookies or collect personal information. 
                   The analytics are anonymous and help us understand how the application is being used.
                 </p>
+                <p className="text-muted-foreground text-sm">
+                  Analytics are publicly available for anyone to view. See the
+                  <a
+                    href="https://cloud.umami.is/share/hd9kfrVkKVc4YoWf/opendupr.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline ml-1"
+                  >
+                    Open DUPR analytics dashboard
+                  </a>
+                  .
+                </p>
               </div>
 
               <div>
@@ -134,6 +146,19 @@ export default function AboutPage() {
             >
               <ExternalLink className="h-4 w-4" />
               Official DUPR
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                window.open(
+                  "https://cloud.umami.is/share/hd9kfrVkKVc4YoWf/opendupr.com",
+                  "_blank",
+                )
+              }
+              className="flex items-center gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View Analytics
             </Button>
           </div>
         </div>
