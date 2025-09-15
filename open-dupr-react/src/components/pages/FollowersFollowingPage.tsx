@@ -48,8 +48,10 @@ const sortUsers = (
 ): FollowUser[] => {
   const usersToSort = [...users];
   
-  // Add profile owner to the list if it exists and isn't already included
-  if (profileOwner && !users.find(user => user.id === profileOwner.id)) {
+  // Add profile owner to the list ONLY when sorting by singles or doubles rating
+  if (profileOwner && 
+      (sortOption === "singles" || sortOption === "doubles") && 
+      !users.find(user => user.id === profileOwner.id)) {
     const ownerAsFollowUser: FollowUser = {
       id: profileOwner.id,
       name: profileOwner.fullName,
@@ -581,21 +583,9 @@ const FollowersFollowingPage: React.FC = () => {
     activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
   
-  // Always include the profile owner in the list, whether sorting or not
-  let displayList = currentList;
-  if (profileOwner && !currentList.find(user => user.id === profileOwner.id)) {
-    const ownerAsFollowUser: FollowUser = {
-      id: profileOwner.id,
-      name: profileOwner.fullName,
-      profileImage: profileOwner.imageUrl,
-      isFollow: false,
-    };
-    displayList = [...currentList, ownerAsFollowUser];
-  }
-  
   const sortedList = canSort
     ? sortUsers(currentList, sortOption, sortDirection, userRatings, profileOwner)
-    : displayList;
+    : currentList;
 
   return (
     <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
