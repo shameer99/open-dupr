@@ -695,18 +695,36 @@ const FollowersFollowingPage: React.FC = () => {
                       {user.name?.trim().replace(/\s+/g, " ")}
                     </p>
                     <div className="flex gap-3 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        <span className="font-mono font-medium">
-                          {userRatings[user.id]?.singles || "-"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span className="font-mono font-medium">
-                          {userRatings[user.id]?.doubles || "-"}
-                        </span>
-                      </div>
+                      {sortOption === "doubles" ? (
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          <span className="font-mono font-medium">
+                            {userRatings[user.id]?.doubles || "-"}
+                          </span>
+                        </div>
+                      ) : sortOption === "singles" ? (
+                        <div className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          <span className="font-mono font-medium">
+                            {userRatings[user.id]?.singles || "-"}
+                          </span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            <span className="font-mono font-medium">
+                              {userRatings[user.id]?.singles || "-"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span className="font-mono font-medium">
+                              {userRatings[user.id]?.doubles || "-"}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
