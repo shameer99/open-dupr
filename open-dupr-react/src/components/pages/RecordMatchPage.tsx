@@ -257,14 +257,15 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
           {canRemove && (
             <button
               onClick={handleRemove}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+              className="absolute -top-1 -right-1 w-5 h-5 text-white rounded-full flex items-center justify-center text-xs transition-colors hover:opacity-90"
+              style={{ backgroundColor: "var(--destructive)" }}
             >
               ×
             </button>
           )}
         </div>
         <div className="min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
-          <span className="text-sm sm:text-base font-bold text-gray-900 text-center leading-tight hyphens-auto whitespace-pre-line">
+          <span className="text-sm sm:text-base font-bold text-foreground text-center leading-tight hyphens-auto whitespace-pre-line">
             {(() => {
               const words = player.fullName.split(" ");
               if (words.length === 1) {
@@ -297,38 +298,40 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
       <div className="flex flex-col items-center space-y-3 relative">
         <button
           onClick={() => setShowModal(true)}
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed transition-colors flex items-center justify-center hover:bg-accent"
+          style={{ backgroundColor: "color-mix(in oklab, var(--muted) 25%, transparent)", borderColor: "var(--border)" }}
         >
-          <span className="text-gray-400 text-xl sm:text-2xl">+</span>
+          <span className="text-muted-foreground text-xl sm:text-2xl">+</span>
         </button>
-        <span className="text-xs sm:text-sm text-gray-500 text-center leading-tight">
+        <span className="text-xs sm:text-sm text-muted-foreground text-center leading-tight">
           {label}
         </span>
       </div>
 
       {/* Player Selection Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-white z-50 flex flex-col safe-area-inset-top">
+        <div className="fixed inset-0 bg-background z-50 flex flex-col safe-area-inset-top">
           {/* Header */}
-          <div className="p-6 border-b border-gray-100">
+          <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-semibold text-gray-900">
+              <h3 className="text-2xl font-semibold text-foreground">
                 {getModalTitle()}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                style={{ backgroundColor: "color-mix(in oklab, var(--muted) 30%, transparent)" }}
               >
-                <span className="text-gray-600 text-xl">×</span>
+                <span className="text-muted-foreground text-xl">×</span>
               </button>
             </div>
           </div>
 
           {/* Search Box with Icon */}
-          <div className="p-6 border-b border-gray-100">
+          <div className="p-6 border-b border-border">
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -352,7 +355,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               {searchQuery.trim() && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground hover:opacity-80 transition-colors"
                   type="button"
                   aria-label="Clear search"
                 >
@@ -373,8 +376,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
           <div className="flex-1 overflow-y-auto">
             {/* Friends - Show when there are filtered friends or when search is empty */}
             {filteredFriends.length > 0 && (
-              <div className="p-6 border-b border-gray-100">
-                <h4 className="text-base font-medium text-gray-700 mb-4">
+              <div className="p-6 border-b border-border">
+                <h4 className="text-base font-medium text-foreground mb-4">
                   {searchQuery.trim()
                     ? `Friends matching "${searchQuery}"`
                     : "Friends"}
@@ -384,8 +387,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                     <div className="flex space-x-4">
                       {[...Array(6)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 sm:w-20 h-3 bg-gray-200 rounded animate-pulse" />
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2" style={{ backgroundColor: "var(--muted)" }} />
+                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse" style={{ backgroundColor: "var(--muted)" }} />
                         </div>
                       ))}
                     </div>
@@ -405,7 +408,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                           />
                         </div>
                         <div className="w-16 sm:w-20 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
-                          <p className="text-xs sm:text-sm font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                          <p className="text-xs sm:text-sm font-medium text-foreground leading-tight text-center hyphens-auto whitespace-pre-line">
                             {(() => {
                               const words = playerData.fullName.split(" ");
                               if (words.length === 1) {
@@ -442,12 +445,12 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
             {/* Search Results */}
             {searchQuery.trim() && (
-              <div className="p-6 border-b border-gray-100">
-                <h4 className="text-base font-medium text-gray-700 mb-4">
+              <div className="p-6 border-b border-border">
+                <h4 className="text-base font-medium text-foreground mb-4">
                   Search Results
                 </h4>
                 {isSearching ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-muted-foreground">
                     Searching...
                   </div>
                 ) : searchResults.length > 0 ? (
@@ -456,7 +459,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                       <button
                         key={playerData.id}
                         type="button"
-                        className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                        className="w-full flex items-center space-x-4 p-4 rounded-xl transition-colors text-left hover:bg-accent"
                         onClick={() => handlePlayerClick(playerData)}
                       >
                         <Avatar
@@ -469,7 +472,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                             {playerData.fullName}
                           </p>
                           {playerData.location && (
-                            <p className="text-sm text-gray-500 truncate">
+                            <p className="text-sm text-muted-foreground truncate">
                               {playerData.location}
                             </p>
                           )}
@@ -478,7 +481,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-muted-foreground">
                     No players found
                   </div>
                 )}
@@ -487,8 +490,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
 
             {/* Recent Opponents - Only show when no search query */}
             {!searchQuery.trim() && recentOpponents.length > 0 && (
-              <div className="p-6 border-b border-gray-100">
-                <h4 className="text-base font-medium text-gray-700 mb-4">
+              <div className="p-6 border-b border-border">
+                <h4 className="text-base font-medium text-foreground mb-4">
                   Recent Opponents
                 </h4>
                 <div className="flex space-x-4 sm:space-x-5 overflow-x-auto pb-2 -mx-6 px-6">
@@ -496,8 +499,8 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                     <div className="flex space-x-4">
                       {[...Array(3)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 text-center">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-full animate-pulse mb-2" />
-                          <div className="w-16 sm:w-20 h-3 bg-gray-200 rounded animate-pulse" />
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full animate-pulse mb-2" style={{ backgroundColor: "var(--muted)" }} />
+                          <div className="w-16 sm:w-20 h-3 rounded animate-pulse" style={{ backgroundColor: "var(--muted)" }} />
                         </div>
                       ))}
                     </div>
@@ -517,7 +520,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
                           />
                         </div>
                         <div className="w-16 sm:w-20 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center">
-                          <p className="text-xs sm:text-sm font-medium text-gray-900 leading-tight text-center hyphens-auto whitespace-pre-line">
+                          <p className="text-xs sm:text-sm font-medium text-foreground leading-tight text-center hyphens-auto whitespace-pre-line">
                             {(() => {
                               const words = playerData.fullName.split(" ");
                               if (words.length === 1) {
@@ -558,7 +561,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               recentOpponents.length === 0 &&
               !isLoadingFriends &&
               !isLoadingRecent && (
-                <div className="p-6 text-center text-gray-500">
+                <div className="p-6 text-center text-muted-foreground">
                   <p>No recent players or friends found</p>
                   <p className="text-sm mt-1">
                     Try searching for a player above
@@ -571,7 +574,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
               filteredFriends.length === 0 &&
               searchResults.length === 0 &&
               !isSearching && (
-                <div className="p-6 text-center text-gray-500">
+                <div className="p-6 text-center text-muted-foreground">
                   <p>No friends or players found matching "{searchQuery}"</p>
                   <p className="text-sm mt-1">Try a different search term</p>
                 </div>
@@ -579,7 +582,7 @@ const PlayerSlot: React.FC<PlayerSlotProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-100">
+          <div className="p-6 border-t border-border">
             <Button
               type="button"
               variant="outline"
@@ -665,7 +668,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none"
+          style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
           onClick={handleIncrement}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -689,7 +693,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           value={value}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-          className="w-16 h-16 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-16 h-16 text-3xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          style={{ borderColor: "var(--border)" }}
           inputMode="numeric"
           pattern="[0-9]*"
         />
@@ -698,7 +703,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className="w-10 h-10 rounded-full p-0 text-lg font-bold text-gray-600 hover:bg-gray-100 select-none"
+          className="w-10 h-10 rounded-full p-0 text-lg font-bold select-none"
+          style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
           onClick={handleDecrement}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -727,7 +733,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-12 h-12 rounded-full p-0 text-2xl font-bold text-gray-600 hover:bg-gray-100 select-none"
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none"
+        style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
         onClick={handleDecrement}
         onMouseDown={(e) => {
           e.preventDefault();
@@ -751,7 +758,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         value={value}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
-        className="w-20 h-20 text-4xl font-bold text-center border-2 border-gray-200 rounded-xl bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="w-20 h-20 text-4xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        style={{ borderColor: "var(--border)" }}
         inputMode="numeric"
         pattern="[0-9]*"
       />
@@ -760,7 +768,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        className="w-12 h-12 rounded-full p-0 text-2xl font-bold text-gray-600 hover:bg-gray-100 select-none"
+        className="w-12 h-12 rounded-full p-0 text-2xl font-bold select-none"
+        style={{ color: "var(--muted-foreground)", backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
         onClick={handleIncrement}
         onMouseDown={(e) => {
           e.preventDefault();
@@ -961,13 +970,13 @@ const RecordMatchPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-sm mx-auto lg:max-w-4xl space-y-6 sm:space-y-7">
         <div className="space-y-6">
           <div className="flex items-center space-x-4 md:flex-col md:items-start md:space-x-0 md:space-y-2">
             <Label
               htmlFor="eventDate"
-              className="text-base font-medium text-gray-700 shrink-0 md:mb-0"
+              className="text-base font-medium text-foreground shrink-0 md:mb-0"
             >
               Date
             </Label>
@@ -998,14 +1007,14 @@ const RecordMatchPage: React.FC = () => {
               />
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-muted/40 rounded-lg p-4">
               <div className="flex flex-col space-y-4 justify-center items-center">
                 <ScoreInput
                   value={myScore}
                   onChange={setMyScore}
                   layout="horizontal"
                 />
-                <div className="text-xl sm:text-2xl font-bold text-gray-400 select-none">
+                <div className="text-xl sm:text-2xl font-bold text-muted-foreground select-none">
                   VS
                 </div>
                 <ScoreInput
@@ -1037,7 +1046,7 @@ const RecordMatchPage: React.FC = () => {
             {/* Team 1 - Left Side */}
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-4">
                   My Team
                 </h3>
               </div>
@@ -1061,18 +1070,18 @@ const RecordMatchPage: React.FC = () => {
             {/* Scores - Center */}
             <div className="flex flex-col items-center justify-center space-y-6">
               <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-4">
                   Score
                 </h3>
               </div>
-              <div className="bg-gray-50 rounded-lg p-7">
+              <div className="bg-muted/40 rounded-lg p-7">
                 <div className="flex items-center space-x-10">
                   <ScoreInput
                     value={myScore}
                     onChange={setMyScore}
                     layout="vertical"
                   />
-                  <div className="text-4xl font-bold text-gray-400 select-none">VS</div>
+                  <div className="text-4xl font-bold text-muted-foreground select-none">VS</div>
                   <ScoreInput
                     value={opponentScore}
                     onChange={setOpponentScore}
@@ -1085,7 +1094,7 @@ const RecordMatchPage: React.FC = () => {
             {/* Team 2 - Right Side */}
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-4">
                   Opponents
                 </h3>
               </div>
@@ -1109,22 +1118,24 @@ const RecordMatchPage: React.FC = () => {
 
         {showConfirmation && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl p-7 max-w-md w-full">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+            <div className="bg-background rounded-xl p-7 max-w-md w-full">
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">
                 Confirm Match
               </h3>
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-base text-red-600 mb-4">
+                <div className="rounded-lg p-3 text-base mb-4"
+                  style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--destructive) 25%, transparent)", color: "var(--destructive)" }}>
                   {error}
                 </div>
               )}
 
               {/* Match Card Style Display */}
-              <div className="bg-gray-50 rounded-lg p-5 mb-6">
+              <div className="bg-muted/40 rounded-lg p-5 mb-6">
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between text-sm font-medium text-gray-500">
-                    <span className="rounded-full bg-yellow-100 text-yellow-800 px-2.5 py-0.5 font-medium">
+                  <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+                    <span className="rounded-full px-2.5 py-0.5 font-medium"
+                      style={{ backgroundColor: "color-mix(in oklab, var(--warning) 20%, transparent)", color: "var(--warning-foreground)" }}>
                       Pending
                     </span>
                     <span>{eventDate}</span>
@@ -1133,11 +1144,8 @@ const RecordMatchPage: React.FC = () => {
                   <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
                     {/* My Team */}
                     <div
-                      className={`${
-                        myScore > opponentScore
-                          ? "text-emerald-700"
-                          : "text-rose-700"
-                      } min-w-0 md:justify-self-start`}
+                      className="min-w-0 md:justify-self-start"
+                      style={{ color: myScore > opponentScore ? "var(--success)" : "var(--destructive)" }}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="flex -space-x-2">
@@ -1180,11 +1188,8 @@ const RecordMatchPage: React.FC = () => {
 
                     {/* Opponent Team */}
                     <div
-                      className={`${
-                        opponentScore > myScore
-                          ? "text-emerald-700"
-                          : "text-rose-700"
-                      } min-w-0 self-end md:justify-self-end`}
+                      className="min-w-0 self-end md:justify-self-end"
+                      style={{ color: opponentScore > myScore ? "var(--success)" : "var(--destructive)" }}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="min-w-0">

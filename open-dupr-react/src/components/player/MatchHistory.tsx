@@ -182,7 +182,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           ))}
         </div>
       )}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-destructive mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
         <p className="text-muted-foreground mt-2">No matches found.</p>
       )}

@@ -11,6 +11,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Open DUPR</title>
+  <script>
+    (function () {
+      try {
+        var storageKey = 'open-dupr-theme';
+        var stored = localStorage.getItem(storageKey);
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = stored === 'dark' || (stored === null || stored === 'system') && prefersDark;
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 
 <body>

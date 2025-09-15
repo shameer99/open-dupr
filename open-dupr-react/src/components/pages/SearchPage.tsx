@@ -178,7 +178,7 @@ const SearchPage: React.FC = () => {
             className="flex-1"
           />
         </div>
-        {error && <div className="text-red-600 mb-2 text-sm">{error}</div>}
+        {error && <div className="mb-2 text-sm" style={{ color: "var(--destructive)" }}>{error}</div>}
 
         {hits.length === 0 && !loading && hasSufficientQuery ? (
           <p className="text-muted-foreground">
@@ -195,7 +195,8 @@ const SearchPage: React.FC = () => {
             {hits.map((h) => (
               <button
                 key={h.id}
-                className="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border"
+                className="w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors border"
+                style={{ backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
                 onClick={() => navigate(`/player/${h.id}`)}
                 type="button"
               >

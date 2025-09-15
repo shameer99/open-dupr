@@ -39,18 +39,18 @@ const ReliabilityModal: React.FC<ReliabilityModalProps> = ({
         {/* Progress Bar */}
         {reliabilityPercentage !== undefined && (
           <div className="mb-4">
-            <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="relative h-2 bg-input rounded-full overflow-hidden border border-border">
               <div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-300"
+                className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(reliabilityPercentage, 100)}%` }}
               />
               {/* 60% Threshold Indicator */}
               <div
-                className="absolute top-0 h-full w-0.5 bg-white border-x border-gray-300"
+                className="absolute top-0 h-full w-0.5 bg-foreground/20"
                 style={{ left: "60%" }}
               />
             </div>
-            <div className="relative text-xs text-gray-500 mt-2">
+            <div className="relative text-xs text-muted-foreground mt-2">
               {/* 0% and 100% labels */}
               <div className="flex justify-between">
                 <span>0%</span>

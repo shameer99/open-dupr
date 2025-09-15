@@ -444,7 +444,7 @@ const FollowersFollowingPage: React.FC = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <div className="text-red-500">{error}</div>
+        <div className="text-destructive">{error}</div>
       </div>
     );
   }
@@ -471,7 +471,7 @@ const FollowersFollowingPage: React.FC = () => {
           >
             Followers
             {typeof followersCount === "number" && (
-              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+              <span className="ml-1 text-xs px-2 py-1 rounded-full bg-muted/40 text-muted-foreground">
                 {followersCount}
               </span>
             )}
@@ -486,7 +486,7 @@ const FollowersFollowingPage: React.FC = () => {
           >
             Following
             {typeof followingCount === "number" && (
-              <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+              <span className="ml-1 text-xs px-2 py-1 rounded-full bg-muted/40 text-muted-foreground">
                 {followingCount}
               </span>
             )}
@@ -499,22 +499,24 @@ const FollowersFollowingPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleSortDirection}
-                className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 transition-colors ${
+                className={`p-2 border rounded-md transition-colors ${
                   sortOption === "none" ? "opacity-0 pointer-events-none" : "opacity-100"
                 }`}
                 title={sortOption !== "none" ? `Sort ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}
                 tabIndex={sortOption === "none" ? -1 : 0}
+                style={{ borderColor: "var(--border)" }}
               >
                 {sortDirection === "asc" ? (
-                  <ArrowUp className="h-4 w-4 text-gray-600" />
+                  <ArrowUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ArrowDown className="h-4 w-4 text-gray-600" />
+                  <ArrowDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
               <select
                 value={sortOption}
                 onChange={(e) => handleSortOptionChange(e.target.value as SortOption)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border rounded-md text-sm focus:ring-2"
+                style={{ borderColor: "var(--border)" }}
               >
                 <option value="none">Sort by...</option>
                 <option value="alphabetical">Alphabetical</option>
@@ -537,11 +539,12 @@ const FollowersFollowingPage: React.FC = () => {
               <div
                 key={i}
                 className="flex items-center gap-3 p-3 rounded-lg border animate-pulse"
+                style={{ borderColor: "var(--border)" }}
               >
-                <div className="h-12 w-12 rounded-full bg-gray-200" />
+                <div className="h-12 w-12 rounded-full" style={{ backgroundColor: "var(--muted)" }} />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-32 bg-gray-200 rounded" />
-                  <div className="h-3 w-24 bg-gray-200 rounded" />
+                  <div className="h-4 w-32 rounded" style={{ backgroundColor: "var(--muted)" }} />
+                  <div className="h-3 w-24 rounded" style={{ backgroundColor: "var(--muted)" }} />
                 </div>
               </div>
             ))}

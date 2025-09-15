@@ -60,7 +60,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white"
+                className=""
               />
             </div>
             <div className="grid gap-2">
@@ -73,11 +73,11 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-white"
+                className=""
               />
             </div>
             {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+              <p className="text-destructive text-sm text-center">{error}</p>
             )}
           </div>
           <div className="flex flex-col gap-4 mt-6">

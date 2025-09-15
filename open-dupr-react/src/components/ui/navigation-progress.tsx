@@ -65,15 +65,17 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
 
   return (
     <div
-      className={`absolute bottom-0 left-0 right-0 h-1 bg-gray-200 overflow-hidden z-50 ${className}`}
+      className={`absolute bottom-0 left-0 right-0 h-1 overflow-hidden z-50 ${className}`}
       style={{
-        borderTop: "1px solid #e5e7eb",
+        backgroundColor: "var(--input)",
+        borderTop: "1px solid var(--border)",
       }}
     >
       <div
-        className="h-full bg-blue-600 transition-all duration-300 ease-out shadow-sm"
+        className="h-full transition-all duration-300 ease-out shadow-sm"
         style={{
           width: `${progress}%`,
+          backgroundColor: "var(--primary)",
           transition: isLoading ? "width 0.3s ease-out" : "width 0.1s ease-out", // Faster completion animation
         }}
       />
