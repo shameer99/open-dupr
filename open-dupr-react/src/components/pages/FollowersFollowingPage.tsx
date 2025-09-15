@@ -97,6 +97,7 @@ const sortUsers = (
 const FollowersFollowingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selfProfile, setSelfProfile] = useState<Player | null>(null);
+  const [profileOwner, setProfileOwner] = useState<Player | null>(null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
