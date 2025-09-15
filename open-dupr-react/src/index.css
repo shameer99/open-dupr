@@ -207,6 +207,47 @@
     min-width: 96px; /* w-24 equivalent */
     transition: all 0.2s ease-in-out;
   }
+
+  /* Follow stats loading animations */
+  .follow-stats-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--accent) 25%,
+      rgba(var(--accent-rgb, 0 0 0), 0.5) 50%,
+      var(--accent) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Number transition effects */
+  .number-bounce-in {
+    animation: bounceIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
 }
 
 /* View Transition Animations */

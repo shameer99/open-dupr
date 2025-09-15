@@ -58,7 +58,7 @@ const FollowStats: React.FC<FollowStatsProps> = ({
     isTransitioning: boolean;
   }> = ({ count, isLoading, isTransitioning }) => {
     if (isLoading) {
-      return <Skeleton className="h-4 w-8 inline-block" />;
+      return <Skeleton className="h-4 w-8 inline-block follow-stats-skeleton" />;
     }
     
     return (
@@ -66,8 +66,13 @@ const FollowStats: React.FC<FollowStatsProps> = ({
         className={`font-semibold transition-all duration-300 ease-out ${
           isLoaded ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-1'
         } ${
-          isTransitioning ? 'scale-110 text-primary' : 'scale-100'
+          isTransitioning ? 'scale-110 text-primary number-bounce-in' : 'scale-100'
         }`}
+        style={{
+          display: 'inline-block',
+          minWidth: '1.5rem',
+          textAlign: 'center'
+        }}
       >
         {count ?? 0}
       </span>
@@ -81,7 +86,9 @@ const FollowStats: React.FC<FollowStatsProps> = ({
         className={`transition-all duration-200 ${
           followInfo 
             ? 'hover:text-gray-600 cursor-pointer hover:scale-105' 
-            : 'cursor-default'
+            : 'cursor-default opacity-70'
+        } ${
+          !isLoaded && !followInfo ? 'animate-pulse' : ''
         }`}
         disabled={!followInfo}
       >
@@ -97,7 +104,9 @@ const FollowStats: React.FC<FollowStatsProps> = ({
         className={`transition-all duration-200 ${
           followInfo 
             ? 'hover:text-gray-600 cursor-pointer hover:scale-105' 
-            : 'cursor-default'
+            : 'cursor-default opacity-70'
+        } ${
+          !isLoaded && !followInfo ? 'animate-pulse' : ''
         }`}
         disabled={!followInfo}
       >

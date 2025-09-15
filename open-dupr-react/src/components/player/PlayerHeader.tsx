@@ -88,7 +88,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
             </p>
 
             <FollowStats
-              followInfo={followInfo}
+              followInfo={followInfo || null}
               onFollowersClick={handleFollowersClick}
               onFollowingClick={handleFollowingClick}
             />
