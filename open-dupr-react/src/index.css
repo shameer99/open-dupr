@@ -201,6 +201,12 @@
     filter: invert(1);
     opacity: 0.8;
   }
+
+  /* Profile follow button optimization */
+  .profile-follow-button {
+    min-width: 96px; /* w-24 equivalent */
+    transition: all 0.2s ease-in-out;
+  }
 }
 
 /* View Transition Animations */

@@ -86,24 +86,28 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
               {metaParts.join(" · ")}
             </p>
 
-            {followInfo && (
-              <div className="flex space-x-6 text-sm">
-                <button
-                  onClick={handleFollowersClick}
-                  className="hover:text-gray-600 transition-colors cursor-pointer"
-                >
-                  <span className="font-semibold">{followInfo.followers}</span>{" "}
-                  <span className="text-muted-foreground">followers</span>
-                </button>
-                <button
-                  onClick={handleFollowingClick}
-                  className="hover:text-gray-600 transition-colors cursor-pointer"
-                >
-                  <span className="font-semibold">{followInfo.followings}</span>{" "}
-                  <span className="text-muted-foreground">following</span>
-                </button>
-              </div>
-            )}
+            <div className="flex space-x-6 text-sm">
+              <button
+                onClick={followInfo ? handleFollowersClick : undefined}
+                className={`transition-colors ${followInfo ? 'hover:text-gray-600 cursor-pointer' : 'cursor-default'}`}
+                disabled={!followInfo}
+              >
+                <span className="font-semibold">
+                  {followInfo ? followInfo.followers : "—"}
+                </span>{" "}
+                <span className="text-muted-foreground">followers</span>
+              </button>
+              <button
+                onClick={followInfo ? handleFollowingClick : undefined}
+                className={`transition-colors ${followInfo ? 'hover:text-gray-600 cursor-pointer' : 'cursor-default'}`}
+                disabled={!followInfo}
+              >
+                <span className="font-semibold">
+                  {followInfo ? followInfo.followings : "—"}
+                </span>{" "}
+                <span className="text-muted-foreground">following</span>
+              </button>
+            </div>
           </div>
         </div>
         {action ? <div className="w-full">{action}</div> : null}

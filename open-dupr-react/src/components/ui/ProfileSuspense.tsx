@@ -17,7 +17,9 @@ const ProfileSuspense: React.FC<ProfileSuspenseProps> = ({ children }) => {
         </LoadingPage>
       }
     >
-      {children}
+      <div className="min-h-[400px]">
+        {children}
+      </div>
     </Suspense>
   );
 };

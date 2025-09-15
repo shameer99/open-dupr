@@ -18,15 +18,17 @@ import { AlertTriangle } from "lucide-react";
 interface PlayerProfileProps {
   player: Player;
   isSelf?: boolean;
+  initialFollowInfo?: FollowInfo | null;
 }
 
 const PlayerProfile: React.FC<PlayerProfileProps> = ({
   player,
   isSelf = false,
+  initialFollowInfo = null,
 }) => {
   const { setTitle, setAvatarUrl, setPlayerName } = useHeader();
   const navigate = useNavigate();
-  const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
+  const [followInfo, setFollowInfo] = useState<FollowInfo | null>(initialFollowInfo);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
   const [showEditInfo, setShowEditInfo] = useState(false);
   const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
@@ -59,17 +61,20 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   }, [player.fullName, player.imageUrl, setTitle, setAvatarUrl, setPlayerName]);
 
   useEffect(() => {
-    const fetchFollowInfo = async () => {
-      try {
-        const data = await getFollowInfo(player.id);
-        setFollowInfo(data.result);
-      } catch {
-        // Error handling intentionally silent
-      }
-    };
+    // Only fetch follow info if not provided as prop and not for self
+    if (!isSelf && !initialFollowInfo) {
+      const fetchFollowInfo = async () => {
+        try {
+          const data = await getFollowInfo(player.id);
+          setFollowInfo(data.result);
+        } catch {
+          // Error handling intentionally silent
+        }
+      };
 
-    fetchFollowInfo();
-  }, [player.id]);
+      fetchFollowInfo();
+    }
+  }, [player.id, isSelf, initialFollowInfo]);
 
   useEffect(() => {
     const fetchPendingMatches = async () => {
@@ -121,12 +126,13 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
             Edit profile
           </Button>
         </>
-      ) : followInfo ? (
+      ) : (
         <Button
           variant="outline"
-          disabled={isProcessingFollow}
-          className="w-full"
+          disabled={isProcessingFollow || !followInfo}
+          className="w-full profile-follow-button"
           onClick={async () => {
+            if (!followInfo) return;
             try {
               setIsProcessingFollow(true);
               if (followInfo.isFollowed) {
@@ -151,9 +157,9 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
             }
           }}
         >
-          {followInfo.isFollowed ? "Unfollow" : "Follow"}
+          {!followInfo ? "Loading..." : followInfo.isFollowed ? "Unfollow" : "Follow"}
         </Button>
-      ) : null}
+      )}
     </div>
   );
 
