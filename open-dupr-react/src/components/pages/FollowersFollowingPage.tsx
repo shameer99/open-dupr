@@ -43,11 +43,25 @@ const sortUsers = (
   users: FollowUser[],
   sortOption: SortOption,
   sortDirection: SortDirection,
-  userRatings: Record<number, { singles: string; doubles: string }>
+  userRatings: Record<number, { singles: string; doubles: string }>,
+  selfProfile: Player | null
 ): FollowUser[] => {
-  if (sortOption === "none") return users;
+  const usersToSort = [...users];
+  
+  // Add self profile to the list if it exists and isn't already included
+  if (selfProfile && !users.find(user => user.id === selfProfile.id)) {
+    const selfAsFollowUser: FollowUser = {
+      id: selfProfile.id,
+      name: selfProfile.fullName,
+      profileImage: selfProfile.imageUrl,
+      isFollow: false, // User doesn't follow themselves
+    };
+    usersToSort.push(selfAsFollowUser);
+  }
+  
+  if (sortOption === "none") return usersToSort;
 
-  return [...users].sort((a, b) => {
+  return usersToSort.sort((a, b) => {
     let result = 0;
 
     switch (sortOption) {
@@ -319,6 +333,8 @@ const FollowersFollowingPage: React.FC = () => {
         const selfProfileData = await getMyProfile().catch(() => null);
         if (selfProfileData?.result) {
           setSelfProfile(selfProfileData.result);
+          // Fetch current user's ratings as well
+          await fetchUserRatings([selfProfileData.result.id]);
         }
 
         const followersTotal = followInfoData?.result?.followers;
@@ -557,9 +573,22 @@ const FollowersFollowingPage: React.FC = () => {
   const currentCount =
     activeTab === "followers" ? followersCount : followingCount;
   const canSort = currentCount !== null && currentCount <= 100;
+  
+  // Always include the user in the list, whether sorting or not
+  let displayList = currentList;
+  if (selfProfile && !currentList.find(user => user.id === selfProfile.id)) {
+    const selfAsFollowUser: FollowUser = {
+      id: selfProfile.id,
+      name: selfProfile.fullName,
+      profileImage: selfProfile.imageUrl,
+      isFollow: false,
+    };
+    displayList = [...currentList, selfAsFollowUser];
+  }
+  
   const sortedList = canSort
-    ? sortUsers(currentList, sortOption, sortDirection, userRatings)
-    : currentList;
+    ? sortUsers(currentList, sortOption, sortDirection, userRatings, selfProfile)
+    : displayList;
 
   return (
     <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
@@ -680,11 +709,15 @@ const FollowersFollowingPage: React.FC = () => {
           </p>
         ) : (
           <div className="space-y-3">
-            {sortedList.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center gap-3 p-3 rounded-lg border"
-              >
+            {sortedList.map((user) => {
+              const isCurrentUser = selfProfile && user.id === selfProfile.id;
+              return (
+                <div
+                  key={user.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border ${
+                    isCurrentUser ? "border-dashed border-2 border-blue-400" : ""
+                  }`}
+                >
                 <div
                   className="flex items-center gap-3 flex-1 cursor-pointer"
                   onClick={() => handleUserClick(user.id)}
@@ -728,14 +761,15 @@ const FollowersFollowingPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                {selfProfile && user.id !== selfProfile.id && (
-                  <FollowButton
-                    user={user}
-                    onFollowStateChange={handleFollowStateChange}
-                  />
-                )}
-              </div>
-            ))}
+                  {selfProfile && user.id !== selfProfile.id && (
+                    <FollowButton
+                      user={user}
+                      onFollowStateChange={handleFollowStateChange}
+                    />
+                  )}
+                </div>
+              );
+            })}
             <div ref={loaderRef} />
             {(isLoadingMore || listLoading) && hasMore && sortOption === "none" && (
               <div className="py-4 text-center">
