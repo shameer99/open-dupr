@@ -27,6 +27,12 @@ export default function LoginPage() {
 
       setToken(data.result.accessToken);
       setRefreshToken(data.result.refreshToken);
+      
+      // Store user ID for API calls that need it
+      if (data.result.user?.id) {
+        localStorage.setItem("userId", data.result.user.id.toString());
+      }
+      
       navigate("/profile");
     } catch (err: unknown) {
       setError(extractApiErrorMessage(err, "Login failed"));
