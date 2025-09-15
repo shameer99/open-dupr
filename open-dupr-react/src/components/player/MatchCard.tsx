@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { confirmMatch, rejectMatch } from "@/lib/api";
 import { MatchScoreDisplay } from "./shared/MatchDisplay";
-import { navigateWithTransition } from "@/lib/view-transitions";
+import { navigateWithTransition, navigateToProfile } from "@/lib/view-transitions";
 import {
   getDisplayName,
   getGamePairs,
@@ -41,7 +41,7 @@ function TeamStack({ team, profileUserId, onExpandMatch }: TeamStackProps) {
         onExpandMatch();
         return;
       }
-      navigateWithTransition(navigate, `/player/${playerId}`);
+      navigateToProfile(navigate, `/player/${playerId}`);
     }
   };
 

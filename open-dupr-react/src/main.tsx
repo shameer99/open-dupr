@@ -10,6 +10,7 @@ import ThemeProvider from "./lib/theme-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
 import AboutPage from "./components/pages/AboutPage.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
+import ProfileSuspense from "./components/ui/ProfileSuspense.tsx";
 
 import FollowersFollowingPage from "./components/pages/FollowersFollowingPage.tsx";
 import OtherUserPage from "./components/pages/OtherUserPage.tsx";
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   element={
                     <ProtectedRoute>
                       <AppShell>
-                        <ProfilePage />
+                        <ProfileSuspense>
+                          <ProfilePage />
+                        </ProfileSuspense>
                       </AppShell>
                     </ProtectedRoute>
                   }
@@ -69,7 +72,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   element={
                     <ProtectedRoute>
                       <AppShell>
-                        <OtherUserPage />
+                        <ProfileSuspense>
+                          <OtherUserPage />
+                        </ProfileSuspense>
                       </AppShell>
                     </ProtectedRoute>
                   }

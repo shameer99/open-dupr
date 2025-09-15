@@ -11,6 +11,7 @@ import { usePageLoading } from "@/lib/loading-context";
 import { getPendingMatches, getMyProfile } from "@/lib/api";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import { extractApiErrorMessage } from "@/lib/utils";
+import { navigateBack } from "@/lib/view-transitions";
 
 type PlayerRef = {
   id?: number;
@@ -102,7 +103,7 @@ const ValidationQueuePage: React.FC = () => {
   }, [loadPendingMatches]);
 
   const handleBackClick = () => {
-    navigate(-1);
+    navigateBack(navigate);
   };
 
   return (

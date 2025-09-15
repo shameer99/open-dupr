@@ -13,6 +13,7 @@ import {
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
 import PullToRefresh from "@/components/ui/pull-to-refresh";
+import { navigateToProfile, navigateBack } from "@/lib/view-transitions";
 import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
 import type { FollowUser, Player } from "@/lib/types";
@@ -357,7 +358,7 @@ const FollowersFollowingPage: React.FC = () => {
   };
 
   const handleUserClick = (userId: number) => {
-    navigate(`/player/${userId}`);
+    navigateToProfile(navigate, `/player/${userId}`);
   };
 
   const handleFollowStateChange = (userId: number, isFollowed: boolean) => {
@@ -386,7 +387,7 @@ const FollowersFollowingPage: React.FC = () => {
   };
 
   const handleBackClick = useCallback(() => {
-    navigate(-1);
+    navigateBack(navigate);
   }, [navigate]);
 
   useEffect(() => {

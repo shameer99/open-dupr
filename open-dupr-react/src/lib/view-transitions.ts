@@ -40,6 +40,47 @@ export function navigateWithTransition(
 }
 
 /**
+ * Navigates to a profile page with slide transition
+ */
+export function navigateToProfile(
+  navigate: (to: string, options?: Record<string, unknown>) => void,
+  to: string,
+  options?: Record<string, unknown>
+): Promise<void> {
+  return startViewTransition(() => {
+    // Add profile transition class to document root
+    document.documentElement.classList.add('profile-transition');
+    
+    // Remove the class after transition completes
+    setTimeout(() => {
+      document.documentElement.classList.remove('profile-transition');
+    }, 600); // Slightly longer than animation duration
+    
+    navigate(to, options);
+  });
+}
+
+/**
+ * Navigates back with slide transition
+ */
+export function navigateBack(
+  navigate: (delta: number) => void,
+  delta: number = -1
+): Promise<void> {
+  return startViewTransition(() => {
+    // Add back transition class to document root
+    document.documentElement.classList.add('back-transition');
+    
+    // Remove the class after transition completes
+    setTimeout(() => {
+      document.documentElement.classList.remove('back-transition');
+    }, 500); // Slightly longer than animation duration
+    
+    navigate(delta);
+  });
+}
+
+/**
  * Checks if View Transition API is supported
  */
 export function isViewTransitionSupported(): boolean {

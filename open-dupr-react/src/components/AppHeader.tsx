@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
-import { navigateWithTransition } from "@/lib/view-transitions";
+import { navigateWithTransition, navigateToProfile } from "@/lib/view-transitions";
 
 const AppHeader: React.FC = () => {
   const {
@@ -47,7 +47,7 @@ const AppHeader: React.FC = () => {
 
   const goToProfile = () => {
     setOpen(false);
-    navigateWithTransition(navigate, "/profile");
+    navigateToProfile(navigate, "/profile");
   };
 
   const goToSearch = () => {

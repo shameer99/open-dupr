@@ -281,3 +281,23 @@
     animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-in;
   }
 }
+
+/* Profile-specific slide transitions */
+.profile-transition::view-transition-old(root) {
+  animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-out-right;
+}
+
+.profile-transition::view-transition-new(root) {
+  animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-in-right;
+}
+
+/* Back navigation slide transitions */
+.back-transition::view-transition-old(root) {
+  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both slide-in-right;
+  animation-direction: reverse;
+}
+
+.back-transition::view-transition-new(root) {
+  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both slide-out-right;
+  animation-direction: reverse;
+}
