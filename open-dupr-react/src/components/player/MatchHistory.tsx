@@ -252,37 +252,36 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="relative" ref={dropdownRef}>
-            <Button
-              ref={buttonRef}
-              variant="ghost"
-              size="icon"
-              onClick={toggleFilterDropdown}
-              className="h-8 w-8"
-              aria-label="Filter matches"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-              </svg>
-            </Button>
-          </div>
-
-          <div className="flex flex-col">
-            <h2 className="text-xl font-bold">Match History</h2>
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold">Match History</h2>
+          <div className="flex items-center gap-2">
             <p className="text-sm text-muted-foreground">
               {count} {getFilterDisplayText()}{" "}
               {count === 1 ? "match" : "matches"}
             </p>
+            <div className="relative" ref={dropdownRef}>
+              <Button
+                ref={buttonRef}
+                variant="ghost"
+                size="sm"
+                onClick={toggleFilterDropdown}
+                className="h-6 w-6 p-0"
+                aria-label="Filter matches"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                </svg>
+              </Button>
+            </div>
           </div>
         </div>
         {isSelf && (
