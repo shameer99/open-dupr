@@ -68,7 +68,6 @@ const SearchPage: React.FC = () => {
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [userLatLng, setUserLatLng] = useState<{
@@ -106,18 +105,21 @@ const SearchPage: React.FC = () => {
 
   const hasSufficientQuery = query.trim().length >= MIN_QUERY_CHARS;
 
+  const offsetRef = useRef(0);
+
   const performSearch = useCallback(
     async (reset = false) => {
       if (!hasSufficientQuery) {
         setHits([]);
         setHasMore(false);
-        setOffset(0);
+        offsetRef.current = 0;
         return;
       }
       try {
         setLoading(true);
+        const searchOffset = reset ? 0 : offsetRef.current;
         const body = {
-          offset: reset ? 0 : offset,
+          offset: searchOffset,
           limit: DEFAULT_LIMIT,
           query,
           filter: {
@@ -145,8 +147,8 @@ const SearchPage: React.FC = () => {
           })
         );
         setHits((prev) => (reset ? newHits : [...prev, ...newHits]));
-        const nextOffset = (reset ? 0 : offset) + newHits.length;
-        setOffset(nextOffset);
+        const nextOffset = searchOffset + newHits.length;
+        offsetRef.current = nextOffset;
         setHasMore(newHits.length === DEFAULT_LIMIT);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Search failed");
@@ -154,12 +156,12 @@ const SearchPage: React.FC = () => {
         setLoading(false);
       }
     },
-    [query, offset, userLatLng, hasSufficientQuery]
+    [query, userLatLng, hasSufficientQuery]
   );
 
   const handleRefresh = useCallback(async () => {
     if (hasSufficientQuery) {
-      setOffset(0);
+      offsetRef.current = 0;
       await performSearch(true);
     }
   }, [hasSufficientQuery, performSearch]);
@@ -192,7 +194,7 @@ const SearchPage: React.FC = () => {
     );
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [hasMore, loading, offset, query, performSearch]);
+  }, [hasMore, loading, performSearch]);
 
   // Debounce live search on typing
   useEffect(() => {
@@ -200,11 +202,11 @@ const SearchPage: React.FC = () => {
     if (trimmed.length < MIN_QUERY_CHARS) {
       setHits([]);
       setHasMore(false);
-      setOffset(0);
+      offsetRef.current = 0;
       return;
     }
     setError(null);
-    setOffset(0);
+    offsetRef.current = 0;
     const handle = setTimeout(() => {
       void performSearch(true);
     }, 300);
