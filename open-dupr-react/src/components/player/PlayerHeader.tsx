@@ -5,6 +5,7 @@ import Modal from "@/components/ui/modal";
 import { X } from "lucide-react";
 import type { FollowInfo } from "@/lib/types";
 import EnlargedAvatar from "./EnlargedAvatar";
+import FollowStats from "./FollowStats";
 import { navigateWithTransition } from "@/lib/view-transitions";
 
 interface PlayerHeaderProps {
@@ -86,28 +87,11 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
               {metaParts.join(" · ")}
             </p>
 
-            <div className="flex space-x-6 text-sm">
-              <button
-                onClick={followInfo ? handleFollowersClick : undefined}
-                className={`transition-colors ${followInfo ? 'hover:text-gray-600 cursor-pointer' : 'cursor-default'}`}
-                disabled={!followInfo}
-              >
-                <span className="font-semibold">
-                  {followInfo ? followInfo.followers : "—"}
-                </span>{" "}
-                <span className="text-muted-foreground">followers</span>
-              </button>
-              <button
-                onClick={followInfo ? handleFollowingClick : undefined}
-                className={`transition-colors ${followInfo ? 'hover:text-gray-600 cursor-pointer' : 'cursor-default'}`}
-                disabled={!followInfo}
-              >
-                <span className="font-semibold">
-                  {followInfo ? followInfo.followings : "—"}
-                </span>{" "}
-                <span className="text-muted-foreground">following</span>
-              </button>
-            </div>
+            <FollowStats
+              followInfo={followInfo}
+              onFollowersClick={handleFollowersClick}
+              onFollowingClick={handleFollowingClick}
+            />
           </div>
         </div>
         {action ? <div className="w-full">{action}</div> : null}
