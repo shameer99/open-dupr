@@ -28,7 +28,9 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
 }) => {
   const { setTitle, setAvatarUrl, setPlayerName } = useHeader();
   const navigate = useNavigate();
-  const [followInfo, setFollowInfo] = useState<FollowInfo | null>(initialFollowInfo);
+  const [followInfo, setFollowInfo] = useState<FollowInfo | null>(
+    initialFollowInfo
+  );
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
   const [showEditInfo, setShowEditInfo] = useState(false);
   const [pendingMatchesCount, setPendingMatchesCount] = useState<number>(0);
@@ -61,8 +63,8 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
   }, [player.fullName, player.imageUrl, setTitle, setAvatarUrl, setPlayerName]);
 
   useEffect(() => {
-    // Only fetch follow info if not provided as prop and not for self
-    if (!isSelf && !initialFollowInfo) {
+    // Only fetch follow info if not provided as prop
+    if (!initialFollowInfo) {
       const fetchFollowInfo = async () => {
         try {
           const data = await getFollowInfo(player.id);
@@ -74,7 +76,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
 
       fetchFollowInfo();
     }
-  }, [player.id, isSelf, initialFollowInfo]);
+  }, [player.id, initialFollowInfo]);
 
   useEffect(() => {
     const fetchPendingMatches = async () => {
@@ -157,7 +159,11 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
             }
           }}
         >
-          {!followInfo ? "Loading..." : followInfo.isFollowed ? "Unfollow" : "Follow"}
+          {!followInfo
+            ? "Loading..."
+            : followInfo.isFollowed
+            ? "Unfollow"
+            : "Follow"}
         </Button>
       )}
     </div>
