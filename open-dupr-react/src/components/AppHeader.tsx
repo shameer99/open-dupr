@@ -16,7 +16,7 @@ import {
   Sun,
   Laptop,
 } from "lucide-react";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
 
 const AppHeader: React.FC = () => {
@@ -114,23 +114,11 @@ const AppHeader: React.FC = () => {
         >
           <div className="flex items-center gap-3">
             {(avatarUrl || playerName) && (
-              <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt=""
-                    className="h-8 w-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${getAvatarColor(
-                      playerName || ""
-                    )}`}
-                  >
-                    {getInitials(playerName || "")}
-                  </div>
-                )}
-              </div>
+              <Avatar
+                src={avatarUrl ?? undefined}
+                name={playerName || ""}
+                size="sm"
+              />
             )}
             <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           </div>
@@ -163,7 +151,9 @@ const AppHeader: React.FC = () => {
                 {open && (
                   <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
                     <div className="px-4 py-3">
-                      <div className="text-xs text-muted-foreground mb-2">Theme</div>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        Theme
+                      </div>
                       <div className="grid grid-cols-3 gap-2">
                         <button
                           type="button"

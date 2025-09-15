@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 
 import { cn } from "@/lib/utils";
@@ -26,16 +26,32 @@ const Avatar: React.FC<AvatarProps> = ({
   onClick,
 }) => {
   const [imageError, setImageError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const initials = getInitials(name);
   const bgColor = getAvatarColor(name);
 
-  const shouldShowInitials = !src || imageError;
+  const canShowImage = Boolean(src) && !imageError;
+
+  useLayoutEffect(() => {
+    // On src change, reset and detect if image is already cached to avoid flicker
+    setImageError(false);
+    if (
+      imgRef.current &&
+      imgRef.current.complete &&
+      imgRef.current.naturalWidth > 0
+    ) {
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
+    }
+  }, [src]);
 
   return (
     <div
       className={cn(
         sizeClasses[size],
-        "rounded-full flex items-center justify-center",
+        "relative rounded-full overflow-hidden",
         className,
         {
           "cursor-pointer": !!onClick,
@@ -43,17 +59,37 @@ const Avatar: React.FC<AvatarProps> = ({
       )}
       onClick={onClick}
     >
-      {shouldShowInitials ? (
-        <div
-          className={`${sizeClasses[size]} ${bgColor} rounded-full flex items-center justify-center text-white font-semibold`}
-        >
-          {initials}
-        </div>
-      ) : (
+      {/* Monogram placeholder - visible until image fully loads */}
+      <div
+        className={cn(
+          "absolute inset-0 rounded-full flex items-center justify-center text-white font-semibold transition-opacity duration-300",
+          bgColor,
+          {
+            "opacity-0": canShowImage && isLoaded,
+            "opacity-100": !(canShowImage && isLoaded),
+          }
+        )}
+        aria-hidden={canShowImage && isLoaded}
+      >
+        {initials}
+      </div>
+
+      {/* Actual image - fades in when loaded */}
+      {canShowImage && (
         <img
           src={src}
           alt={name}
-          className={`${sizeClasses[size]} rounded-full object-cover`}
+          loading="lazy"
+          decoding="async"
+          ref={imgRef}
+          className={cn(
+            "absolute inset-0 h-full w-full rounded-full object-cover transition-all duration-300",
+            {
+              "opacity-100 scale-100": isLoaded,
+              "opacity-0 scale-105": !isLoaded,
+            }
+          )}
+          onLoad={() => setIsLoaded(true)}
           onError={() => setImageError(true)}
         />
       )}
