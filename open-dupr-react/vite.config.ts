@@ -12,25 +12,38 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["logo.png"],
+      devOptions: {
+        enabled: true,
+        type: "module",
+      },
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
       },
       manifest: {
         name: "Open DUPR",
-        short_name: "OpenDUPR",
-        description: "An open source app for tracking DUPR ratings.",
-        theme_color: "#ffffff",
+        short_name: "Open DUPR",
+        description: "A clean, fast, and open-source frontend for DUPR.",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#1f2937",
+        lang: "en",
+        scope: "/",
+        categories: ["sports", "social", "productivity"],
+        orientation: "portrait-primary",
         icons: [
           {
             src: "pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any maskable",
           },
           {
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },
