@@ -121,6 +121,7 @@ function transformFeedMatch(feedMatch: FeedMatch): Match {
             fullName: team.teamPlayer1!.fullName,
             imageUrl: team.teamPlayer1!.imageUrl || undefined,
             validatedMatch: Boolean(team.teamPlayer1!.validatedMatch),
+            postMatchRating: team.teamPlayer1!.postMatchRating as { singles?: number; doubles?: number } | null,
           },
           player2: team.teamPlayer2
             ? {
@@ -128,6 +129,7 @@ function transformFeedMatch(feedMatch: FeedMatch): Match {
                 fullName: team.teamPlayer2.fullName,
                 imageUrl: team.teamPlayer2.imageUrl || undefined,
                 validatedMatch: Boolean(team.teamPlayer2.validatedMatch),
+                postMatchRating: team.teamPlayer2.postMatchRating as { singles?: number; doubles?: number } | null,
               }
             : null,
           winner: team.winner,
@@ -136,6 +138,7 @@ function transformFeedMatch(feedMatch: FeedMatch): Match {
           game3: team.game3,
           game4: team.game4,
           game5: team.game5,
+          delta: team.delta as string | undefined,
           preMatchRatingAndImpact: team.preMatchRatingAndImpact as Record<string, string | number | null | undefined> | undefined,
         })
       ),
