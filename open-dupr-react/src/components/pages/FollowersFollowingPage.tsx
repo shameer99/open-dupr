@@ -44,7 +44,8 @@ const sortUsers = (
   sortOption: SortOption,
   sortDirection: SortDirection,
   userRatings: Record<number, { singles: string; doubles: string }>,
-  profileOwner: Player | null
+  profileOwner: Player | null,
+  profileOwnerFollowState: boolean
 ): FollowUser[] => {
   const usersToSort = [...users];
   
@@ -56,7 +57,7 @@ const sortUsers = (
       id: profileOwner.id,
       name: profileOwner.fullName,
       profileImage: profileOwner.imageUrl,
-      isFollow: false, // Profile owner doesn't follow themselves
+      isFollow: profileOwnerFollowState,
     };
     usersToSort.push(ownerAsFollowUser);
   }
@@ -100,6 +101,7 @@ const FollowersFollowingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selfProfile, setSelfProfile] = useState<Player | null>(null);
   const [profileOwner, setProfileOwner] = useState<Player | null>(null);
+  const [profileOwnerFollowState, setProfileOwnerFollowState] = useState<boolean>(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as TabType) || "followers";
@@ -322,6 +324,7 @@ const FollowersFollowingPage: React.FC = () => {
         setFollowingHasMore(true);
         setUserRatings({});
         setProfileOwner(null);
+        setProfileOwnerFollowState(false);
         setSortOption("none");
         setSortDirection("desc");
 
@@ -348,10 +351,13 @@ const FollowersFollowingPage: React.FC = () => {
 
         const followersTotal = followInfoData?.result?.followers;
         const followingTotal = followInfoData?.result?.followings;
+        const isFollowingProfileOwner = followInfoData?.result?.isFollowed;
         if (typeof followersTotal === "number")
           setFollowersCount(followersTotal);
         if (typeof followingTotal === "number")
           setFollowingCount(followingTotal);
+        if (typeof isFollowingProfileOwner === "boolean")
+          setProfileOwnerFollowState(isFollowingProfileOwner);
 
         const name = playerDetail?.result?.fullName as string | undefined;
         const image = playerDetail?.result?.imageUrl as string | undefined;
@@ -465,6 +471,11 @@ const FollowersFollowingPage: React.FC = () => {
       );
     setFollowers(updateUser);
     setFollowing(updateUser);
+    
+    // Update profile owner follow state if it's the same user
+    if (profileOwner && userId === profileOwner.id) {
+      setProfileOwnerFollowState(isFollowed);
+    }
   };
 
   const handleSortOptionChange = async (newSortOption: SortOption) => {
@@ -584,7 +595,7 @@ const FollowersFollowingPage: React.FC = () => {
   const canSort = currentCount !== null && currentCount <= 100;
   
   const sortedList = canSort
-    ? sortUsers(currentList, sortOption, sortDirection, userRatings, profileOwner)
+    ? sortUsers(currentList, sortOption, sortDirection, userRatings, profileOwner, profileOwnerFollowState)
     : currentList;
 
   return (
@@ -758,7 +769,7 @@ const FollowersFollowingPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                  {selfProfile && user.id !== selfProfile.id && user.id !== profileOwner?.id && (
+                  {selfProfile && user.id !== selfProfile.id && (
                     <FollowButton
                       user={user}
                       onFollowStateChange={handleFollowStateChange}
