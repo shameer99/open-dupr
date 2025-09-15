@@ -138,32 +138,32 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
           { date: string; singles?: number | null; doubles?: number | null }
         >();
 
-        // For each date, use the last (final) rating of that day
+        // For each date, use the first (latest) rating of that day
         for (const date of allDates) {
           const entry: { date: string; singles?: number | null; doubles?: number | null } = { date };
 
-          // Get final singles rating for this date
+          // Get latest singles rating for this date (first in API response)
           const singlesRatings = singlesByDate.get(date) || [];
           if (singlesRatings.length > 0) {
-            const lastSinglesRating = singlesRatings[singlesRatings.length - 1].rating;
+            const latestSinglesRating = singlesRatings[0].rating;
             const val =
-              typeof lastSinglesRating === "number"
-                ? lastSinglesRating
-                : lastSinglesRating != null
-                ? Number(lastSinglesRating)
+              typeof latestSinglesRating === "number"
+                ? latestSinglesRating
+                : latestSinglesRating != null
+                ? Number(latestSinglesRating)
                 : null;
             entry.singles = Number.isFinite(val as number) ? (val as number) : null;
           }
 
-          // Get final doubles rating for this date
+          // Get latest doubles rating for this date (first in API response)
           const doublesRatings = doublesByDate.get(date) || [];
           if (doublesRatings.length > 0) {
-            const lastDoublesRating = doublesRatings[doublesRatings.length - 1].rating;
+            const latestDoublesRating = doublesRatings[0].rating;
             const val =
-              typeof lastDoublesRating === "number"
-                ? lastDoublesRating
-                : lastDoublesRating != null
-                ? Number(lastDoublesRating)
+              typeof latestDoublesRating === "number"
+                ? latestDoublesRating
+                : latestDoublesRating != null
+                ? Number(latestDoublesRating)
                 : null;
             entry.doubles = Number.isFinite(val as number) ? (val as number) : null;
           }
