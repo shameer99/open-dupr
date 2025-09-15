@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useHeader } from "@/lib/header-context";
 import { useAuth } from "@/lib/useAuth";
-import { getUserActivityFeed } from "@/lib/api";
+import { getUserActivityFeed, getMyProfile } from "@/lib/api";
 import { MatchCardSkeleton } from "@/components/ui/loading-skeletons";
 import MatchCard from "@/components/player/MatchCard";
 import { Button } from "@/components/ui/button";
@@ -68,15 +68,28 @@ const FeedPage: React.FC = () => {
       }
       setError(null);
 
-      const currentUserId = localStorage.getItem("userId");
+      let currentUserId = localStorage.getItem("userId");
+      
+      // If userId is not in localStorage, fetch from profile
       if (!currentUserId) {
-        throw new Error("User ID not found");
+        try {
+          const profileData = await getMyProfile();
+          if (profileData.result?.id) {
+            const userId = profileData.result.id.toString();
+            localStorage.setItem("userId", userId);
+            currentUserId = userId;
+          } else {
+            throw new Error("Could not fetch user profile");
+          }
+        } catch {
+          throw new Error("User ID not found");
+        }
       }
 
       const offset = loadMore ? feedActivities.length : 0;
       const limit = 10;
 
-      const response = await getUserActivityFeed(parseInt(currentUserId), offset, limit);
+      const response = await getUserActivityFeed(parseInt(currentUserId!), offset, limit);
 
       if (response.status === "SUCCESS") {
         const activities = response.result?.hits || response.results || [];
