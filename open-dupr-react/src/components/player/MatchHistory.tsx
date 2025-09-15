@@ -147,6 +147,10 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   );
 
   const handleFilterChange = useCallback((newFilter: string) => {
+    if (newFilter === activeFilter) {
+      setShowFilterDropdown(false);
+      return;
+    }
     setActiveFilter(newFilter);
     setMatches([]);
     setOffset(0);
@@ -154,7 +158,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setTotalCount(null);
     setError(null);
     setShowFilterDropdown(false);
-  }, []);
+  }, [activeFilter]);
 
   const toggleFilterDropdown = useCallback(() => {
     if (!showFilterDropdown && buttonRef.current) {
@@ -343,30 +347,30 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           >
             <div className="p-2">
               <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
                   activeFilter === "all"
-                    ? "bg-accent text-accent-foreground"
-                    : ""
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 }`}
                 onClick={() => handleFilterChange("all")}
               >
                 All Matches
               </button>
               <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
                   activeFilter === "singles"
-                    ? "bg-accent text-accent-foreground"
-                    : ""
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 }`}
                 onClick={() => handleFilterChange("singles")}
               >
                 Singles Only
               </button>
               <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground ${
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
                   activeFilter === "doubles"
-                    ? "bg-accent text-accent-foreground"
-                    : ""
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 }`}
                 onClick={() => handleFilterChange("doubles")}
               >
