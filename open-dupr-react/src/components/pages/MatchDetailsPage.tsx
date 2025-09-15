@@ -11,6 +11,7 @@ import {
 } from "@/lib/api";
 import { extractApiErrorMessage } from "@/lib/utils";
 import { MatchScoreDisplay, TeamHeader } from "../player/shared/MatchDisplay";
+import { navigateToProfile, navigateBack } from "@/lib/view-transitions";
 import {
   getDisplayName,
   toNumber,
@@ -330,7 +331,7 @@ const MatchDetailsPage: React.FC = () => {
     try {
       setIsProcessing(true);
       await rejectMatch(match.id);
-      navigate(-1);
+      navigateBack(navigate);
     } catch (err) {
       console.error("Failed to reject match:", err);
       setIsProcessing(false);
@@ -338,12 +339,12 @@ const MatchDetailsPage: React.FC = () => {
   };
 
   const handleBack = useCallback(() => {
-    navigate(-1);
+    navigateBack(navigate);
   }, [navigate]);
 
   const handleClickPlayer = (id?: number) => {
     if (!id) return;
-    navigate(`/player/${id}`);
+    navigateToProfile(navigate, `/player/${id}`);
   };
 
   useEffect(() => {

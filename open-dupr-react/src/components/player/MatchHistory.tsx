@@ -12,6 +12,7 @@ import {
   MatchCardSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
+import { navigateWithTransition } from "@/lib/view-transitions";
 
 interface MatchHistoryProps {
   playerId?: number;
@@ -285,7 +286,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           </div>
         </div>
         {isSelf && (
-          <Button variant="default" onClick={() => navigate("/record-match")}>
+          <Button variant="default" onClick={() => navigateWithTransition(navigate, "/record-match")}>
             Add Match
           </Button>
         )}

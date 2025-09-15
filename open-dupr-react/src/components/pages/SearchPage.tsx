@@ -10,6 +10,7 @@ import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { apiFetch, getMyProfile } from "@/lib/api";
 import { useHeader } from "@/lib/header-context";
 import { User, Users } from "lucide-react";
+import { navigateToProfile, navigateBack } from "@/lib/view-transitions";
 
 interface SearchHit {
   id: number;
@@ -167,7 +168,7 @@ const SearchPage: React.FC = () => {
   }, [hasSufficientQuery, performSearch]);
 
   const handleBackClick = useCallback(() => {
-    navigate(-1);
+    navigateBack(navigate);
   }, [navigate]);
 
   useEffect(() => {
@@ -255,7 +256,7 @@ const SearchPage: React.FC = () => {
                   backgroundColor:
                     "color-mix(in oklab, var(--muted) 20%, transparent)",
                 }}
-                onClick={() => navigate(`/player/${h.id}`)}
+                onClick={() => navigateToProfile(navigate, `/player/${h.id}`)}
                 type="button"
               >
                 <Avatar src={h.imageUrl} name={h.fullName} size="md" />

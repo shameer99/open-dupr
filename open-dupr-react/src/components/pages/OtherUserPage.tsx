@@ -14,12 +14,13 @@ import {
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
 import PullToRefresh from "@/components/ui/pull-to-refresh";
-import type { Player } from "@/lib/types";
+import type { Player, FollowInfo } from "@/lib/types";
 
 const OtherUserPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [player, setPlayer] = useState<Player | null>(null);
+  const [followInfo, setFollowInfo] = useState<FollowInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { startPageLoad, completeLoadingStep, finishPageLoad } =
@@ -43,7 +44,7 @@ const OtherUserPage: React.FC = () => {
 
       completeLoadingStep("Fetching profile");
 
-      const [, , matchHistoryData, playerDetail] = await Promise.all([
+      const [, followInfoData, matchHistoryData, playerDetail] = await Promise.all([
         getOtherUserStats(parseInt(id)).catch(() => null),
         getOtherUserFollowInfo(parseInt(id)).catch(() => null),
         getOtherUserMatchHistory(parseInt(id), 0, 1).catch(() => null),
@@ -132,6 +133,7 @@ const OtherUserPage: React.FC = () => {
 
       completeLoadingStep("Loading user data");
       setPlayer(userProfile);
+      setFollowInfo(followInfoData?.result || null);
       finishPageLoad();
     } catch (err) {
       setError(
@@ -166,7 +168,7 @@ const OtherUserPage: React.FC = () => {
   return (
     <PullToRefresh onRefresh={fetchUserProfile} disabled={loading}>
       <div className="container mx-auto p-4">
-        <PlayerProfile player={player} isSelf={false} />
+        <PlayerProfile player={player} isSelf={false} initialFollowInfo={followInfo} />
       </div>
     </PullToRefresh>
   );
