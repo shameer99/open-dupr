@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, LayoutList, Download } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, Monitor, LayoutList, Download } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
 import { navigateWithTransition, navigateToProfile } from "@/lib/view-transitions";
@@ -23,7 +23,7 @@ const AppHeader: React.FC = () => {
   const { logout: authLogout, token } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const [canInstall, setCanInstall] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
@@ -191,7 +191,7 @@ const AppHeader: React.FC = () => {
                           type="button"
                           onClick={() => setTheme("light")}
                           className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-                            resolvedTheme === "light" ? "ring-2 ring-ring" : ""
+                            theme === "light" ? "ring-2 ring-ring" : ""
                           }`}
                           aria-label="Light theme"
                         >
@@ -201,11 +201,21 @@ const AppHeader: React.FC = () => {
                           type="button"
                           onClick={() => setTheme("dark")}
                           className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-                            resolvedTheme === "dark" ? "ring-2 ring-ring" : ""
+                            theme === "dark" ? "ring-2 ring-ring" : ""
                           }`}
                           aria-label="Dark theme"
                         >
                           <Moon className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTheme("system")}
+                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
+                            theme === "system" ? "ring-2 ring-ring" : ""
+                          }`}
+                          aria-label="System theme"
+                        >
+                          <Monitor className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
