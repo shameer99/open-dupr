@@ -858,6 +858,71 @@ Content-Type: application/json
 
 **Note:** `filter` (not `filters`), `lat`/`lng`/`radiusInMeters` are required in filter, and `includeUnclaimedPlayers` is required.
 
+**Response:**
+
+```json
+{
+  "status": "SUCCESS",
+  "result": {
+    "offset": 0,
+    "limit": 25,
+    "total": 29,
+    "hits": [
+      {
+        "id": 4888436907,
+        "fullName": "Aamir B",
+        "firstName": "Aamir",
+        "lastName": "B",
+        "shortAddress": "Villanova, PA, US",
+        "gender": "MALE",
+        "age": 39,
+        "hand": "RIGHT",
+        "imageUrl": "https://dupr.s3.us-east-1.amazonaws.com/images/image_cropper_19BB0D70-DB98-4CFC-855F-2E8216AC9063-9977-000007C819DEA481.jpg",
+        "ratings": {
+          "singles": "NR",
+          "singlesVerified": "NR",
+          "singlesProvisional": false,
+          "singlesReliabilityScore": 0,
+          "doubles": "4.192",
+          "doublesVerified": "NR",
+          "doublesProvisional": true,
+          "doublesReliabilityScore": 1,
+          "defaultRating": "DOUBLES",
+          "provisionalRatings": {
+            "singlesRating": null,
+            "doublesRating": null,
+            "coach": null
+          }
+        },
+        "distance": "83.4 mi",
+        "enablePrivacy": false,
+        "distanceInMiles": 83.4,
+        "isPlayer1": true,
+        "verifiedEmail": true,
+        "registered": true,
+        "duprId": "8WW4NY",
+        "showRatingBanner": false,
+        "status": "ACTIVE",
+        "sponsor": {},
+        "lucraConnected": false
+      }
+    ]
+  }
+}
+```
+
+**Key Response Fields:**
+
+- `hits[]` - Array of search results
+- `hits[].ratings` - Player ratings object containing:
+  - `singles` - Singles rating (string, may be "NR" for not rated)
+  - `singlesVerified` - Verified singles rating
+  - `singlesProvisional` - Boolean indicating if singles rating is provisional
+  - `doubles` - Doubles rating (string, may be "NR" for not rated)
+  - `doublesVerified` - Verified doubles rating
+  - `doublesProvisional` - Boolean indicating if doubles rating is provisional
+  - `defaultRating` - Either "SINGLES" or "DOUBLES"
+
 ## Player Profile Data
 
 ### Get Player Statistics

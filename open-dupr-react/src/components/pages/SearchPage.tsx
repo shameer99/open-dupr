@@ -9,17 +9,57 @@ import {
 import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { apiFetch, getMyProfile } from "@/lib/api";
 import { useHeader } from "@/lib/header-context";
+import { User, Users } from "lucide-react";
 
 interface SearchHit {
   id: number;
   fullName: string;
+  firstName?: string;
+  lastName?: string;
   imageUrl?: string;
-  location?: string;
-  stats?: { singles?: string; doubles?: string };
+  shortAddress?: string;
+  distance?: string;
+  ratings?: {
+    singles?: string;
+    singlesVerified?: string;
+    singlesProvisional?: boolean;
+    doubles?: string;
+    doublesVerified?: string;
+    doublesProvisional?: boolean;
+    defaultRating?: "SINGLES" | "DOUBLES";
+  };
+}
+
+interface SearchAPIResponse {
+  id: number;
+  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
+  shortAddress?: string;
+  distance?: string;
+  ratings?: {
+    singles?: string;
+    singlesVerified?: string;
+    singlesProvisional?: boolean;
+    doubles?: string;
+    doublesVerified?: string;
+    doublesProvisional?: boolean;
+    defaultRating?: "SINGLES" | "DOUBLES";
+  };
 }
 
 const DEFAULT_LIMIT = 25;
 const MIN_QUERY_CHARS = 2;
+
+const formatRating = (value: unknown): string => {
+  if (value == null) return "-";
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value.toFixed(3) : "-";
+  }
+  const text = String(value).trim();
+  return text.length > 0 && text !== "NR" ? text : "-";
+};
 
 const SearchPage: React.FC = () => {
   const navigate = useNavigate();
@@ -92,7 +132,18 @@ const SearchPage: React.FC = () => {
           method: "POST",
           body: JSON.stringify(body),
         });
-        const newHits: SearchHit[] = resp?.result?.hits ?? [];
+        const newHits: SearchHit[] = (resp?.result?.hits ?? []).map(
+          (hit: SearchAPIResponse) => ({
+            id: hit.id,
+            fullName: hit.fullName,
+            firstName: hit.firstName,
+            lastName: hit.lastName,
+            imageUrl: hit.imageUrl,
+            shortAddress: hit.shortAddress,
+            distance: hit.distance,
+            ratings: hit.ratings,
+          })
+        );
         setHits((prev) => (reset ? newHits : [...prev, ...newHits]));
         const nextOffset = (reset ? 0 : offset) + newHits.length;
         setOffset(nextOffset);
@@ -169,16 +220,18 @@ const SearchPage: React.FC = () => {
         <div className="mb-6">
           <Input
             type="text"
-            placeholder={`Search for players${
-              MIN_QUERY_CHARS > 1 ? ` (min ${MIN_QUERY_CHARS} chars)` : ""
-            }...`}
+            placeholder={`Search for players...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus={!isStandalone}
             className="flex-1"
           />
         </div>
-        {error && <div className="mb-2 text-sm" style={{ color: "var(--destructive)" }}>{error}</div>}
+        {error && (
+          <div className="mb-2 text-sm" style={{ color: "var(--destructive)" }}>
+            {error}
+          </div>
+        )}
 
         {hits.length === 0 && !loading && hasSufficientQuery ? (
           <p className="text-muted-foreground">
@@ -196,7 +249,10 @@ const SearchPage: React.FC = () => {
               <button
                 key={h.id}
                 className="w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors border"
-                style={{ backgroundColor: "color-mix(in oklab, var(--muted) 20%, transparent)" }}
+                style={{
+                  backgroundColor:
+                    "color-mix(in oklab, var(--muted) 20%, transparent)",
+                }}
                 onClick={() => navigate(`/player/${h.id}`)}
                 type="button"
               >
@@ -205,13 +261,25 @@ const SearchPage: React.FC = () => {
                   <p className="font-medium truncate">
                     {h.fullName?.trim().replace(/\s+/g, " ")}
                   </p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {h.location || ""}
-                  </p>
-                </div>
-                <div className="text-right text-sm text-muted-foreground">
-                  <div>{h.stats?.singles ? `S: ${h.stats.singles}` : ""}</div>
-                  <div>{h.stats?.doubles ? `D: ${h.stats.doubles}` : ""}</div>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      <span className="font-mono font-medium">
+                        {formatRating(h.ratings?.singles)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span className="font-mono font-medium">
+                        {formatRating(h.ratings?.doubles)}
+                      </span>
+                    </div>
+                    {h.shortAddress && (
+                      <div className="text-xs truncate ml-auto">
+                        {h.shortAddress}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </button>
             ))}
