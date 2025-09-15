@@ -8,7 +8,6 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Avatar from "@/components/ui/avatar";
 import { useHeader } from "@/lib/header-context";
 import { MatchScoreDisplay } from "@/components/player/shared/MatchDisplay";
@@ -691,7 +690,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({
           value={value}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
-        className="w-16 h-16 text-3xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-border"
+          className="w-16 h-16 text-3xl font-bold text-center border-2 rounded-xl bg-background focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-border"
           inputMode="numeric"
           pattern="[0-9]*"
         />
@@ -794,6 +793,7 @@ const RecordMatchPage: React.FC = () => {
     setShowHamburgerMenu,
   } = useHeader();
   const [eventDate, setEventDate] = useState<string>(todayStr());
+  const [eventName, setEventName] = useState<string>("");
   const [myTeammate, setMyTeammate] = useState<Player | null>(null);
   const [opponent1, setOpponent1] = useState<Player | null>(null);
   const [opponent2, setOpponent2] = useState<Player | null>(null);
@@ -803,6 +803,7 @@ const RecordMatchPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<Player | undefined>();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isEditingDate, setIsEditingDate] = useState(false);
 
   const format = useMemo(() => {
     const hasMyTeammate = myTeammate !== null;
@@ -824,13 +825,14 @@ const RecordMatchPage: React.FC = () => {
 
   const hasAnyInput = useMemo(() => {
     return (
+      eventName.trim() !== "" ||
       myTeammate !== null ||
       opponent1 !== null ||
       opponent2 !== null ||
       myScore > 0 ||
       opponentScore > 0
     );
-  }, [myTeammate, opponent1, opponent2, myScore, opponentScore]);
+  }, [eventName, myTeammate, opponent1, opponent2, myScore, opponentScore]);
 
   const handleBackClick = useCallback(() => {
     if (hasAnyInput) {
@@ -927,6 +929,7 @@ const RecordMatchPage: React.FC = () => {
       const body: SaveMatchRequestBody = {
         eventDate,
         location: "",
+        event: eventName.trim() || undefined,
         matchType: "SIDE_ONLY",
         format,
         notify: true,
@@ -966,19 +969,14 @@ const RecordMatchPage: React.FC = () => {
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-sm mx-auto lg:max-w-4xl space-y-6 sm:space-y-7">
         <div className="space-y-6">
-          <div className="flex items-center space-x-4 md:flex-col md:items-start md:space-x-0 md:space-y-2">
-            <Label
-              htmlFor="eventDate"
-              className="text-base font-medium text-foreground shrink-0 md:mb-0"
-            >
-              Date
-            </Label>
+          <div>
             <Input
-              id="eventDate"
-              type="date"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="flex-1 md:w-full h-12 text-base"
+              id="eventName"
+              type="text"
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              placeholder="Event name (optional)"
+              className="w-full h-12 text-base"
             />
           </div>
 
@@ -1074,7 +1072,9 @@ const RecordMatchPage: React.FC = () => {
                     onChange={setMyScore}
                     layout="vertical"
                   />
-                  <div className="text-4xl font-bold text-muted-foreground select-none">VS</div>
+                  <div className="text-4xl font-bold text-muted-foreground select-none">
+                    VS
+                  </div>
                   <ScoreInput
                     value={opponentScore}
                     onChange={setOpponentScore}
@@ -1117,8 +1117,16 @@ const RecordMatchPage: React.FC = () => {
               </h3>
 
               {error && (
-                <div className="rounded-lg p-3 text-base mb-4"
-                  style={{ backgroundColor: "color-mix(in oklab, var(--destructive) 10%, transparent)", border: "1px solid color-mix(in oklab, var(--destructive) 25%, transparent)", color: "var(--destructive)" }}>
+                <div
+                  className="rounded-lg p-3 text-base mb-4"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in oklab, var(--destructive) 10%, transparent)",
+                    border:
+                      "1px solid color-mix(in oklab, var(--destructive) 25%, transparent)",
+                    color: "var(--destructive)",
+                  }}
+                >
                   {error}
                 </div>
               )}
@@ -1127,18 +1135,57 @@ const RecordMatchPage: React.FC = () => {
               <div className="bg-muted/20 dark:bg-muted/10 rounded-lg p-5 mb-6">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
-                    <span className="rounded-full px-2.5 py-0.5 font-medium"
-                      style={{ backgroundColor: "color-mix(in oklab, var(--warning) 20%, transparent)", color: "var(--warning-foreground)" }}>
+                    <span
+                      className="rounded-full px-2.5 py-0.5 font-medium"
+                      style={{
+                        backgroundColor:
+                          "color-mix(in oklab, var(--warning) 20%, transparent)",
+                        color: "var(--warning-foreground)",
+                      }}
+                    >
                       Pending
                     </span>
-                    <span>{eventDate}</span>
+                    {isEditingDate ? (
+                      <Input
+                        type="date"
+                        value={eventDate}
+                        onChange={(e) => setEventDate(e.target.value)}
+                        onBlur={() => setIsEditingDate(false)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === "Escape") {
+                            setIsEditingDate(false);
+                          }
+                        }}
+                        className="h-7 text-sm w-auto"
+                        autoFocus
+                      />
+                    ) : (
+                      <button
+                        onClick={() => setIsEditingDate(true)}
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                      >
+                        {eventDate}
+                      </button>
+                    )}
                   </div>
+                  {eventName.trim() && (
+                    <div className="text-center">
+                      <h4 className="text-lg font-semibold text-foreground">
+                        {eventName}
+                      </h4>
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
                     {/* My Team */}
                     <div
                       className="min-w-0 md:justify-self-start"
-                      style={{ color: myScore > opponentScore ? "var(--success)" : "var(--destructive)" }}
+                      style={{
+                        color:
+                          myScore > opponentScore
+                            ? "var(--success)"
+                            : "var(--destructive)",
+                      }}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="flex -space-x-2">
@@ -1182,7 +1229,12 @@ const RecordMatchPage: React.FC = () => {
                     {/* Opponent Team */}
                     <div
                       className="min-w-0 self-end md:justify-self-end"
-                      style={{ color: opponentScore > myScore ? "var(--success)" : "var(--destructive)" }}
+                      style={{
+                        color:
+                          opponentScore > myScore
+                            ? "var(--success)"
+                            : "var(--destructive)",
+                      }}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="min-w-0">
