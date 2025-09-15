@@ -106,41 +106,69 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
         const doublesArr: Array<{ date?: string; rating?: unknown }> =
           doublesResp?.result?.ratingHistory ?? [];
 
+        // Group ratings by date, keeping track of all ratings for each date
+        const singlesByDate = new Map<string, Array<{ rating: unknown }>>();
+        const doublesByDate = new Map<string, Array<{ rating: unknown }>>();
+
+        // Group singles ratings by date
+        for (const s of singlesArr) {
+          const d = s.date || "";
+          if (!d) continue;
+          if (!singlesByDate.has(d)) {
+            singlesByDate.set(d, []);
+          }
+          singlesByDate.get(d)!.push({ rating: s.rating });
+        }
+
+        // Group doubles ratings by date
+        for (const dItem of doublesArr) {
+          const d = dItem.date || "";
+          if (!d) continue;
+          if (!doublesByDate.has(d)) {
+            doublesByDate.set(d, []);
+          }
+          doublesByDate.get(d)!.push({ rating: dItem.rating });
+        }
+
+        // Get all unique dates
+        const allDates = new Set([...singlesByDate.keys(), ...doublesByDate.keys()]);
+        
         const byDate = new Map<
           string,
           { date: string; singles?: number | null; doubles?: number | null }
         >();
 
-        for (const s of singlesArr) {
-          const d = s.date || "";
-          if (!d) continue;
-          const prev = byDate.get(d) || { date: d };
-          const val =
-            typeof s.rating === "number"
-              ? s.rating
-              : s.rating != null
-              ? Number(s.rating)
-              : null;
-          prev.singles = Number.isFinite(val as number)
-            ? (val as number)
-            : null;
-          byDate.set(d, prev);
-        }
+        // For each date, use the last (final) rating of that day
+        for (const date of allDates) {
+          const entry: { date: string; singles?: number | null; doubles?: number | null } = { date };
 
-        for (const dItem of doublesArr) {
-          const d = dItem.date || "";
-          if (!d) continue;
-          const prev = byDate.get(d) || { date: d };
-          const val =
-            typeof dItem.rating === "number"
-              ? dItem.rating
-              : dItem.rating != null
-              ? Number(dItem.rating)
-              : null;
-          prev.doubles = Number.isFinite(val as number)
-            ? (val as number)
-            : null;
-          byDate.set(d, prev);
+          // Get final singles rating for this date
+          const singlesRatings = singlesByDate.get(date) || [];
+          if (singlesRatings.length > 0) {
+            const lastSinglesRating = singlesRatings[singlesRatings.length - 1].rating;
+            const val =
+              typeof lastSinglesRating === "number"
+                ? lastSinglesRating
+                : lastSinglesRating != null
+                ? Number(lastSinglesRating)
+                : null;
+            entry.singles = Number.isFinite(val as number) ? (val as number) : null;
+          }
+
+          // Get final doubles rating for this date
+          const doublesRatings = doublesByDate.get(date) || [];
+          if (doublesRatings.length > 0) {
+            const lastDoublesRating = doublesRatings[doublesRatings.length - 1].rating;
+            const val =
+              typeof lastDoublesRating === "number"
+                ? lastDoublesRating
+                : lastDoublesRating != null
+                ? Number(lastDoublesRating)
+                : null;
+            entry.doubles = Number.isFinite(val as number) ? (val as number) : null;
+          }
+
+          byDate.set(date, entry);
         }
 
         const rows = Array.from(byDate.values()).sort((a, b) =>
