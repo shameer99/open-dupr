@@ -4,18 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import {
-  Menu,
-  User,
-  Search,
-  Plus,
-  LogOut,
-  ArrowLeft,
-  Info,
-  Moon,
-  Sun,
-  LayoutList,
-} from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, LayoutList, Download } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
 
@@ -34,6 +23,46 @@ const AppHeader: React.FC = () => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { setTheme, resolvedTheme } = useTheme();
+  const [canInstall, setCanInstall] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const checkStandalone = () =>
+      window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+    const navStandalone = (navigator as unknown as { standalone?: boolean }).standalone === true;
+    const standalone = checkStandalone() || navStandalone;
+    setIsInstalled(standalone);
+
+    const pwaEl = document.getElementById("pwa-install") as (HTMLElement & {
+      isInstallAvailable?: boolean;
+    }) | null;
+    const updateCanInstall = () => {
+      if (!pwaEl) return;
+      const available = !!pwaEl.isInstallAvailable;
+      setCanInstall(available);
+    };
+
+    updateCanInstall();
+
+    const onAvailable = () => updateCanInstall();
+    const onInstalled = () => setIsInstalled(true);
+
+    pwaEl?.addEventListener?.("pwa-install-available-event", onAvailable as EventListener);
+    window.addEventListener("appinstalled", onInstalled as EventListener);
+
+    return () => {
+      pwaEl?.removeEventListener?.("pwa-install-available-event", onAvailable as EventListener);
+      window.removeEventListener("appinstalled", onInstalled as EventListener);
+    };
+  }, []);
+
+  const triggerInstall = () => {
+    setOpen(false);
+    const pwaEl = document.getElementById("pwa-install") as (HTMLElement & {
+      showDialog?: (forced?: boolean) => void;
+    }) | null;
+    pwaEl?.showDialog?.(true);
+  };
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -180,6 +209,17 @@ const AppHeader: React.FC = () => {
                       </div>
                     </div>
                     <div className="my-1 h-px bg-border" />
+                    {!isInstalled && canInstall && (
+                      <button
+                        type="button"
+                        onClick={triggerInstall}
+                        className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
+                      >
+                        <Download className="h-5 w-5" />
+                        New install
+                      </button>
+                    )}
+                    {!isInstalled && canInstall && <div className="my-1 h-px bg-border" />}
                     <button
                       type="button"
                       onClick={goToProfile}

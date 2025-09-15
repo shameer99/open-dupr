@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
+import "@khmyznikov/pwa-install";
 import { AuthProvider } from "./lib/AuthProvider.tsx";
 import { LoadingProvider } from "./lib/loading-context.tsx";
 import { HeaderProvider } from "./lib/header-context.tsx";
