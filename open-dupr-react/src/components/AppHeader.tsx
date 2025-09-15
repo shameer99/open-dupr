@@ -15,6 +15,7 @@ import {
   Moon,
   Sun,
   LayoutList,
+  Download,
 } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
@@ -34,6 +35,7 @@ const AppHeader: React.FC = () => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { setTheme, resolvedTheme } = useTheme();
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
 
   useEffect(() => {
     const onClickAway = (e: MouseEvent) => {
@@ -43,6 +45,38 @@ const AppHeader: React.FC = () => {
     document.addEventListener("mousedown", onClickAway);
     return () => document.removeEventListener("mousedown", onClickAway);
   }, []);
+
+  useEffect(() => {
+    const computeStandalone = () => {
+      const asStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      const maybeNavigator = navigator as unknown as { standalone?: boolean };
+      const iosStandalone = typeof navigator !== "undefined" && Boolean(maybeNavigator.standalone);
+      return Boolean(asStandalone || iosStandalone);
+    };
+    setIsStandalone(computeStandalone());
+    const onAppInstalled = () => setIsStandalone(true);
+    window.addEventListener("appinstalled", onAppInstalled);
+    return () => window.removeEventListener("appinstalled", onAppInstalled);
+  }, []);
+
+  const onInstallApp = async () => {
+    setOpen(false);
+    const el = document.getElementById("pwa-install") as (HTMLElement & {
+      isInstallAvailable?: boolean;
+      install?: () => Promise<void> | void;
+      showDialog?: (forced?: boolean) => void;
+    }) | null;
+    if (!el) return;
+    try {
+      if (el.isInstallAvailable) {
+        await el.install?.();
+      } else {
+        el.showDialog?.(true);
+      }
+    } catch {
+      el.showDialog?.(true);
+    }
+  };
 
   const goToProfile = () => {
     setOpen(false);
@@ -180,6 +214,17 @@ const AppHeader: React.FC = () => {
                       </div>
                     </div>
                     <div className="my-1 h-px bg-border" />
+                    {!isStandalone && (
+                      <button
+                        type="button"
+                        onClick={onInstallApp}
+                        className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
+                      >
+                        <Download className="h-5 w-5" />
+                        Install App
+                      </button>
+                    )}
+                    {!isStandalone && <div className="my-1 h-px bg-border" />}
                     <button
                       type="button"
                       onClick={goToProfile}
