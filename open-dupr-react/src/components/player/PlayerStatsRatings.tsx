@@ -7,12 +7,9 @@ import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
 import type { UserStats } from "@/lib/types";
 import RatingHistoryChart from "./RatingHistoryChart";
-import MultiUserRatingChart from "./MultiUserRatingChart";
 
 interface PlayerStatsRatingsProps {
   playerId?: number;
-  playerName?: string;
-  playerImageUrl?: string;
   singles?: string | number | null;
   doubles?: string | number | null;
   singlesReliabilityScore?: number;
@@ -43,8 +40,6 @@ const toDecimalString = (value: unknown, fractionDigits: number): string => {
 
 const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   playerId,
-  playerName,
-  playerImageUrl,
   singles,
   doubles,
   singlesReliabilityScore,
@@ -63,7 +58,6 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
   >([]);
   const [ratingHistoryLoading, setRatingHistoryLoading] = useState(false);
   const [ratingHistoryError, setRatingHistoryError] = useState<string | null>(null);
-  const [showComparison, setShowComparison] = useState(false);
 
   const openReliabilityModal = (reliabilityScore: number | undefined) => {
     setCurrentReliabilityScore(reliabilityScore);
@@ -295,29 +289,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
             {expanded && (
               <div className="mt-1 space-y-1.5 border-t pt-1.5">
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium">Rating History</h4>
-                    {hasAnyHistory && (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant={!showComparison ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setShowComparison(false)}
-                          className="h-7 px-2 text-xs"
-                        >
-                          Single
-                        </Button>
-                        <Button
-                          variant={showComparison ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setShowComparison(true)}
-                          className="h-7 px-2 text-xs"
-                        >
-                          Compare
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  <h4 className="text-sm font-medium mb-1">Rating History</h4>
                   {ratingHistoryLoading && (
                     <div className="text-xs text-muted-foreground">Loading rating history…</div>
                   )}
@@ -326,19 +298,8 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                   )}
                   {!ratingHistoryLoading && !ratingHistoryError && (
                     hasAnyHistory ? (
-                      <div className="w-full">
-                        {showComparison ? (
-                          <MultiUserRatingChart
-                            currentUserId={playerId}
-                            currentUserName={playerName}
-                            currentUserImageUrl={playerImageUrl}
-                            currentUserData={ratingHistory}
-                          />
-                        ) : (
-                          <div className="h-40 w-full">
-                            <RatingHistoryChart data={ratingHistory} />
-                          </div>
-                        )}
+                      <div className="h-40 w-full">
+                        <RatingHistoryChart data={ratingHistory} />
                       </div>
                     ) : (
                       <div className="text-xs text-muted-foreground">No rating history yet.</div>
