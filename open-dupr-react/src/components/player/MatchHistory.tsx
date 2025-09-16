@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   getOtherUserMatchHistory,
@@ -71,14 +70,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
-  const [dropdownPosition, setDropdownPosition] = useState<{
-    top: number;
-    left: number;
-  }>({ top: 0, left: 0 });
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const PAGE_SIZE = 25;
 
   // Get current logged-in user's ID
@@ -146,9 +138,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     [activeFilter]
   );
 
-  const handleFilterChange = useCallback((newFilter: string) => {
+  const handleFilterChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFilter = event.target.value;
     if (newFilter === activeFilter) {
-      setShowFilterDropdown(false);
       return;
     }
     setActiveFilter(newFilter);
@@ -157,19 +149,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setHasMore(true);
     setTotalCount(null);
     setError(null);
-    setShowFilterDropdown(false);
   }, [activeFilter]);
-
-  const toggleFilterDropdown = useCallback(() => {
-    if (!showFilterDropdown && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-      });
-    }
-    setShowFilterDropdown((prev) => !prev);
-  }, [showFilterDropdown]);
 
   // Refresh is controlled by the parent profile container
 
@@ -207,29 +187,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     return () => observer.disconnect();
   }, [playerId, hasMore, isLoadingMore, loading, offset, loadPage]);
 
-  // Handle clicking outside dropdown to close it
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      // Check if click is outside both the button and the dropdown
-      if (
-        buttonRef.current &&
-        !buttonRef.current.contains(target) &&
-        // Also check if the click is not on the dropdown itself
-        !(target as Element).closest('[data-dropdown="filter-dropdown"]')
-      ) {
-        setShowFilterDropdown(false);
-      }
-    };
-
-    if (showFilterDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showFilterDropdown]);
 
   if (!playerId) {
     return (
@@ -258,34 +215,21 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold">Match History</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <p className="text-sm text-muted-foreground">
               {count} {getFilterDisplayText()}{" "}
               {count === 1 ? "match" : "matches"}
             </p>
-            <div className="relative" ref={dropdownRef}>
-              <Button
-                ref={buttonRef}
-                variant="ghost"
-                size="sm"
-                onClick={toggleFilterDropdown}
-                className="h-6 w-6 p-0"
-                aria-label="Filter matches"
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-              </Button>
-            </div>
+            <select
+              value={activeFilter}
+              onChange={handleFilterChange}
+              className="px-3 py-1.5 text-sm border border-border rounded-md bg-background hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="Filter matches"
+            >
+              <option value="all">All Matches</option>
+              <option value="singles">Singles Only</option>
+              <option value="doubles">Doubles Only</option>
+            </select>
           </div>
         </div>
         {isSelf && (
@@ -335,51 +279,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         </div>
       )}
 
-      {showFilterDropdown &&
-        createPortal(
-          <div
-            data-dropdown="filter-dropdown"
-            className="fixed w-48 bg-background border border-border rounded-md shadow-lg z-[9999]"
-            style={{
-              top: dropdownPosition.top,
-              left: dropdownPosition.left,
-            }}
-          >
-            <div className="p-2">
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "all"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("all")}
-              >
-                All Matches
-              </button>
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "singles"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("singles")}
-              >
-                Singles Only
-              </button>
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "doubles"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("doubles")}
-              >
-                Doubles Only
-              </button>
-            </div>
-          </div>,
-          document.body
-        )}
     </div>
   );
 };
