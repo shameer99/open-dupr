@@ -216,10 +216,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         <div className="flex flex-col">
           <h2 className="text-xl font-bold">Match History</h2>
           <div className="flex items-center gap-3">
-            <p className="text-sm text-muted-foreground">
-              {count} {getFilterDisplayText()}{" "}
-              {count === 1 ? "match" : "matches"}
-            </p>
             <select
               value={activeFilter}
               onChange={handleFilterChange}
@@ -230,6 +226,10 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
               <option value="singles">Singles Only</option>
               <option value="doubles">Doubles Only</option>
             </select>
+            <p className="text-sm text-muted-foreground">
+              {count} {getFilterDisplayText()}{" "}
+              {count === 1 ? "match" : "matches"}
+            </p>
           </div>
         </div>
         {isSelf && (
