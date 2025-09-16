@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ReliabilityModal from "@/components/ui/reliability-modal";
 import { PlayerStatsSkeleton } from "@/components/ui/loading-skeletons";
+import AnimatedCounter from "@/components/ui/animated-counter";
 import type { UserStats } from "@/lib/types";
 import RatingHistoryChart from "./RatingHistoryChart";
 
@@ -16,13 +17,26 @@ interface PlayerStatsRatingsProps {
   doublesReliabilityScore?: number;
 }
 
-const formatRating = (value: unknown): string => {
-  if (value == null) return "-";
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value.toFixed(3) : "-";
+const AnimatedRating: React.FC<{ value: unknown; className?: string }> = ({
+  value,
+  className = "",
+}) => {
+  if (value == null) return <span className={className}>-</span>;
+  
+  const numericValue = typeof value === "number" ? value : Number(value);
+  
+  if (!Number.isFinite(numericValue)) {
+    return <span className={className}>-</span>;
   }
-  const text = String(value).trim();
-  return text.length > 0 ? text : "-";
+
+  return (
+    <AnimatedCounter
+      value={numericValue}
+      duration={1500}
+      decimals={3}
+      className={className}
+    />
+  );
 };
 
 const formatReliability = (score?: number): string => {
@@ -227,7 +241,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
           <div className="text-center">
             <div className="grid grid-cols-2 gap-3 mt-1.5">
               <div>
-                <p className="text-2xl font-bold">{formatRating(singles)}</p>
+                <AnimatedRating value={singles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
                   <p className="text-xs text-[color:var(--success)] font-medium">
@@ -236,7 +250,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 )}
               </div>
               <div>
-                <p className="text-2xl font-bold">{formatRating(doubles)}</p>
+                <AnimatedRating value={doubles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
                   <p className="text-xs text-[color:var(--success)] font-medium">
@@ -267,7 +281,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
           <div className="text-center lg:text-left">
             <div className="grid grid-cols-2 gap-3 mt-1.5 lg:mt-0 lg:max-w-xs">
               <div>
-                <p className="text-2xl font-bold">{formatRating(singles)}</p>
+                <AnimatedRating value={singles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Singles</p>
                 {singlesReliabilityScore != null && (
                   <div className="flex items-center justify-center lg:justify-start gap-1">
@@ -288,7 +302,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
                 )}
               </div>
               <div className="lg:justify-self-end">
-                <p className="text-2xl font-bold">{formatRating(doubles)}</p>
+                <AnimatedRating value={doubles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Doubles</p>
                 {doublesReliabilityScore != null && (
                   <div className="flex items-center justify-center lg:justify-start gap-1">
