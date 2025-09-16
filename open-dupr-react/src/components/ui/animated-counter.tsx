@@ -31,12 +31,12 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
       const progress = Math.min((timestamp - startTime) / duration, 1);
       
-      // Ease-in-out cubic function
-      const easeInOutCubic = (t: number): number => {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Ease-out cubic function - starts fast, slows down at the end
+      const easeOutCubic = (t: number): number => {
+        return 1 - Math.pow(1 - t, 3);
       };
 
-      const easedProgress = easeInOutCubic(progress);
+      const easedProgress = easeOutCubic(progress);
       const currentValue = value * easedProgress;
 
       setDisplayValue(currentValue);
