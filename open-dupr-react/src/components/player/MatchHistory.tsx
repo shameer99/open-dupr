@@ -75,6 +75,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [dropdownPosition, setDropdownPosition] = useState<{
     top: number;
     left: number;
+    maxHeight?: number;
   }>({ top: 0, left: 0 });
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -160,16 +161,53 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setShowFilterDropdown(false);
   }, [activeFilter]);
 
+  const calculateDropdownPosition = useCallback(() => {
+    if (!buttonRef.current) return { top: 0, left: 0 };
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const dropdownHeight = 140; // Approximate height of dropdown with 3 items
+    const dropdownWidth = 192; // w-48 = 12rem = 192px
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+
+    // Calculate initial position below the button
+    let top = buttonRect.bottom + scrollY + 4;
+    let left = buttonRect.left + scrollX;
+
+    // Check if dropdown would go off the bottom of the viewport
+    if (buttonRect.bottom + dropdownHeight > viewportHeight) {
+      // Position above the button instead
+      top = buttonRect.top + scrollY - dropdownHeight - 4;
+    }
+
+    // Check if dropdown would go off the right of the viewport
+    if (buttonRect.left + dropdownWidth > viewportWidth) {
+      // Align to the right edge of the button
+      left = buttonRect.right + scrollX - dropdownWidth;
+    }
+
+    // Ensure dropdown doesn't go off the left edge
+    if (left < scrollX) {
+      left = scrollX + 8;
+    }
+
+    // Ensure dropdown doesn't go off the top
+    if (top < scrollY) {
+      top = scrollY + 8;
+    }
+
+    return { top, left };
+  }, []);
+
   const toggleFilterDropdown = useCallback(() => {
-    if (!showFilterDropdown && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-      });
+    if (!showFilterDropdown) {
+      const position = calculateDropdownPosition();
+      setDropdownPosition(position);
     }
     setShowFilterDropdown((prev) => !prev);
-  }, [showFilterDropdown]);
+  }, [showFilterDropdown, calculateDropdownPosition]);
 
   // Refresh is controlled by the parent profile container
 
@@ -207,7 +245,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     return () => observer.disconnect();
   }, [playerId, hasMore, isLoadingMore, loading, offset, loadPage]);
 
-  // Handle clicking outside dropdown to close it
+  // Handle clicking outside dropdown to close it and reposition on scroll
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -222,14 +260,32 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       }
     };
 
+    const handleScroll = () => {
+      if (showFilterDropdown) {
+        const position = calculateDropdownPosition();
+        setDropdownPosition(position);
+      }
+    };
+
+    const handleResize = () => {
+      if (showFilterDropdown) {
+        const position = calculateDropdownPosition();
+        setDropdownPosition(position);
+      }
+    };
+
     if (showFilterDropdown) {
       document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("resize", handleResize);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
-  }, [showFilterDropdown]);
+  }, [showFilterDropdown, calculateDropdownPosition]);
 
   if (!playerId) {
     return (
@@ -304,7 +360,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       )}
       {error && <p className="text-destructive mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
-        <p className="text-muted-foreground mt-2 relative z-0">
+        <p className="text-muted-foreground mt-2">
           No matches found.
         </p>
       )}
