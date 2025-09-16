@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   getOtherUserMatchHistory,
@@ -71,6 +72,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+    maxHeight?: number;
+  }>({ top: 0, left: 0 });
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -155,9 +161,53 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setShowFilterDropdown(false);
   }, [activeFilter]);
 
-  const toggleFilterDropdown = useCallback(() => {
-    setShowFilterDropdown((prev) => !prev);
+  const calculateDropdownPosition = useCallback(() => {
+    if (!buttonRef.current) return { top: 0, left: 0 };
+
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const dropdownHeight = 140; // Approximate height of dropdown with 3 items
+    const dropdownWidth = 192; // w-48 = 12rem = 192px
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+
+    // Calculate initial position below the button
+    let top = buttonRect.bottom + scrollY + 4;
+    let left = buttonRect.left + scrollX;
+
+    // Check if dropdown would go off the bottom of the viewport
+    if (buttonRect.bottom + dropdownHeight > viewportHeight) {
+      // Position above the button instead
+      top = buttonRect.top + scrollY - dropdownHeight - 4;
+    }
+
+    // Check if dropdown would go off the right of the viewport
+    if (buttonRect.left + dropdownWidth > viewportWidth) {
+      // Align to the right edge of the button
+      left = buttonRect.right + scrollX - dropdownWidth;
+    }
+
+    // Ensure dropdown doesn't go off the left edge
+    if (left < scrollX) {
+      left = scrollX + 8;
+    }
+
+    // Ensure dropdown doesn't go off the top
+    if (top < scrollY) {
+      top = scrollY + 8;
+    }
+
+    return { top, left };
   }, []);
+
+  const toggleFilterDropdown = useCallback(() => {
+    if (!showFilterDropdown) {
+      const position = calculateDropdownPosition();
+      setDropdownPosition(position);
+    }
+    setShowFilterDropdown((prev) => !prev);
+  }, [showFilterDropdown, calculateDropdownPosition]);
 
   // Refresh is controlled by the parent profile container
 
@@ -195,7 +245,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     return () => observer.disconnect();
   }, [playerId, hasMore, isLoadingMore, loading, offset, loadPage]);
 
-  // Handle clicking outside dropdown to close it
+  // Handle clicking outside dropdown to close it and reposition on scroll
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -210,14 +260,32 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       }
     };
 
+    const handleScroll = () => {
+      if (showFilterDropdown) {
+        const position = calculateDropdownPosition();
+        setDropdownPosition(position);
+      }
+    };
+
+    const handleResize = () => {
+      if (showFilterDropdown) {
+        const position = calculateDropdownPosition();
+        setDropdownPosition(position);
+      }
+    };
+
     if (showFilterDropdown) {
       document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      window.addEventListener("resize", handleResize);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
-  }, [showFilterDropdown]);
+  }, [showFilterDropdown, calculateDropdownPosition]);
 
   if (!playerId) {
     return (
@@ -273,45 +341,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </Button>
-              {showFilterDropdown && (
-                <div
-                  data-dropdown="filter-dropdown"
-                  className="absolute top-full left-0 mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-50"
-                >
-                  <div className="p-2">
-                    <button
-                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                        activeFilter === "all"
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }`}
-                      onClick={() => handleFilterChange("all")}
-                    >
-                      All Matches
-                    </button>
-                    <button
-                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                        activeFilter === "singles"
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }`}
-                      onClick={() => handleFilterChange("singles")}
-                    >
-                      Singles Only
-                    </button>
-                    <button
-                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                        activeFilter === "doubles"
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }`}
-                      onClick={() => handleFilterChange("doubles")}
-                    >
-                      Doubles Only
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -362,6 +391,51 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         </div>
       )}
 
+      {showFilterDropdown &&
+        createPortal(
+          <div
+            data-dropdown="filter-dropdown"
+            className="fixed w-48 bg-background border border-border rounded-md shadow-lg z-[9999]"
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+            }}
+          >
+            <div className="p-2">
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                  activeFilter === "all"
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
+                }`}
+                onClick={() => handleFilterChange("all")}
+              >
+                All Matches
+              </button>
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                  activeFilter === "singles"
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
+                }`}
+                onClick={() => handleFilterChange("singles")}
+              >
+                Singles Only
+              </button>
+              <button
+                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                  activeFilter === "doubles"
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "hover:bg-accent hover:text-accent-foreground"
+                }`}
+                onClick={() => handleFilterChange("doubles")}
+              >
+                Doubles Only
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
