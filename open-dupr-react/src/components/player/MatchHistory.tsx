@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   getOtherUserMatchHistory,
@@ -72,10 +71,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState<boolean>(false);
-  const [dropdownPosition, setDropdownPosition] = useState<{
-    top: number;
-    left: number;
-  }>({ top: 0, left: 0 });
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -161,15 +156,8 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   }, [activeFilter]);
 
   const toggleFilterDropdown = useCallback(() => {
-    if (!showFilterDropdown && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-      });
-    }
     setShowFilterDropdown((prev) => !prev);
-  }, [showFilterDropdown]);
+  }, []);
 
   // Refresh is controlled by the parent profile container
 
@@ -285,6 +273,45 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </Button>
+              {showFilterDropdown && (
+                <div
+                  data-dropdown="filter-dropdown"
+                  className="absolute top-full left-0 mt-1 w-48 bg-background border border-border rounded-md shadow-lg z-50"
+                >
+                  <div className="p-2">
+                    <button
+                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                        activeFilter === "all"
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      }`}
+                      onClick={() => handleFilterChange("all")}
+                    >
+                      All Matches
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                        activeFilter === "singles"
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      }`}
+                      onClick={() => handleFilterChange("singles")}
+                    >
+                      Singles Only
+                    </button>
+                    <button
+                      className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
+                        activeFilter === "doubles"
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      }`}
+                      onClick={() => handleFilterChange("doubles")}
+                    >
+                      Doubles Only
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -304,7 +331,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       )}
       {error && <p className="text-destructive mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
-        <p className="text-muted-foreground mt-2 relative z-0">
+        <p className="text-muted-foreground mt-2">
           No matches found.
         </p>
       )}
@@ -335,51 +362,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         </div>
       )}
 
-      {showFilterDropdown &&
-        createPortal(
-          <div
-            data-dropdown="filter-dropdown"
-            className="fixed w-48 bg-background border border-border rounded-md shadow-lg z-[9999]"
-            style={{
-              top: dropdownPosition.top,
-              left: dropdownPosition.left,
-            }}
-          >
-            <div className="p-2">
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "all"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("all")}
-              >
-                All Matches
-              </button>
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "singles"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("singles")}
-              >
-                Singles Only
-              </button>
-              <button
-                className={`w-full text-left px-3 py-2 text-sm rounded-sm transition-colors ${
-                  activeFilter === "doubles"
-                    ? "bg-primary text-primary-foreground font-medium"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                }`}
-                onClick={() => handleFilterChange("doubles")}
-              >
-                Doubles Only
-              </button>
-            </div>
-          </div>,
-          document.body
-        )}
     </div>
   );
 };
