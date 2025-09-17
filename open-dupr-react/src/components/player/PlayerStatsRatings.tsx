@@ -329,7 +329,7 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Match Stats</span>
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${
                     expanded ? "rotate-180" : "rotate-0"
                   }`}
                 />
