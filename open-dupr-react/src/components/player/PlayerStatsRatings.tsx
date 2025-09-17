@@ -40,7 +40,7 @@ const AnimatedRating: React.FC<{ value: unknown; className?: string }> = ({
 };
 
 const formatReliability = (score?: number): string => {
-  if (score == null) return "";
+  if (score == null) return "0%";
   return `${score}%`;
 };
 
@@ -243,20 +243,16 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
               <div>
                 <AnimatedRating value={singles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Singles</p>
-                {singlesReliabilityScore != null && (
-                  <p className="text-xs text-[color:var(--success)] font-medium">
-                    {formatReliability(singlesReliabilityScore)}
-                  </p>
-                )}
+                <p className="text-xs text-[color:var(--success)] font-medium">
+                  {formatReliability(singlesReliabilityScore)}
+                </p>
               </div>
               <div>
                 <AnimatedRating value={doubles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Doubles</p>
-                {doublesReliabilityScore != null && (
-                  <p className="text-xs text-[color:var(--success)] font-medium">
-                    {formatReliability(doublesReliabilityScore)}
-                  </p>
-                )}
+                <p className="text-xs text-[color:var(--success)] font-medium">
+                  {formatReliability(doublesReliabilityScore)}
+                </p>
               </div>
             </div>
           </div>
@@ -283,44 +279,40 @@ const PlayerStatsRatings: React.FC<PlayerStatsRatingsProps> = ({
               <div>
                 <AnimatedRating value={singles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Singles</p>
-                {singlesReliabilityScore != null && (
-                  <div className="flex items-center justify-center lg:justify-start gap-1">
-                    <p className="text-xs text-[color:var(--success)] font-medium">
-                      {formatReliability(singlesReliabilityScore)}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        openReliabilityModal(singlesReliabilityScore)
-                      }
-                      className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
-                    >
-                      <Info className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center justify-center lg:justify-start gap-1">
+                  <p className="text-xs text-[color:var(--success)] font-medium">
+                    {formatReliability(singlesReliabilityScore)}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      openReliabilityModal(singlesReliabilityScore ?? 0)
+                    }
+                    className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
+                  >
+                    <Info className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
               <div className="lg:justify-self-end">
                 <AnimatedRating value={doubles} className="text-2xl font-bold" />
                 <p className="text-xs text-muted-foreground">Doubles</p>
-                {doublesReliabilityScore != null && (
-                  <div className="flex items-center justify-center lg:justify-start gap-1">
-                    <p className="text-xs text-[color:var(--success)] font-medium">
-                      {formatReliability(doublesReliabilityScore)}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        openReliabilityModal(doublesReliabilityScore)
-                      }
-                      className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
-                    >
-                      <Info className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center justify-center lg:justify-start gap-1">
+                  <p className="text-xs text-[color:var(--success)] font-medium">
+                    {formatReliability(doublesReliabilityScore)}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      openReliabilityModal(doublesReliabilityScore ?? 0)
+                    }
+                    className="h-4 w-4 p-0 text-[color:var(--success)] hover:opacity-90"
+                  >
+                    <Info className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
