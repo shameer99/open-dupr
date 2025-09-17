@@ -666,7 +666,7 @@ const FollowersFollowingPage: React.FC = () => {
                 onChange={(e) =>
                   handleSortOptionChange(e.target.value as SortOption)
                 }
-                className="px-3 py-2 border rounded-md text-sm focus:ring-2"
+                className="pl-3 pr-10 py-2 border rounded-md text-sm focus:ring-2 bg-background text-foreground"
                 style={{ borderColor: "var(--border)" }}
               >
                 <option value="none">Sort by...</option>

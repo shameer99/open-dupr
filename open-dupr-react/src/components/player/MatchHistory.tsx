@@ -219,7 +219,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
             <select
               value={activeFilter}
               onChange={handleFilterChange}
-              className="px-3 py-1.5 text-sm border border-border rounded-md bg-background hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="pl-3 pr-10 py-1.5 text-sm border border-border rounded-md bg-background text-foreground hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               aria-label="Filter matches"
             >
               <option value="all">All Matches</option>
