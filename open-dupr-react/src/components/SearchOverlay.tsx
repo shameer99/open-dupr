@@ -23,7 +23,8 @@ const ActionsRow: React.FC<{
   canInstall: boolean;
   isInstalled: boolean;
   onInstall: () => void;
-}> = ({ onClose, canInstall, isInstalled, onInstall }) => {
+  filterText?: string;
+}> = ({ onClose, canInstall, isInstalled, onInstall, filterText }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { setIsSearchOpen } = useHeader();
@@ -34,70 +35,61 @@ const ActionsRow: React.FC<{
     navigateWithTransition(navigate, path);
   };
 
+  const nextTheme = theme === "system" ? "light" : theme === "light" ? "dark" : "system";
+  const themeIcon = theme === "system" ? <Monitor className="h-6 w-6" /> : theme === "light" ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />;
+
+  const items: { key: string; label: string; icon: React.ReactNode; onClick: () => void; hidden?: boolean }[] = [
+    { key: "profile", label: "Profile", icon: <User className="h-6 w-6" />, onClick: () => go("/profile") },
+    { key: "feed", label: "Feed", icon: <LayoutList className="h-6 w-6" />, onClick: () => go("/feed") },
+    { key: "add-match", label: "Add Match", icon: <Plus className="h-6 w-6" />, onClick: () => go("/record-match") },
+    { key: "about", label: "About", icon: <Info className="h-6 w-6" />, onClick: () => go("/about") },
+    {
+      key: "theme",
+      label: "Theme",
+      icon: themeIcon,
+      onClick: () => setTheme(nextTheme),
+    },
+    {
+      key: "install",
+      label: "Install",
+      icon: <Download className="h-6 w-6" />,
+      onClick: onInstall,
+      hidden: isInstalled || !canInstall,
+    },
+    {
+      key: "logout",
+      label: "Log out",
+      icon: <LogOut className="h-6 w-6" />,
+      onClick: () => {
+        onClose();
+        logout();
+        setIsSearchOpen(false);
+        navigateWithTransition(navigate, "/login");
+      },
+    },
+  ];
+
+  const trimmed = (filterText || "").trim().toLowerCase();
+  const visibleItems = items.filter((i) => !i.hidden && (!trimmed || i.label.toLowerCase().includes(trimmed)));
+  if (visibleItems.length === 0) return null;
+
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
-      <Button variant="outline" size="sm" onClick={() => go("/profile")} className="shrink-0">
-        <User className="h-4 w-4 mr-2" /> Profile
-      </Button>
-      <Button variant="outline" size="sm" onClick={() => go("/feed")} className="shrink-0">
-        <LayoutList className="h-4 w-4 mr-2" /> Feed
-      </Button>
-      <Button variant="outline" size="sm" onClick={() => go("/record-match")} className="shrink-0">
-        <Plus className="h-4 w-4 mr-2" /> Add Match
-      </Button>
-      <Button variant="outline" size="sm" onClick={() => go("/about")} className="shrink-0">
-        <Info className="h-4 w-4 mr-2" /> About
-      </Button>
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={() => setTheme("light")}
-          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-            theme === "light" ? "ring-2 ring-ring" : ""
-          }`}
-          aria-label="Light theme"
-        >
-          <Sun className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setTheme("dark")}
-          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-            theme === "dark" ? "ring-2 ring-ring" : ""
-          }`}
-          aria-label="Dark theme"
-        >
-          <Moon className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setTheme("system")}
-          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-            theme === "system" ? "ring-2 ring-ring" : ""
-          }`}
-          aria-label="System theme"
-        >
-          <Monitor className="h-4 w-4" />
-        </button>
+    <div>
+      <div className="text-sm text-muted-foreground mb-2">Actions</div>
+      <div className="flex gap-4 overflow-x-auto pb-1 -mx-4 px-4">
+        {visibleItems.map((i) => (
+          <div key={i.key} className="flex-shrink-0 w-16 text-center">
+            <button
+              type="button"
+              onClick={i.onClick}
+              className="w-16 h-16 rounded-md border flex items-center justify-center hover:bg-accent cursor-pointer"
+            >
+              {i.icon}
+            </button>
+            <div className="mt-1 text-xs text-foreground truncate">{i.label}</div>
+          </div>
+        ))}
       </div>
-      {!isInstalled && canInstall && (
-        <Button variant="outline" size="sm" onClick={onInstall} className="shrink-0">
-          <Download className="h-4 w-4 mr-2" /> Install App
-        </Button>
-      )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          onClose();
-          logout();
-          setIsSearchOpen(false);
-          navigateWithTransition(navigate, "/login");
-        }}
-        className="text-red-600 shrink-0"
-      >
-        <LogOut className="h-4 w-4 mr-2" /> Log out
-      </Button>
     </div>
   );
 };
@@ -306,6 +298,11 @@ const SearchOverlay: React.FC = () => {
 
   const close = useCallback(() => setIsSearchOpen(false), [setIsSearchOpen]);
 
+  const trimmedQuery = query.trim();
+  const filteredFriends = !trimmedQuery
+    ? friends
+    : friends.filter((f) => f.fullName.toLowerCase().includes(trimmedQuery.toLowerCase()));
+
   if (!isSearchOpen) return null;
 
   return (
@@ -344,13 +341,16 @@ const SearchOverlay: React.FC = () => {
             canInstall={canInstall}
             isInstalled={isInstalled}
             onInstall={triggerInstall}
+            filterText={query}
           />
         </div>
 
         <div className="mb-4">
-          <div className="text-sm text-muted-foreground mb-2">Friends</div>
+          <div className="text-sm text-muted-foreground mb-2">
+            {trimmedQuery ? `Friends matching "${trimmedQuery}"` : "Friends"}
+          </div>
           <FriendsRow
-            friends={friends}
+            friends={filteredFriends}
             loading={loadingFriends}
             onSelect={(f) => {
               close();
@@ -365,14 +365,16 @@ const SearchOverlay: React.FC = () => {
               {error}
             </div>
           )}
-          {query.trim().length < MIN_QUERY_CHARS ? (
+          {trimmedQuery.length < MIN_QUERY_CHARS ? (
             <p className="text-muted-foreground">Enter at least {MIN_QUERY_CHARS} characters to search players.</p>
           ) : loading ? (
             <p className="text-muted-foreground">Searching...</p>
           ) : hits.length === 0 ? (
             <p className="text-muted-foreground">No players found for "{query}".</p>
           ) : (
-            <div className="space-y-2">
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Search Results</div>
+              <div className="space-y-2">
               {hits.map((h) => (
                 <button
                   key={h.id}
@@ -392,6 +394,7 @@ const SearchOverlay: React.FC = () => {
                   </div>
                 </button>
               ))}
+              </div>
             </div>
           )}
         </div>
