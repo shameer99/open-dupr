@@ -125,7 +125,7 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
             className="w-full"
             data-testid="edit-profile-button"
           >
-            Edit profile
+            Edit Profile
           </Button>
         </>
       ) : (
@@ -235,10 +235,10 @@ const PlayerProfile: React.FC<PlayerProfileProps> = ({
       <Modal
         open={showEditInfo}
         onClose={() => setShowEditInfo(false)}
-        ariaLabel="Edit profile info"
+        ariaLabel="Edit Profile info"
       >
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-2">Edit profile</h2>
+          <h2 className="text-xl font-semibold mb-2">Edit Profile</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Not yet available on Open DUPR. Please edit your profile on the
             official DUPR site/app for now.
