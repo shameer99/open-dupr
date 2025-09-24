@@ -74,7 +74,7 @@ Coming Soon™️
 - More game formats e.g. Round Robin
 - Player ratings on the add teammate/opponent view
 - Recent players in additon to following/followers on add teammate/opponent view
-- Edit profile
+- Edit Profile
 
 ## Contributing
 
