@@ -74,6 +74,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [hasLoadedOnce, setHasLoadedOnce] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedOnceRef = useRef<boolean>(false);
   const PAGE_SIZE = 25;
 
   // Get current logged-in user's ID
@@ -98,7 +99,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         setIsLoadingMore(true);
 
         // Show spinner after 150ms if still loading (for perceived speed)
-        if (startOffset === 0 && !hasLoadedOnce) {
+        if (startOffset === 0 && !hasLoadedOnceRef.current) {
           spinnerTimeoutRef.current = setTimeout(() => {
             setShowSpinner(true);
           }, 150);
@@ -140,6 +141,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         
         if (startOffset === 0) {
           setHasLoadedOnce(true);
+          hasLoadedOnceRef.current = true;
         }
       } catch (err) {
         setError(
@@ -155,7 +157,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         setShowSpinner(false);
       }
     },
-    [activeFilter, hasLoadedOnce]
+    [activeFilter]
   );
 
   const handleFilterChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -170,6 +172,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setTotalCount(null);
     setError(null);
     setHasLoadedOnce(false);
+    hasLoadedOnceRef.current = false;
     setShowSpinner(false);
     if (spinnerTimeoutRef.current) {
       clearTimeout(spinnerTimeoutRef.current);
@@ -189,6 +192,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         setHasMore(true);
         setTotalCount(null);
         setHasLoadedOnce(false);
+        hasLoadedOnceRef.current = false;
         setShowSpinner(false);
         if (spinnerTimeoutRef.current) {
           clearTimeout(spinnerTimeoutRef.current);
