@@ -9,7 +9,7 @@ interface AnimatedCounterProps {
 
 const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
-  duration = 1500,
+  duration = 1000,
   decimals = 3,
   className = "",
 }) => {
@@ -31,12 +31,12 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
       const progress = Math.min((timestamp - startTime) / duration, 1);
       
-      // Ease-out cubic function - starts fast, slows down at the end
-      const easeOutCubic = (t: number): number => {
-        return 1 - Math.pow(1 - t, 3);
+      // Ease-out quart function - faster perceived speed
+      const easeOutQuart = (t: number): number => {
+        return 1 - Math.pow(1 - t, 4);
       };
 
-      const easedProgress = easeOutCubic(progress);
+      const easedProgress = easeOutQuart(progress);
       const currentValue = value * easedProgress;
 
       setDisplayValue(currentValue);

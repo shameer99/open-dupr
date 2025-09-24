@@ -31,7 +31,7 @@ const EnlargedAvatar: React.FC<EnlargedAvatarProps> = ({ src, name }) => {
   return (
     <div className="relative w-[80vw] h-[80vw] max-w-[24rem] max-h-[24rem] rounded-lg overflow-hidden">
       <div
-        className={`absolute inset-0 ${bgColor} flex items-center justify-center text-white font-bold text-8xl sm:text-9xl transition-opacity duration-300 ${
+        className={`absolute inset-0 ${bgColor} flex items-center justify-center text-white font-bold text-8xl sm:text-9xl transition-opacity duration-200 ease-out ${
           canShowImage && isLoaded ? "opacity-0" : "opacity-100"
         }`}
         aria-hidden={canShowImage && isLoaded}
@@ -46,7 +46,7 @@ const EnlargedAvatar: React.FC<EnlargedAvatarProps> = ({ src, name }) => {
           loading="lazy"
           decoding="async"
           ref={imgRef}
-          className={`absolute inset-0 h-full w-full object-cover transition-all duration-300 ${
+          className={`absolute inset-0 h-full w-full object-cover transition-all duration-200 ease-out ${
             isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
           }`}
           onLoad={() => setIsLoaded(true)}

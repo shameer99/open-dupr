@@ -72,11 +72,11 @@ export const NavigationProgress: React.FC<NavigationProgressProps> = ({
       }}
     >
       <div
-        className="h-full transition-all duration-300 ease-out shadow-sm"
+        className="h-full transition-all duration-200 ease-out shadow-sm"
         style={{
           width: `${progress}%`,
           backgroundColor: "var(--primary)",
-          transition: isLoading ? "width 0.3s ease-out" : "width 0.1s ease-out", // Faster completion animation
+          transition: isLoading ? "width 0.2s cubic-bezier(0.16, 1, 0.3, 1)" : "width 0.1s ease-out", // Faster with ease-out-expo
         }}
       />
     </div>

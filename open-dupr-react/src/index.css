@@ -223,7 +223,7 @@
   /* Profile follow button optimization */
   .profile-follow-button {
     min-width: 96px; /* w-24 equivalent */
-    transition: all 0.2s ease-in-out;
+    transition: all 0.15s ease-out;
   }
 
   /* Follow stats loading animations */
@@ -249,7 +249,7 @@
 
   /* Number transition effects */
   .number-bounce-in {
-    animation: bounceIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: bounceIn 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   @keyframes bounceIn {
@@ -258,8 +258,8 @@
       opacity: 0;
     }
     50% {
-      transform: scale(1.1);
-      opacity: 0.8;
+      transform: scale(1.05);
+      opacity: 0.9;
     }
     100% {
       transform: scale(1);
@@ -293,9 +293,10 @@
 
 /* All page transition animations use scale */
 ::view-transition-old(root) {
-  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-out;
+  animation: 0.3s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-out;
 }
 
 ::view-transition-new(root) {
-  animation: 0.4s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-in;
+  animation: 0.3s cubic-bezier(0.4, 0, 0.2, 1) both scale-fade-in;
 }
+

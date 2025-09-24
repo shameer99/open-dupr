@@ -62,7 +62,7 @@ const Avatar: React.FC<AvatarProps> = ({
       {/* Monogram placeholder - visible until image fully loads */}
       <div
         className={cn(
-          "absolute inset-0 rounded-full flex items-center justify-center text-white font-semibold transition-opacity duration-300",
+          "absolute inset-0 rounded-full flex items-center justify-center text-white font-semibold transition-opacity duration-200 ease-out",
           bgColor,
           {
             "opacity-0": canShowImage && isLoaded,
@@ -83,7 +83,7 @@ const Avatar: React.FC<AvatarProps> = ({
           decoding="async"
           ref={imgRef}
           className={cn(
-            "absolute inset-0 h-full w-full rounded-full object-cover transition-all duration-300",
+            "absolute inset-0 h-full w-full rounded-full object-cover transition-all duration-200 ease-out",
             {
               "opacity-100 scale-100": isLoaded,
               "opacity-0 scale-105": !isLoaded,

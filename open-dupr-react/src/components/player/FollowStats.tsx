@@ -63,10 +63,10 @@ const FollowStats: React.FC<FollowStatsProps> = ({
     
     return (
       <span 
-        className={`font-semibold transition-all duration-300 ease-out ${
+        className={`font-semibold transition-all duration-200 ease-out ${
           isLoaded ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-1'
         } ${
-          isTransitioning ? 'scale-110 text-primary number-bounce-in' : 'scale-100'
+          isTransitioning ? 'scale-105 text-primary number-bounce-in' : 'scale-100'
         }`}
         style={{
           display: 'inline-block',
@@ -83,9 +83,9 @@ const FollowStats: React.FC<FollowStatsProps> = ({
     <div className="flex space-x-6 text-sm">
       <button
         onClick={followInfo ? onFollowersClick : undefined}
-        className={`transition-all duration-200 ${
+        className={`transition-all duration-150 ease-out ${
           followInfo 
-            ? 'hover:text-gray-600 cursor-pointer hover:scale-105' 
+            ? 'hover:text-gray-600 cursor-pointer hover:scale-102' 
             : 'cursor-default opacity-70'
         } ${
           !isLoaded && !followInfo ? 'animate-pulse' : ''
@@ -101,9 +101,9 @@ const FollowStats: React.FC<FollowStatsProps> = ({
       </button>
       <button
         onClick={followInfo ? onFollowingClick : undefined}
-        className={`transition-all duration-200 ${
+        className={`transition-all duration-150 ease-out ${
           followInfo 
-            ? 'hover:text-gray-600 cursor-pointer hover:scale-105' 
+            ? 'hover:text-gray-600 cursor-pointer hover:scale-102' 
             : 'cursor-default opacity-70'
         } ${
           !isLoaded && !followInfo ? 'animate-pulse' : ''
