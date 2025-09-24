@@ -8,6 +8,7 @@ import { AuthProvider } from "./lib/AuthProvider.tsx";
 import { LoadingProvider } from "./lib/loading-context.tsx";
 import { HeaderProvider } from "./lib/header-context.tsx";
 import ThemeProvider from "./lib/theme-context.tsx";
+import { UpdateProvider } from "./lib/update-context.tsx";
 import LoginPage from "./components/pages/Login.tsx";
 import AboutPage from "./components/pages/AboutPage.tsx";
 import ProfilePage from "./components/pages/ProfilePage.tsx";
@@ -33,7 +34,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <LoadingProvider>
           <HeaderProvider>
-            <Router>
+            <UpdateProvider>
+              <Router>
               <Routes>
                 <Route path="/" element={<App />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -135,7 +137,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
-            </Router>
+              </Router>
+            </UpdateProvider>
           </HeaderProvider>
         </LoadingProvider>
       </AuthProvider>
@@ -143,15 +146,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 
-// Register the service worker to auto-update and reload when a new version is available
+// Register the service worker with update banner instead of auto-reload
 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-  let hasRefreshed = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (hasRefreshed) return;
-    hasRefreshed = true;
-    window.location.reload();
-  });
-
   const updateSW = registerSW({
     immediate: true,
     onRegistered(registration) {
@@ -168,9 +164,13 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         }
       });
     },
-    // If a new SW is waiting, ask it to skip waiting and take control
+    // Show update banner when new SW is waiting
     onNeedRefresh() {
-      updateSW(true);
+      // Dispatch custom event to trigger update banner
+      window.dispatchEvent(new CustomEvent("show-update-banner"));
+      
+      // Store the updateSW function globally so the banner can use it
+      (window as unknown as { triggerServiceWorkerUpdate: () => void }).triggerServiceWorkerUpdate = () => updateSW(true);
     },
   });
 }
