@@ -50,41 +50,51 @@ export const PlayerProfileSkeleton: React.FC = () => (
 );
 
 export const MatchCardSkeleton: React.FC = () => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex justify-between items-start mb-4">
-        <div className="space-y-1">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-3 w-32" />
-        </div>
-        <Skeleton className="h-8 w-16" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
+  <Card className="p-3 cursor-pointer transition-colors hover:bg-accent/50">
+    <CardContent className="p-0">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-12" />
           </div>
           <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-4 w-28" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-4 w-20" />
           </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-4 w-24" />
+        </div>
+        <div className="flex flex-col gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center">
+          <div className="min-w-0 md:justify-self-start">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex -space-x-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <Skeleton className="h-8 w-16" />
+          </div>
+          <div className="min-w-0 self-end md:justify-self-end">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex -space-x-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex flex-col gap-1">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-center mt-4">
-        <Skeleton className="h-6 w-16" />
       </div>
     </CardContent>
   </Card>
