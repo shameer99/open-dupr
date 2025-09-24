@@ -19,7 +19,7 @@
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   max-width: 900px;
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease-out;
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
@@ -75,7 +75,7 @@
   border: 2px solid #e5e7eb;
   border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
   background-color: #ffffff;
   width: 100%;
   box-sizing: border-box;
@@ -112,7 +112,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   margin-top: 0.5rem;
 }
@@ -154,7 +154,7 @@
   color: #667eea;
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease-out;
 }
 
 .signup-link:hover {

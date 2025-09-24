@@ -194,7 +194,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
         >
           <div
             className={cn(
-              "absolute top-0 right-1/2 h-full transition-all duration-300 ease-out",
+              "absolute top-0 right-1/2 h-full transition-all duration-200 ease-out",
               showSuccessPulse && "animate-pulse"
             )}
             style={{
@@ -206,7 +206,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
           <div
             className={cn(
-              "absolute top-0 left-1/2 h-full transition-all duration-300 ease-out",
+              "absolute top-0 left-1/2 h-full transition-all duration-200 ease-out",
               showSuccessPulse && "animate-pulse"
             )}
             style={{
