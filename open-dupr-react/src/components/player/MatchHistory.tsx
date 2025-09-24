@@ -70,7 +70,11 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState<boolean>(false);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedOnceRef = useRef<boolean>(false);
   const PAGE_SIZE = 25;
 
   // Get current logged-in user's ID
@@ -93,6 +97,13 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     async (userId: number, startOffset: number) => {
       try {
         setIsLoadingMore(true);
+
+        // Show spinner after 150ms if still loading (for perceived speed)
+        if (startOffset === 0 && !hasLoadedOnceRef.current) {
+          spinnerTimeoutRef.current = setTimeout(() => {
+            setShowSpinner(true);
+          }, 150);
+        }
 
         let data;
         if (activeFilter === "all") {
@@ -127,12 +138,23 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         setHasMore(hasMoreFromApi);
         setOffset(startOffset + newItems.length);
         if (typeof result?.total === "number") setTotalCount(result.total);
+        
+        if (startOffset === 0) {
+          setHasLoadedOnce(true);
+          hasLoadedOnceRef.current = true;
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to load match history"
         );
       } finally {
         setIsLoadingMore(false);
+        // Clear spinner timeout and hide spinner
+        if (spinnerTimeoutRef.current) {
+          clearTimeout(spinnerTimeoutRef.current);
+          spinnerTimeoutRef.current = null;
+        }
+        setShowSpinner(false);
       }
     },
     [activeFilter]
@@ -149,6 +171,13 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     setHasMore(true);
     setTotalCount(null);
     setError(null);
+    setHasLoadedOnce(false);
+    hasLoadedOnceRef.current = false;
+    setShowSpinner(false);
+    if (spinnerTimeoutRef.current) {
+      clearTimeout(spinnerTimeoutRef.current);
+      spinnerTimeoutRef.current = null;
+    }
   }, [activeFilter]);
 
   // Refresh is controlled by the parent profile container
@@ -162,6 +191,13 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         setOffset(0);
         setHasMore(true);
         setTotalCount(null);
+        setHasLoadedOnce(false);
+        hasLoadedOnceRef.current = false;
+        setShowSpinner(false);
+        if (spinnerTimeoutRef.current) {
+          clearTimeout(spinnerTimeoutRef.current);
+          spinnerTimeoutRef.current = null;
+        }
         await loadPage(playerId, 0);
       } finally {
         setLoading(false);
@@ -184,7 +220,13 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       { root: null, rootMargin: "200px", threshold: 0 }
     );
     observer.observe(loaderRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (spinnerTimeoutRef.current) {
+        clearTimeout(spinnerTimeoutRef.current);
+        spinnerTimeoutRef.current = null;
+      }
+    };
   }, [playerId, hasMore, isLoadingMore, loading, offset, loadPage]);
 
 
@@ -239,37 +281,59 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         )}
       </div>
 
-      {loading && (
+      {/* Show spinner first, then skeletons if still loading */}
+      {showSpinner && !hasLoadedOnce && (
+        <div className="mt-4 py-8 text-center animate-in fade-in duration-200">
+          <LoadingSpinner size="md" />
+          <p className="text-sm text-muted-foreground mt-3">
+            Loading matches...
+          </p>
+        </div>
+      )}
+      
+      {loading && !showSpinner && (
         <div className="mt-4 space-y-3">
           {[1, 2, 3].map((i) => (
-            <MatchCardSkeleton key={i} />
+            <div 
+              key={i} 
+              className="animate-in slide-in-from-bottom-4 duration-300" 
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              <MatchCardSkeleton />
+            </div>
           ))}
         </div>
       )}
+      
       {error && <p className="text-destructive mt-2">{error}</p>}
       {!loading && !error && matches.length === 0 && (
-        <p className="text-muted-foreground mt-2 relative z-0">
+        <p className="text-muted-foreground mt-2 relative z-0 animate-in fade-in duration-300">
           No matches found.
         </p>
       )}
       {!error && matches.length > 0 && (
         <div className="mt-4 space-y-3">
-          {matches.map((match) => (
-            <MatchCard
+          {matches.map((match, index) => (
+            <div 
               key={match.id}
-              match={match}
-              currentUserId={currentUserId || undefined}
-              profileUserId={playerId}
-              onMatchUpdate={() => {
-                if (playerId) {
-                  loadPage(playerId, 0);
-                }
-              }}
-            />
+              className="animate-in slide-in-from-bottom-4 duration-300" 
+              style={{ animationDelay: `${Math.min(index * 50, 500)}ms` }}
+            >
+              <MatchCard
+                match={match}
+                currentUserId={currentUserId || undefined}
+                profileUserId={playerId}
+                onMatchUpdate={() => {
+                  if (playerId) {
+                    loadPage(playerId, 0);
+                  }
+                }}
+              />
+            </div>
           ))}
           <div ref={loaderRef} />
           {isLoadingMore && (
-            <div className="py-4 text-center">
+            <div className="py-4 text-center animate-in fade-in duration-200">
               <LoadingSpinner size="sm" />
               <p className="text-sm text-muted-foreground mt-2">
                 Loading more...
