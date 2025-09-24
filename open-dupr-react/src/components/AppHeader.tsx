@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, Monitor, LayoutList, Download } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
-import { useTheme } from "@/lib/useTheme";
-import { navigateWithTransition, navigateToProfile } from "@/lib/view-transitions";
+import { navigateToProfile } from "@/lib/view-transitions";
+import SearchButton from "@/components/search/SearchButton";
+import FullScreenSearch from "@/components/search/FullScreenSearch";
 
 const AppHeader: React.FC = () => {
   const {
@@ -20,93 +21,15 @@ const AppHeader: React.FC = () => {
     showHamburgerMenu,
   } = useHeader();
   const navigate = useNavigate();
-  const { logout: authLogout, token } = useAuth();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const { setTheme, theme } = useTheme();
-  const [canInstall, setCanInstall] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  useEffect(() => {
-    const checkStandalone = () =>
-      window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-    const navStandalone = (navigator as unknown as { standalone?: boolean }).standalone === true;
-    const standalone = checkStandalone() || navStandalone;
-    setIsInstalled(standalone);
-
-    const pwaEl = document.getElementById("pwa-install") as (HTMLElement & {
-      isInstallAvailable?: boolean;
-    }) | null;
-    const updateCanInstall = () => {
-      if (!pwaEl) return;
-      const available = !!pwaEl.isInstallAvailable;
-      setCanInstall(available);
-    };
-
-    updateCanInstall();
-
-    const onAvailable = () => updateCanInstall();
-    const onInstalled = () => setIsInstalled(true);
-
-    pwaEl?.addEventListener?.("pwa-install-available-event", onAvailable as EventListener);
-    window.addEventListener("appinstalled", onInstalled as EventListener);
-
-    return () => {
-      pwaEl?.removeEventListener?.("pwa-install-available-event", onAvailable as EventListener);
-      window.removeEventListener("appinstalled", onInstalled as EventListener);
-    };
-  }, []);
-
-  const triggerInstall = () => {
-    setOpen(false);
-    const pwaEl = document.getElementById("pwa-install") as (HTMLElement & {
-      showDialog?: (forced?: boolean) => void;
-    }) | null;
-    pwaEl?.showDialog?.(true);
-  };
-
-  useEffect(() => {
-    const onClickAway = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (!menuRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClickAway);
-    return () => document.removeEventListener("mousedown", onClickAway);
-  }, []);
+  const { token } = useAuth();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const goToProfile = () => {
-    setOpen(false);
     navigateToProfile(navigate, "/profile");
   };
 
-  const goToSearch = () => {
-    setOpen(false);
-    navigateWithTransition(navigate, "/search");
-  };
-
-  const goToRecordMatch = () => {
-    setOpen(false);
-    navigateWithTransition(navigate, "/record-match");
-  };
-
-  const goToAbout = () => {
-    setOpen(false);
-    navigateWithTransition(navigate, "/about");
-  };
-
-  const goToFeed = () => {
-    setOpen(false);
-    navigateWithTransition(navigate, "/feed");
-  };
-
-  const logout = () => {
-    setOpen(false);
-    authLogout();
-    navigateWithTransition(navigate, "/login");
-  };
-
   const goToLogin = () => {
-    navigateWithTransition(navigate, "/login");
+    navigate("/login");
   };
 
   return (
@@ -174,116 +97,10 @@ const AppHeader: React.FC = () => {
 
           {token ? (
             showHamburgerMenu && (
-              <div className="relative" ref={menuRef}>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setOpen((v) => !v)}
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-
-                {open && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card shadow-md">
-                    <div className="px-4 py-3">
-                      <div className="flex gap-2 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setTheme("light")}
-                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-                            theme === "light" ? "ring-2 ring-ring" : ""
-                          }`}
-                          aria-label="Light theme"
-                        >
-                          <Sun className="h-5 w-5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("dark")}
-                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-                            theme === "dark" ? "ring-2 ring-ring" : ""
-                          }`}
-                          aria-label="Dark theme"
-                        >
-                          <Moon className="h-5 w-5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTheme("system")}
-                          className={`flex items-center justify-center rounded-md border p-2 hover:bg-accent cursor-pointer ${
-                            theme === "system" ? "ring-2 ring-ring" : ""
-                          }`}
-                          aria-label="System theme"
-                        >
-                          <Monitor className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="my-1 h-px bg-border" />
-                    {!isInstalled && canInstall && (
-                      <button
-                        type="button"
-                        onClick={triggerInstall}
-                        className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                      >
-                        <Download className="h-5 w-5" />
-                        Install App
-                      </button>
-                    )}
-                    {!isInstalled && canInstall && <div className="my-1 h-px bg-border" />}
-                    <button
-                      type="button"
-                      onClick={goToProfile}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <User className="h-5 w-5" />
-                      My Profile
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goToFeed}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutList className="h-5 w-5" />
-                      Feed
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goToSearch}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <Search className="h-5 w-5" />
-                      Search Players
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goToRecordMatch}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <Plus className="h-5 w-5" />
-                      Add Match
-                    </button>
-                    <div className="my-1 h-px bg-border" />
-                    <button
-                      type="button"
-                      onClick={goToAbout}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <Info className="h-5 w-5" />
-                      About Open DUPR
-                    </button>
-                    <div className="my-1 h-px bg-border" />
-                    <button
-                      type="button"
-                      onClick={logout}
-                      className="w-full px-4 py-3 text-left text-red-600 hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <LogOut className="h-5 w-5" />
-                      Log out
-                    </button>
-                  </div>
-                )}
-              </div>
+              <SearchButton
+                onClick={() => setIsSearchOpen(true)}
+                isSearchOpen={isSearchOpen}
+              />
             )
           ) : (
             <Button
@@ -298,6 +115,11 @@ const AppHeader: React.FC = () => {
         </div>
       </div>
       <NavigationProgress />
+
+      <FullScreenSearch
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </header>
   );
 };
