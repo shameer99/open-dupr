@@ -146,7 +146,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 
-// Register the service worker with update banner instead of auto-reload
+// Register the service worker with manual update control
 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
   const updateSW = registerSW({
     immediate: true,
@@ -164,13 +164,21 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         }
       });
     },
-    // Show update banner when new SW is waiting
+    // Show update banner when new SW is waiting (instead of auto-updating)
     onNeedRefresh() {
+      console.log("🔄 New version available - showing update banner");
       // Dispatch custom event to trigger update banner
       window.dispatchEvent(new CustomEvent("show-update-banner"));
       
-      // Store the updateSW function globally so the banner can use it
-      (window as unknown as { triggerServiceWorkerUpdate: () => void }).triggerServiceWorkerUpdate = () => updateSW(true);
+      // Store the updateSW function globally so the banner can trigger the update
+      (window as unknown as { triggerServiceWorkerUpdate: () => void }).triggerServiceWorkerUpdate = () => {
+        console.log("🚀 User triggered update - applying new version");
+        updateSW(true);
+      };
+    },
+    // This will be called after the user clicks reload and the update is applied
+    onOfflineReady() {
+      console.log("✅ App ready to work offline");
     },
   });
 }

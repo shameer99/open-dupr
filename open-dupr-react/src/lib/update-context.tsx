@@ -11,15 +11,20 @@ export const UpdateProvider: React.FC<UpdateProviderProps> = ({ children }) => {
 
   const reloadApp = () => {
     try {
-      // If service worker update is available, trigger it first
+      console.log("🔄 User clicked reload button");
       const windowWithSW = window as unknown as { triggerServiceWorkerUpdate?: () => void };
+      
       if (windowWithSW.triggerServiceWorkerUpdate) {
+        // Trigger the service worker update first
         windowWithSW.triggerServiceWorkerUpdate();
-        // The service worker will reload the page after update
+        
+        // Give the service worker a moment to activate, then reload
         setTimeout(() => {
+          console.log("🔄 Reloading page to apply update");
           window.location.reload();
-        }, 1000);
+        }, 500);
       } else {
+        console.log("🔄 No service worker update available, performing normal reload");
         window.location.reload();
       }
     } catch (error) {
