@@ -25,6 +25,8 @@ interface HeaderContextType {
   setPlayerName: (name: string | null) => void;
   showHamburgerMenu: boolean;
   setShowHamburgerMenu: (show: boolean) => void;
+  isSearchOpen: boolean;
+  setIsSearchOpen: (open: boolean) => void;
 }
 
 const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
@@ -43,6 +45,7 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [showHamburgerMenu, setShowHamburgerMenu] = useState<boolean>(true);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
 
   return (
     <HeaderContext.Provider
@@ -61,6 +64,8 @@ export const HeaderProvider: React.FC<{ children: ReactNode }> = ({
         setPlayerName,
         showHamburgerMenu,
         setShowHamburgerMenu,
+        isSearchOpen,
+        setIsSearchOpen,
       }}
     >
       {children}
