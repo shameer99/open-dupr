@@ -8,7 +8,7 @@ interface UpdateBannerProps {
 
 const UpdateBanner: React.FC<UpdateBannerProps> = ({ onReload, onDismiss }) => {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white px-4 py-3 shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-[60] bg-blue-600 text-white px-4 py-3 shadow-lg h-14">
       <div className="flex items-center justify-between max-w-screen-lg mx-auto">
         <div className="flex items-center gap-3">
           <RefreshCw className="h-5 w-5 flex-shrink-0" />

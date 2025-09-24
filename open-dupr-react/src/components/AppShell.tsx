@@ -21,8 +21,10 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {showUpdateBanner && (
         <UpdateBanner onReload={reloadApp} onDismiss={dismissBanner} />
       )}
-      <AppHeader />
-      <main className="flex-1">{children}</main>
+      <div className={showUpdateBanner ? "mt-14" : ""}>
+        <AppHeader />
+        <main className="flex-1">{children}</main>
+      </div>
       <PWAInstall
         id="pwa-install"
         useLocalStorage
