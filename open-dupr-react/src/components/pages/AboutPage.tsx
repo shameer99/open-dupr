@@ -4,17 +4,26 @@ import { useAuth } from "@/lib/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Github, ExternalLink, ArrowLeft } from "lucide-react";
 
+const CODE = "text-xs bg-muted px-1 py-0.5 rounded";
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h3 className="text-lg font-semibold mb-1">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 export default function AboutPage() {
   const { token } = useAuth();
   const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (token) {
-      navigate("/profile");
-    } else {
-      navigate("/login");
-    }
-  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background px-4 safe-area-inset-y">
@@ -22,7 +31,7 @@ export default function AboutPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={handleBack}
+          onClick={() => navigate(token ? "/profile" : "/login")}
           className="shrink-0"
           aria-label="Go back"
         >
@@ -47,102 +56,68 @@ export default function AboutPage() {
 
           <Card className="p-4 text-left space-y-4">
             <div className="space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  What is Open DUPR?
-                </h3>
+              <Section title="What is Open DUPR?">
                 <p className="text-muted-foreground text-sm">
-                  Open DUPR is a custom frontend for DUPR that provides a
-                  faster, cleaner interface for accessing your pickleball data.
-                  Built with modern web technologies, it offers an enhanced user
-                  experience while maintaining full compatibility with the
-                  official DUPR backend.
+                  A faster, ad-free frontend for your DUPR pickleball data.
+                  Fully compatible with the official DUPR backend.
                 </p>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  Why use Open DUPR over the official app?
-                </h3>
+              <Section title="Why use Open DUPR?">
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground text-sm">
-                  <li>Faster and more responsive interface</li>
+                  <li>Faster and more responsive</li>
                   <li>No ads, popups, or upsells</li>
-                  <li>Cleaner, modern design without clutter</li>
-                  <li>Streamlined match creation and validation process</li>
+                  <li>Cleaner design</li>
+                  <li>Streamlined match creation and validation</li>
                 </ul>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">Is my data safe?</h3>
+              <Section title="Is my data safe?">
                 <p className="text-muted-foreground text-sm">
-                  Yes. Your account and match data live on DUPR&apos;s
-                  servers—Open DUPR is a client for their API and does not keep
-                  a copy of your personal information or matches on our
-                  infrastructure. Your credentials are only used to sign you in
-                  with DUPR.
+                  Yes. Your data lives on DUPR&apos;s servers. Open DUPR is a
+                  client for their API and does not store your information.
+                  Credentials are only used to sign you in with DUPR.
                 </p>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  How do API requests work?
-                </h3>
+              <Section title="How do API requests work?">
                 <p className="text-muted-foreground text-sm">
-                  The browser talks to this site&apos;s origin only. Requests
-                  under{" "}
-                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                    /api
-                  </code>{" "}
-                  are rewritten server-side to{" "}
-                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                    api.dupr.gg
-                  </code>
-                  , so login, tokens, and JSON bodies stay off a direct
-                  cross-origin call and avoid browser CORS limits.
+                  Your browser only talks to this site. Requests under{" "}
+                  <code className={CODE}>/api</code> are proxied server-side to{" "}
+                  <code className={CODE}>api.dupr.gg</code>, avoiding
+                  cross-origin restrictions.
                 </p>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">Analytics and Privacy</h3>
+              <Section title="Analytics">
                 <p className="text-muted-foreground text-sm">
-                  This application uses Umami analytics to understand usage patterns and improve the user experience. 
-                  Umami is a privacy-focused analytics tool that does not use cookies or collect personal information. 
-                  The analytics are anonymous and help us understand how the application is being used.
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  Analytics are publicly available for anyone to view. See the
+                  We use{" "}
                   <a
                     href="https://cloud.umami.is/share/hd9kfrVkKVc4YoWf/opendupr.com"
                     target="_blank"
                     rel="noreferrer"
-                    className="underline ml-1"
+                    className="underline"
                   >
-                    Open DUPR analytics dashboard
+                    Umami
                   </a>
-                  .
+                  —a privacy-focused, cookie-free analytics tool. All data is
+                  anonymous and publicly viewable.
                 </p>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  Is Open DUPR open source?
-                </h3>
+              <Section title="Open source">
                 <p className="text-muted-foreground text-sm">
-                  Yes, Open DUPR is an open-source project. The code is freely
-                  available for anyone to view, modify, and contribute to on
-                  GitHub.
+                  The code is freely available on GitHub for anyone to view,
+                  modify, or contribute to.
                 </p>
-              </div>
+              </Section>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  Is Open DUPR affiliated with DUPR?
-                </h3>
+              <Section title="Affiliation">
                 <p className="text-muted-foreground text-sm">
-                  No, Open DUPR is not affiliated with DUPR. All trademarks and
-                  data belong to their respective owners.
+                  Open DUPR is not affiliated with DUPR. All trademarks and data
+                  belong to their respective owners.
                 </p>
-              </div>
+              </Section>
             </div>
           </Card>
 

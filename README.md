@@ -86,8 +86,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## API
 
-DUPR exposes a public HTTP API at `api.dupr.gg`. The OpenAPI document published at [backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs](https://backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs) ([Swagger UI](https://backend.mydupr.com/swagger-ui/index.html)). This repo keeps a [downloaded copy](./api_reference/raw_openapi_spec.json) plus notes in [api_reference](./api_reference/README.md).
+DUPR has a public API at `api.dupr.gg` with an [OpenAPI spec](https://backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs) ([Swagger UI](https://backend.mydupr.com/swagger-ui/index.html)). A [downloaded copy](./api_reference/raw_openapi_spec.json) and notes live in [api_reference](./api_reference/README.md).
 
-Around April 1 2026, DUPR changed their API to limit which origins can call the API (CORS).
-
-The OpenDUPR client does not call `api.dupr.gg` directly. DUPR limits which origins can call the API (CORS), so Open DUPR uses same-origin requests to `/api/...` instead: in production, [Vercel](https://vercel.com) rewrites `/api/:path*` to `https://api.dupr.gg/:path*`; locally, the Vite dev server proxies `/api` to DUPR and strips `Origin` / `Referer` so localhost is not rejected upstream.
+DUPR rejects requests from unknown origins, so the client never calls `api.dupr.gg` directly. Instead, `/api/...` requests are proxied same-origin: a [Vercel](https://vercel.com) Edge Function (`api/[...path].ts`) strips `Origin`/`Referer` and forwards to DUPR in production; the Vite dev server does the same locally.
