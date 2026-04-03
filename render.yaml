@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: open-dupr-react
+    env: static
+    buildCommand: cd open-dupr-react && bun install && bun run build
+    staticPublishPath: ./open-dupr-react/dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://api.dupr.gg/*
+      - type: rewrite
+        source: /*
+        destination: /index.html

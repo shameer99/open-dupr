@@ -49,6 +49,27 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://api.dupr.gg",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.removeHeader("Origin");
+            proxyReq.removeHeader("Referer");
+            proxyReq.setHeader("Origin", "https://dashboard.dupr.com");
+            proxyReq.setHeader("Referer", "https://dashboard.dupr.com/");
+          });
+          proxy.on("proxyRes", (proxyRes, req) => {
+            proxyRes.headers["Access-Control-Allow-Origin"] =
+              req.headers?.origin || "*";
+          });
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

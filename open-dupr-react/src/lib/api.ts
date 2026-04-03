@@ -1,4 +1,4 @@
-const BASE_URL = "https://api.dupr.gg";
+const BASE_URL = "/api";
 
 export async function refreshAccessToken(): Promise<{
   accessToken: string;
