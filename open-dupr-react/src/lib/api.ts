@@ -1,4 +1,25 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const API_BASE_STORAGE_KEY = "open-dupr-api-base";
+
+const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const VERCEL_API_BASE =
+  import.meta.env.VITE_VERCEL_API_BASE ?? "https://open-dupr.vercel.app/api";
+
+function getApiBaseUrl(): string {
+  if (typeof sessionStorage === "undefined") {
+    return DEFAULT_API_BASE;
+  }
+  return sessionStorage.getItem(API_BASE_STORAGE_KEY) ?? DEFAULT_API_BASE;
+}
+
+function adoptVercelApiIfRender(response: Response): void {
+  if (!response.headers.has("rndr-id")) {
+    return;
+  }
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+  sessionStorage.setItem(API_BASE_STORAGE_KEY, VERCEL_API_BASE);
+}
 
 export async function refreshAccessToken(): Promise<{
   accessToken: string;
@@ -11,13 +32,14 @@ export async function refreshAccessToken(): Promise<{
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/auth/v1/refresh`, {
+    const response = await fetch(`${getApiBaseUrl()}/auth/v1/refresh`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "x-refresh-token": refreshToken,
       },
     });
+    adoptVercelApiIfRender(response);
 
     if (!response.ok) {
       return null;
@@ -60,10 +82,11 @@ export async function apiFetch(
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    const response = await fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${getApiBaseUrl()}${path}`, {
       ...options,
       headers,
     });
+    adoptVercelApiIfRender(response);
 
     if (!response.ok) {
       // Try to get the actual error message from the response
@@ -105,10 +128,12 @@ export async function apiFetch(
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
 
-    return fetch(`${BASE_URL}${path}`, {
+    const response = await fetch(`${getApiBaseUrl()}${path}`, {
       ...options,
       headers,
     });
+    adoptVercelApiIfRender(response);
+    return response;
   };
 
   const token = localStorage.getItem("accessToken");
