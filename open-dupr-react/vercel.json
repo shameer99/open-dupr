@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/:path(.*)", "destination": "/api/proxy" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
