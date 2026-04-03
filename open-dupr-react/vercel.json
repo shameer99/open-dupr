@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://api.dupr.gg/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

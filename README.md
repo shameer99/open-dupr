@@ -90,4 +90,4 @@ DUPR exposes a public HTTP API at `api.dupr.gg`. The OpenAPI document published 
 
 Around April 1 2026, DUPR changed their API to limit which origins can call the API (CORS).
 
-The OpenDUPR client does not call `api.dupr.gg` directly. DUPR limits which origins can call the API (CORS), so Open DUPR uses same-origin requests to `/api/...` instead: in production, [Render](https://render.com) rewrites `/api/*` to `https://api.dupr.gg/*`; locally, the Vite dev server proxies `/api` to DUPR and strips `Origin` / `Referer` so localhost is not rejected upstream.
+The OpenDUPR client does not call `api.dupr.gg` directly. DUPR limits which origins can call the API (CORS), so Open DUPR uses same-origin requests to `/api/...` instead: in production, [Vercel](https://vercel.com) rewrites `/api/:path*` to `https://api.dupr.gg/:path*`; locally, the Vite dev server proxies `/api` to DUPR and strips `Origin` / `Referer` so localhost is not rejected upstream.
