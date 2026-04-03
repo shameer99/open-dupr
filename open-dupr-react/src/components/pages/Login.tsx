@@ -103,8 +103,8 @@ export default function LoginPage() {
       <footer className="w-full py-4">
         <div className="text-xs text-center text-muted-foreground max-w-xl mx-auto px-4">
           <p>
-            Open DUPR is a custom frontend for DUPR. All data is handled by the
-            official DUPR backend.{" "}
+            Open DUPR is a client for DUPR&apos;s API—your account and match data
+            stay on DUPR&apos;s servers; we don&apos;t store them on ours.{" "}
             <button
               onClick={() => navigate("/about")}
               className="underline hover:text-foreground transition-colors cursor-pointer"

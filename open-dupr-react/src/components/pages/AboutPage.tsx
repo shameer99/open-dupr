@@ -75,10 +75,11 @@ export default function AboutPage() {
               <div>
                 <h3 className="text-lg font-semibold mb-1">Is my data safe?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Yes! All data is handled by the official DUPR backend. Open
-                  DUPR does not store any personal information or match data.
-                  Your credentials are used only to authenticate with DUPR's
-                  official API.
+                  Yes. Your account and match data live on DUPR&apos;s
+                  servers—Open DUPR is a client for their API and does not keep
+                  a copy of your personal information or matches on our
+                  infrastructure. Your credentials are only used to sign you in
+                  with DUPR.
                 </p>
               </div>
 
