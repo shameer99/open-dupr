@@ -12,6 +12,9 @@ services:
       - opendupr.com
     routes:
       - type: rewrite
+        source: /api/*
+        destination: https://api.dupr.gg/*
+      - type: rewrite
         source: /*
         destination: /index.html
     autoDeployTrigger: checksPass

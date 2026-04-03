@@ -86,4 +86,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## API
 
-DUPR's API to their backend is pretty friendly, with a published OpenAPI spec. See [API README](./api_reference/README.md).
+DUPR exposes a public HTTP API at `api.dupr.gg`. The OpenAPI document published at [backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs](https://backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs) ([Swagger UI](https://backend.mydupr.com/swagger-ui/index.html)). This repo keeps a [downloaded copy](./api_reference/raw_openapi_spec.json) plus notes in [api_reference](./api_reference/README.md).
+
+Around April 1 2026, DUPR changed their API to limit which origins can call the API (CORS).
+
+The OpenDUPR client does not call `api.dupr.gg` directly. DUPR limits which origins can call the API (CORS), so Open DUPR uses same-origin requests to `/api/...` instead: in production, [Render](https://render.com) rewrites `/api/*` to `https://api.dupr.gg/*`; locally, the Vite dev server proxies `/api` to DUPR and strips `Origin` / `Referer` so localhost is not rejected upstream.

@@ -83,6 +83,39 @@ export default function AboutPage() {
               </div>
 
               <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  How do API requests work?
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  The browser talks to this site&apos;s origin only. On
+                  production (Render), requests under{" "}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    /api
+                  </code>{" "}
+                  are rewritten server-side to{" "}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    api.dupr.gg
+                  </code>
+                  , so login, tokens, and JSON bodies stay off a direct
+                  cross-origin call and avoid browser CORS limits. Locally, the
+                  Vite dev server proxies the same{" "}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    /api
+                  </code>{" "}
+                  path to DUPR. The dev server drops{" "}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    Origin
+                  </code>{" "}
+                  on those proxied requests because DUPR&apos;s API rejects
+                  unknown origins (including{" "}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    localhost
+                  </code>
+                  ).
+                </p>
+              </div>
+
+              <div>
                 <h3 className="text-lg font-semibold mb-1">Analytics and Privacy</h3>
                 <p className="text-muted-foreground text-sm">
                   This application uses Umami analytics to understand usage patterns and improve the user experience. 
