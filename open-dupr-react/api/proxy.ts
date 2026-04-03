@@ -1,5 +1,7 @@
 export const config = { runtime: "edge" };
 
+// TODO(2026-07-01): Revisit CORS allowlist if Render cross-origin fallback is removed (see api.ts).
+
 const BLOCKED_HEADERS = new Set(["origin", "referer"]);
 
 const ALLOWED_ORIGINS = new Set([

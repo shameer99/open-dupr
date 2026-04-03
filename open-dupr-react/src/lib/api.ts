@@ -1,3 +1,7 @@
+// TODO(2026-07-01): Remove Render `rndr-id` fallback (sessionStorage + VERCEL_API_BASE
+// + CORS in api/proxy.ts for cross-origin) once opendupr.com traffic is Vercel-only.
+// DNS TTLs are usually under 48h; this date allows stragglers and old bookmarks.
+
 const API_BASE_STORAGE_KEY = "open-dupr-api-base";
 
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
