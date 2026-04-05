@@ -280,6 +280,30 @@
   }
 }
 
+/* Header search word slider and glow */
+.word-slider-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  animation: wordSlide 6s ease-in-out infinite;
+}
+
+@keyframes wordSlide {
+  0%, 15% { transform: translateY(0%); }
+  25%, 40% { transform: translateY(-100%); }
+  50%, 65% { transform: translateY(-200%); }
+  75%, 100% { transform: translateY(0%); }
+}
+
+.search-glow {
+  box-shadow: 0 0 0px rgba(99, 102, 241, 0.0);
+  transition: box-shadow 0.3s ease;
+}
+.search-glow:hover,
+.search-glow:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent), 0 0 18px color-mix(in oklab, var(--ring) 35%, transparent);
+}
+
 @keyframes scale-fade-in {
   from {
     opacity: 0;
