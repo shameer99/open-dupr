@@ -13,7 +13,6 @@ import {
   LoadingPage,
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import type { Player, FollowInfo } from "@/lib/types";
 
 const OtherUserPage: React.FC = () => {
@@ -166,11 +165,9 @@ const OtherUserPage: React.FC = () => {
   }
 
   return (
-    <PullToRefresh onRefresh={fetchUserProfile} disabled={loading}>
-      <div className="container mx-auto p-4">
-        <PlayerProfile player={player} isSelf={false} initialFollowInfo={followInfo} />
-      </div>
-    </PullToRefresh>
+    <div className="container mx-auto p-4">
+      <PlayerProfile player={player} isSelf={false} initialFollowInfo={followInfo} />
+    </div>
   );
 };
 

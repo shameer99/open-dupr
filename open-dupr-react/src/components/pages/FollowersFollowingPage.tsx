@@ -12,7 +12,6 @@ import {
   FollowUserListSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { navigateToProfile, navigateBack } from "@/lib/view-transitions";
 import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
@@ -541,35 +540,6 @@ const FollowersFollowingPage: React.FC = () => {
     handleBackClick,
   ]);
 
-  const handleRefresh = useCallback(async () => {
-    if (!id) return;
-
-    try {
-      setListLoading(true);
-      setError(null);
-      setSortOption("none"); // Reset sort on refresh
-      setSortDirection("desc");
-
-      if (activeTab === "followers") {
-        setFollowers([]);
-        setFollowersOffset(0);
-        setFollowersHasMore(true);
-        await loadFollowersPage(parseInt(id), 0);
-      } else {
-        setFollowing([]);
-        setFollowingOffset(0);
-        setFollowingHasMore(true);
-        await loadFollowingPage(parseInt(id), 0);
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : `Failed to load ${activeTab}`
-      );
-    } finally {
-      setListLoading(false);
-    }
-  }, [id, activeTab, loadFollowersPage, loadFollowingPage]);
-
   if (pageLoading) {
     return (
       <div className="container mx-auto p-4 max-w-2xl">
@@ -599,9 +569,8 @@ const FollowersFollowingPage: React.FC = () => {
     : currentList;
 
   return (
-    <PullToRefresh onRefresh={handleRefresh} disabled={listLoading}>
-      <div className="container mx-auto p-4 max-w-2xl">
-        <div className="flex border-b border-gray-200 mb-6">
+    <div className="container mx-auto p-4 max-w-2xl">
+      <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => handleTabChange("followers")}
             className={`flex-1 pb-3 px-1 text-center font-medium transition-colors cursor-pointer ${
@@ -787,18 +756,17 @@ const FollowersFollowingPage: React.FC = () => {
                 </p>
               </div>
             )}
-            {isLoadingMore && sortOption !== "none" && (
-              <div className="py-4 text-center">
-                <LoadingSpinner size="sm" />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Loading all data for sorting...
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </PullToRefresh>
+          {isLoadingMore && sortOption !== "none" && (
+            <div className="py-4 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading all data for sorting...
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
