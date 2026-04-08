@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import MatchCard from "@/components/player/MatchCard";
 import { LoadingPage, FeedSkeleton } from "@/components/ui/loading-skeletons";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { usePageLoading } from "@/lib/loading-context";
 import { useHeader } from "@/lib/header-context";
 import { getFeed, getMyProfile } from "@/lib/api";
@@ -225,31 +224,29 @@ const FeedPage: React.FC = () => {
   }
 
   return (
-    <PullToRefresh onRefresh={loadFeed}>
-      <div className="space-y-4 p-4">
-        {allMatches.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="text-muted-foreground">
-              <p className="text-lg font-medium mb-2">
-                No matches in your feed
-              </p>
-              <p className="text-sm">
-                Follow more players to see their matches here!
-              </p>
-            </div>
+    <div className="space-y-4 p-4">
+      {allMatches.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="text-muted-foreground">
+            <p className="text-lg font-medium mb-2">
+              No matches in your feed
+            </p>
+            <p className="text-sm">
+              Follow more players to see their matches here!
+            </p>
           </div>
-        ) : (
-          allMatches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              currentUserId={currentUserId || undefined}
-              onMatchUpdate={loadFeed}
-            />
-          ))
-        )}
-      </div>
-    </PullToRefresh>
+        </div>
+      ) : (
+        allMatches.map((match) => (
+          <MatchCard
+            key={match.id}
+            match={match}
+            currentUserId={currentUserId || undefined}
+            onMatchUpdate={loadFeed}
+          />
+        ))
+      )}
+    </div>
   );
 };
 

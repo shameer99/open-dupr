@@ -6,7 +6,6 @@ import {
   ValidationQueueSkeleton,
   LoadingPage,
 } from "@/components/ui/loading-skeletons";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { usePageLoading } from "@/lib/loading-context";
 import { getPendingMatches, getMyProfile } from "@/lib/api";
 import { ArrowLeft, CheckCircle } from "lucide-react";
@@ -107,51 +106,49 @@ const ValidationQueuePage: React.FC = () => {
   };
 
   return (
-    <PullToRefresh onRefresh={loadPendingMatches} disabled={loading}>
-      <div className="container mx-auto p-4">
-        <div className="flex items-center gap-2 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBackClick}
-            className="p-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-2xl font-bold">Validation Queue</h1>
-        </div>
-
-        {loading ? (
-          <LoadingPage>
-            <ValidationQueueSkeleton />
-          </LoadingPage>
-        ) : error ? (
-          <div className="text-center py-8">
-            <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={loadPendingMatches}>Try Again</Button>
-          </div>
-        ) : pendingMatches.length === 0 ? (
-          <div className="text-center py-8">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">All Caught Up!</h2>
-            <p className="text-muted-foreground">
-              No pending matches to validate.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {pendingMatches.map((match) => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                currentUserId={currentUserId || undefined}
-                onMatchUpdate={loadPendingMatches}
-              />
-            ))}
-          </div>
-        )}
+    <div className="container mx-auto p-4">
+      <div className="flex items-center gap-2 mb-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBackClick}
+          className="p-2"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <h1 className="text-2xl font-bold">Validation Queue</h1>
       </div>
-    </PullToRefresh>
+
+      {loading ? (
+        <LoadingPage>
+          <ValidationQueueSkeleton />
+        </LoadingPage>
+      ) : error ? (
+        <div className="text-center py-8">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={loadPendingMatches}>Try Again</Button>
+        </div>
+      ) : pendingMatches.length === 0 ? (
+        <div className="text-center py-8">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">All Caught Up!</h2>
+          <p className="text-muted-foreground">
+            No pending matches to validate.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {pendingMatches.map((match) => (
+            <MatchCard
+              key={match.id}
+              match={match}
+              currentUserId={currentUserId || undefined}
+              onMatchUpdate={loadPendingMatches}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

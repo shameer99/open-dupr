@@ -6,7 +6,6 @@ import {
   SearchResultSkeleton,
   LoadingSpinner,
 } from "@/components/ui/loading-skeletons";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import { apiFetch, getMyProfile } from "@/lib/api";
 import { useHeader } from "@/lib/header-context";
 import { User, Users } from "lucide-react";
@@ -160,13 +159,6 @@ const SearchPage: React.FC = () => {
     [query, userLatLng, hasSufficientQuery]
   );
 
-  const handleRefresh = useCallback(async () => {
-    if (hasSufficientQuery) {
-      offsetRef.current = 0;
-      await performSearch(true);
-    }
-  }, [hasSufficientQuery, performSearch]);
-
   const handleBackClick = useCallback(() => {
     navigateBack(navigate);
   }, [navigate]);
@@ -215,14 +207,10 @@ const SearchPage: React.FC = () => {
   }, [query, performSearch]);
 
   return (
-    <PullToRefresh
-      onRefresh={handleRefresh}
-      disabled={loading || !hasSufficientQuery}
-    >
-      <div className="container mx-auto p-4 max-w-2xl">
-        <div className="mb-6">
-          <Input
-            type="text"
+    <div className="container mx-auto p-4 max-w-2xl">
+      <div className="mb-6">
+        <Input
+          type="text"
             placeholder={`Search for players...`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -287,18 +275,17 @@ const SearchPage: React.FC = () => {
               </button>
             ))}
             <div ref={loaderRef} />
-            {loading && hits.length > 0 && (
-              <div className="py-3 text-center">
-                <LoadingSpinner size="sm" />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Loading more...
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </PullToRefresh>
+          {loading && hits.length > 0 && (
+            <div className="py-3 text-center">
+              <LoadingSpinner size="sm" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading more...
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -7,7 +7,6 @@ import {
   LoadingPage,
 } from "@/components/ui/loading-skeletons";
 import { usePageLoading } from "@/lib/loading-context";
-import PullToRefresh from "@/components/ui/pull-to-refresh";
 import type { Player } from "@/lib/types";
 
 const ProfilePage: React.FC = () => {
@@ -54,11 +53,9 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <PullToRefresh onRefresh={fetchProfile} disabled={loading}>
-      <div className="container mx-auto p-4">
-        {profile && <PlayerProfile player={profile} isSelf />}
-      </div>
-    </PullToRefresh>
+    <div className="container mx-auto p-4">
+      {profile && <PlayerProfile player={profile} isSelf />}
+    </div>
   );
 };
 
