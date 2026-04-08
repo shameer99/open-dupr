@@ -22,7 +22,6 @@ import SearchPage from "./components/pages/SearchPage.tsx";
 import RecordMatchPage from "./components/pages/RecordMatchPage.tsx";
 import ValidationQueuePage from "./components/pages/ValidationQueuePage.tsx";
 import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
-import FeedPage from "./components/pages/FeedPage.tsx";
 
 // PWA service worker registration with auto-update and reload
 import { registerSW } from "virtual:pwa-register";
@@ -46,16 +45,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                         <ProfileSuspense>
                           <ProfilePage />
                         </ProfileSuspense>
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/feed"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <FeedPage />
                       </AppShell>
                     </ProtectedRoute>
                   }

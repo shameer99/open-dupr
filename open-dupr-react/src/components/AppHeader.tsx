@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/useAuth";
 import { useHeader } from "@/lib/header-context";
 import { Button } from "@/components/ui/button";
 import { NavigationProgress } from "@/components/ui/navigation-progress";
-import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, Monitor, LayoutList, Download } from "lucide-react";
+import { Menu, User, Search, Plus, LogOut, ArrowLeft, Info, Moon, Sun, Monitor, Download } from "lucide-react";
 import Avatar from "@/components/ui/avatar";
 import { useTheme } from "@/lib/useTheme";
 import { navigateWithTransition, navigateToProfile } from "@/lib/view-transitions";
@@ -94,10 +94,6 @@ const AppHeader: React.FC = () => {
     navigateWithTransition(navigate, "/about");
   };
 
-  const goToFeed = () => {
-    setOpen(false);
-    navigateWithTransition(navigate, "/feed");
-  };
 
   const logout = () => {
     setOpen(false);
@@ -240,15 +236,6 @@ const AppHeader: React.FC = () => {
                       My Profile
                     </button>
                     <button
-                      type="button"
-                      onClick={goToFeed}
-                      className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutList className="h-5 w-5" />
-                      Feed
-                    </button>
-                    <button
-                      type="button"
                       onClick={goToSearch}
                       className="w-full px-4 py-3 text-left hover:bg-accent flex items-center gap-2 cursor-pointer"
                     >
