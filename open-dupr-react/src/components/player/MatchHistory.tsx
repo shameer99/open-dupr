@@ -212,10 +212,10 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-end justify-between gap-3">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold">Match History</h2>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mt-4">
             <select
               value={activeFilter}
               onChange={handleFilterChange}
