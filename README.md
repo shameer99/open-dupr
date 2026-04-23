@@ -36,14 +36,19 @@ Both tested on iPhone 16 Pro Max on iOS 26 Developer Beta 9 on September 9, 2025
 - **Social features** - Follow players and see their activity
 - **PWA support** - Install as a mobile app
 - **Responsive design** - Works on desktop and mobile
+- **Native iOS app** - SwiftUI app for iOS 18+ with haptics and animations
 
-## Local Development
+## Projects
 
-### Prerequisites
+### React Web App
+
+The main web application built with React.
+
+#### Prerequisites
 
 - [Bun](https://bun.sh) package manager
 
-### Installation
+#### Installation
 
 ```bash
 cd open-dupr-react
@@ -53,11 +58,24 @@ bun run dev
 
 The app will be available at `http://localhost:5173`
 
-### Build
+#### Build
 
 ```bash
 bun run build
 ```
+
+### Native iOS App
+
+A native iOS implementation using SwiftUI for iOS 18+.
+
+See [OpenDUPR-iOS README](./OpenDUPR-iOS/README.md) for details.
+
+Features:
+- Native SwiftUI interface
+- Haptic feedback throughout
+- Smooth animations
+- WebView integration for complex features
+- Full offline support
 
 ## Tech Stack
 
