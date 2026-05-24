@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Open DUPR",
+    "slug": "open-dupr-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": null,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "scheme": "opendupr",
+    "ios": {
+      "bundleIdentifier": "com.opendupr.app",
+      "supportsTablet": true,
+      "deploymentTarget": "15.0",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true
+      }
+    },
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      }
+    }
+  }
+}
+
