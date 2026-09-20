@@ -8,6 +8,12 @@ const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 const VERCEL_API_BASE =
   import.meta.env.VITE_VERCEL_API_BASE ?? "https://open-dupr.vercel.app/api";
 
+const DUPR_CLIENT_CAPABILITIES = "totp,webauthn";
+
+function isUnauthenticatedAuthPath(path: string): boolean {
+  return /^\/auth\/v1(?:\.0)?\/(?:login|2fa\/(?:verify|resend))$/.test(path);
+}
+
 function getApiBaseUrl(): string {
   if (typeof sessionStorage === "undefined") {
     return DEFAULT_API_BASE;
@@ -80,15 +86,17 @@ export async function apiFetch(
   options: RequestInit = {}
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
-  if (path.includes("/auth/v1/login")) {
+  if (isUnauthenticatedAuthPath(path)) {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      "X-DUPR-Client-Capabilities": DUPR_CLIENT_CAPABILITIES,
       ...((options.headers as Record<string, string>) || {}),
     };
 
     const response = await fetch(`${getApiBaseUrl()}${path}`, {
       ...options,
       headers,
+      credentials: "include",
     });
     adoptVercelApiIfRender(response);
 
