@@ -1,165 +1,20 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import App from "./App.tsx";
-import "./index.css";
-import "@khmyznikov/pwa-install";
-import { AuthProvider } from "./lib/AuthProvider.tsx";
-import { LoadingProvider } from "./lib/loading-context.tsx";
-import { HeaderProvider } from "./lib/header-context.tsx";
-import ThemeProvider from "./lib/theme-context.tsx";
-import LoginPage from "./components/pages/Login.tsx";
-import AboutPage from "./components/pages/AboutPage.tsx";
-import ProfilePage from "./components/pages/ProfilePage.tsx";
-import ProfileSuspense from "./components/ui/ProfileSuspense.tsx";
+// Retire locally stored sessions without making any requests to DUPR.
+try {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  sessionStorage.removeItem("open-dupr-api-base");
+} catch {
+  // The notice still works when browser storage is unavailable.
+}
 
-import FollowersFollowingPage from "./components/pages/FollowersFollowingPage.tsx";
-import OtherUserPage from "./components/pages/OtherUserPage.tsx";
-import NotFoundPage from "./components/pages/NotFoundPage.tsx";
-import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import AppShell from "./components/AppShell.tsx";
-import SearchPage from "./components/pages/SearchPage.tsx";
-import RecordMatchPage from "./components/pages/RecordMatchPage.tsx";
-import ValidationQueuePage from "./components/pages/ValidationQueuePage.tsx";
-import MatchDetailsPage from "./components/pages/MatchDetailsPage.tsx";
-
-// PWA service worker registration with auto-update and reload
-import { registerSW } from "virtual:pwa-register";
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ThemeProvider>
-      <AuthProvider>
-        <LoadingProvider>
-          <HeaderProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<App />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <ProfileSuspense>
-                          <ProfilePage />
-                        </ProfileSuspense>
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/user/:id/social"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <FollowersFollowingPage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/player/:id"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <ProfileSuspense>
-                          <OtherUserPage />
-                        </ProfileSuspense>
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/search"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <SearchPage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/record-match"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <RecordMatchPage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/validation-queue"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <ValidationQueuePage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/match/:id"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <MatchDetailsPage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/match/:id/player/:playerId"
-                  element={
-                    <ProtectedRoute>
-                      <AppShell>
-                        <MatchDetailsPage />
-                      </AppShell>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </Router>
-          </HeaderProvider>
-        </LoadingProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  </React.StrictMode>
-);
-
-// Register the service worker to auto-update and reload when a new version is available
-if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-  let hasRefreshed = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (hasRefreshed) return;
-    hasRefreshed = true;
-    window.location.reload();
-  });
-
-  const updateSW = registerSW({
-    immediate: true,
-    onRegistered(registration) {
-      if (!registration) return;
-      const ONE_DAY = 24 * 60 * 60 * 1000;
-      // Periodically check for updates
-      setInterval(() => {
-        registration.update().catch(() => {});
-      }, ONE_DAY);
-      // Check for updates when app becomes visible
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-          registration.update().catch(() => {});
-        }
-      });
-    },
-    // If a new SW is waiting, ask it to skip waiting and take control
-    onNeedRefresh() {
-      updateSW(true);
-    },
-  });
+// Existing installations should update to the retirement worker at /sw.js.
+// New visitors do not need a service worker.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      if (registration.scope === new URL("/", location.origin).href) {
+        void registration.update().catch(() => {});
+      }
+    }
+  }).catch(() => {});
 }

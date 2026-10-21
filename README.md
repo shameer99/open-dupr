@@ -1,49 +1,34 @@
-# Open DUPR
+# Open DUPR — retired
 
-<div align="center">
-  <img src="open-dupr-react/public/logo.png" alt="Open DUPR Logo" width="200"/>
-</div>
+[opendupr.com](https://opendupr.com)
 
-https://opendupr.com
+Open DUPR was an unofficial, fast, clean, open-source frontend for [DUPR](https://dupr.com), built to make checking ratings and recording matches simpler and free from ads and upsells.
 
-An unofficial, fast, clean, and open-source frontend for [DUPR](https://dupr.com)
+## Why it retired
 
-## Why
+Keeping up with DUPR’s API and authentication changes takes more time than I can give the project. Moving from direct browser requests to a server-side proxy also reduced some of its original simplicity, while the official app improved in several areas.
 
-DUPR is a great rating system, but the official website and app leave a lot to be desired.
+I still wish the official experience had fewer subscription prompts and made the option to skip them more obvious. However, I can no longer provide the maintenance Open DUPR needs.
 
-### Issues with the official DUPR website and app
+Thank you to everyone who used it, shared feedback, or contributed.
 
-- **Annoying ads, popups, upsells**
-- Slow
-- Unintuitive UI
+## What happens now
 
-### Open DUPR vs Official DUPR
+- Every website route displays a retirement notice with links to DUPR and this repository.
+- The former API proxy returns **410 Gone** and no longer forwards requests or credentials.
+- Previously installed PWAs receive a cleanup worker when their browser checks for updates. It removes the old Workbox caches and reloads open windows to the notice. An offline copy may remain visible until it reconnects and updates.
+- The notice removes Open DUPR’s locally saved access token, refresh token, and proxy fallback setting.
+- DUPR accounts, ratings, and match records remain with DUPR.
 
-| Core User Journey         | Open DUPR                                                                                                                                                                                               | Official DUPR iOS App                                                                                                                                                                                           |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Player Profile Screen** | <img src="docs/assets/open-dupr-profile.png" width="300" alt="Open DUPR Profile"/><br/>✨ **Cleaner interface**<br/>• Simple, fast loading<br/>• All stats visible at once<br/>• No ads or distractions | <img src="docs/assets/offical-dupr-profile.png" width="300" alt="Official DUPR Profile"/><br/>📱 **Cluttered interface**<br/>• Ads on profile view<br/>• Less information visible                               |
-| **Adding Match Journey**  | <img src="docs/assets/official-dupr-add-match.gif" width="300" alt="Open DUPR Add Match"/><br/>⚡ **Quick & streamlined**<br/>• Prioritizes followers/friends<br/>• Simple score input                  | <img src="docs/assets/open-dupr-add-match.gif" width="300" alt="Official DUPR Add Match"/><br/>🐌 **Complex flow**<br/>• Popups and ads galore<br/>• Longer, multi-step process<br/>• More friction to complete |
+## Source and forks
 
-Both tested on iPhone 16 Pro Max on iOS 26 Developer Beta 9 on September 9, 2025. Open DUPR installed as a PWA. Official DUPR iOS App version 1.9.2 installed from the App Store.
+The source remains available under the [MIT License](LICENSE). There are no plans for further feature development or compatibility fixes. Forks are welcome, but the retained API documentation is historical and may no longer match DUPR.
 
-## Features
+The last active app is preserved in Git history at [f33de87](https://github.com/shameer99/open-dupr/tree/f33de87ee418cd90a948df8587a7794f2b1ab187). Its React components and API reference also remain in this repository for reference; they are not included in the retirement page’s browser bundle.
 
-- **Clean, fast interface** - No ads or distractions
-- **Player profiles** - View ratings, match history, and stats
-- **Match recording** - Record new matches and validate pending ones
-- **Player search** - Find and follow other players
-- **Social features** - Follow players and see their activity
-- **PWA support** - Install as a mobile app
-- **Responsive design** - Works on desktop and mobile
+## Local development
 
-## Local Development
-
-### Prerequisites
-
-- [Bun](https://bun.sh) package manager
-
-### Installation
+Requires [Bun](https://bun.sh).
 
 ```bash
 cd open-dupr-react
@@ -51,41 +36,10 @@ bun install
 bun run dev
 ```
 
-The app will be available at `http://localhost:5173`
+Build with `bun run build`; lint with `bun run lint`. The Vite development server serves the notice without an upstream API proxy. The 410 API response is provided by the Vercel Edge Function in production.
 
-### Build
+## Deployment notes
 
-```bash
-bun run build
-```
+Keep the existing deployment URLs, including `open-dupr.vercel.app`, serving this retirement build so cached installations can retrieve `/sw.js` and old API clients receive 410 responses. The cleanup worker must retain its existing URL and no-cache headers.
 
-## Tech Stack
-
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **React Router** for navigation
-
-## What's Missing?
-
-Coming Soon™️
-
-- Add multiple games in a match
-- More game formats e.g. Round Robin
-- Player ratings on the add teammate/opponent view
-- Recent players in additon to following/followers on add teammate/opponent view
-- Edit profile
-
-## Contributing
-
-Contributions are welcome! Please feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## API
-
-DUPR has a public API at `api.dupr.gg` with an [OpenAPI spec](https://backend.mydupr.com/v3/api-docs/DUPR%20Backend%20APIs) ([Swagger UI](https://backend.mydupr.com/swagger-ui/index.html)). A [downloaded copy](./api_reference/raw_openapi_spec.json) and notes live in [api_reference](./api_reference/README.md).
-
-DUPR rejects requests from unknown origins, so the client never calls `api.dupr.gg` directly. Instead, `/api/...` requests are proxied same-origin: a [Vercel](https://vercel.com) Edge Function (`api/proxy.ts`) strips `Origin`/`Referer` and forwards to DUPR in production; the Vite dev server does the same locally. If a response includes Render’s `rndr-id` header (legacy static host), the client switches to `https://open-dupr.vercel.app/api` for the rest of the tab session (`VITE_VERCEL_API_BASE` overrides that URL). **Remove that fallback after 2026-07-01** (see `TODO` in `src/lib/api.ts`) once the domain is Vercel-only—DNS caches typically clear in hours to a couple of days; the extra months cover edge cases.
+Merging this change does not archive the GitHub repository or remove hosting. Archive the repository separately after the retirement deployment is verified.
