@@ -1,37 +1,55 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f6f2" />
+  <meta name="description" content="Open DUPR has retired. Thank you for using this independent, open-source alternative for accessing DUPR." />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff">
-  <link rel="apple-touch-icon" href="/pwa-192x192.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Open DUPR</title>
-  <script>
-    (function () {
-      try {
-        var storageKey = 'open-dupr-theme';
-        var stored = localStorage.getItem(storageKey);
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var isDark = stored === 'dark' || (stored === null || stored === 'system') && prefersDark;
-        if (isDark) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      } catch (_) { }
-    })();
-  </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="b3dae87a-5529-472d-a69f-d23a1d7f4daa"></script>
+  <title>Open DUPR · Thank you for playing</title>
+  <style>
+    :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; color: #182b25; background: #f5f6f2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 48px 24px; }
+    main { width: 100%; max-width: 610px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 650; }
+    .brand img { width: 48px; height: 48px; border-radius: 12px; }
+    .status { display: inline-block; margin-top: 48px; padding: 6px 11px; border: 1px solid #c9d4cb; border-radius: 99px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { font-size: clamp(38px, 7vw, 58px); letter-spacing: -.045em; line-height: 1.08; margin: 20px 0 26px; font-weight: 650; }
+    p { font-size: 17px; line-height: 1.7; color: #4c5e55; margin: 0 0 18px; }
+    .links { display: flex; flex-wrap: wrap; gap: 12px; margin: 30px 0 36px; }
+    a { color: inherit; text-underline-offset: 4px; }
+    .links a { padding: 13px 19px; border: 1px solid #bccbc1; border-radius: 10px; text-decoration: none; font-weight: 600; }
+    .links a:first-child { background: #235b45; border-color: #235b45; color: #fff; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible { outline: 3px solid #47856a; outline-offset: 4px; }
+    footer { padding-top: 24px; border-top: 1px solid #d4ddd5; }
+    footer p { font-size: 14px; }
+    @media (prefers-color-scheme: dark) {
+      :root { color: #edf4ed; background: #14211c; }
+      p { color: #b4c5b9; }
+      .status, .links a, footer { border-color: #40584a; }
+      .links a:first-child { background: #a9d5b7; border-color: #a9d5b7; color: #14211c; }
+    }
+  </style>
 </head>
-
 <body>
-  <div id="root"></div>
+  <main>
+    <div class="brand"><img src="/logo.png" alt="" /> Open DUPR</div>
+    <span class="status">Project retired</span>
+    <h1>Thank you for playing.</h1>
+    <p>I built Open DUPR to make checking ratings and recording matches faster, simpler, and free from ads and upsells.</p>
+    <p>Keeping up with DUPR’s API and authentication changes now takes more time than I can give this project. The move to a server-side proxy also reduced some of the simplicity that made it worthwhile. Meanwhile, the official app has improved in several areas.</p>
+    <p>I still wish the official experience had fewer subscription prompts and made the option to skip them more obvious. But I can no longer give Open DUPR the maintenance it needs, so it’s time to retire it.</p>
+    <p>Thanks to everyone who used it, shared feedback, or contributed.<br />— Shameer</p>
+    <nav class="links" aria-label="Next steps">
+      <a href="https://dupr.com">Go to DUPR</a>
+      <a href="https://github.com/shameer99/open-dupr">View source on GitHub</a>
+    </nav>
+    <footer>
+      <p>Your account, ratings, and match records remain with DUPR. This retirement does not delete them. Open DUPR is an independent project and is not affiliated with DUPR.</p>
+    </footer>
+  </main>
   <script type="module" src="/src/main.tsx"></script>
 </body>
-
 </html>
